@@ -70,6 +70,9 @@ public class ItemBlockPlacer extends Item
 	    @Override
 	    public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
 	    {
+	    	/*
+	    	 * checking NBTTag
+	    	 */
 	    	if(itemstack.getTagCompound()==null)
 	    	{
 	    		if(!world.isRemote)
@@ -82,185 +85,101 @@ public class ItemBlockPlacer extends Item
 	    			return false;
 	    		}
 	    	}
+	    	/*
+	    	 * Blockremoving Part
+	    	 */
 	    	if(!itemstack.getTagCompound().getBoolean("placeMode"))
 	    	{
-	    		return false;
+		    	if(world.isRemote)
+		    	{
+		    		System.out.println("World is Remote: ItemBlockPlacer  Removing!");
+		    	}
+		    	TileEntity te = world.getBlockTileEntity(x, y, z);
+		    	if(te instanceof TileEntityHsbBuilding)
+		    	{
+		    		if(((TileEntityHsbBuilding) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsbBuilding) te).locked)
+		    		{
+		    			return true;
+		    		}
+		    		//TODO better?
+		    		System.out.println("Removing Block at: " + x + ", " + y + ", " + z);
+		    		
+//		    		world.removeBlockTileEntity(x, y, z);
+		    		world.setBlockAndMetadataWithNotify(x, y, z, 0, 0);
+//		    		world.markBlockNeedsUpdate(x, y, z);
+//		    		world.setBlock(x, y, y, 0);
+		    		return true;
+		    	}
+				return true;
+			/*
+			 * Blockplacing Part
+			 */
+	    	} else {
+		        int block = world.getBlockId(x, y, z);
+	
+		        if (block == Block.snow.blockID)
+		        {
+		            side = 1;
+		        }
+		        //is replacable?
+		        else if (block != Block.vine.blockID && block != Block.tallGrass.blockID && block != Block.deadBush.blockID
+		                && (Block.blocksList[block] == null || !Block.blocksList[block].isBlockReplaceable(world, x, y, z)))
+		        {
+		        	//Placing on Side
+		            if (side == 0)
+		            {
+		                --y;
+		            }
+	
+		            if (side == 1)
+		            {
+		                ++y;
+		            }
+	
+		            if (side == 2)
+		            {
+		                --z;
+		            }
+	
+		            if (side == 3)
+		            {
+		                ++z;
+		            }
+	
+		            if (side == 4)
+		            {
+		                --x;
+		            }
+	
+		            if (side == 5)
+		            {
+		                ++x;
+		            }
+		        }
+		        else if (!entityplayer.func_82247_a(x, y, z, side, itemstack))
+		        {
+		            return false;
+		        }
+		        else if (y == 255)
+		        {
+		            return false;
+		        }
+		        if (world.canPlaceEntityOnSide(this.blockID, x, y, z, false, side, entityplayer))
+		        {
+		            Block blockPlace = Block.blocksList[this.blockID];
+	
+		            if (placeBlockAt(itemstack, entityplayer, world, x, y, z, side, par8, par9, par10))
+		            {
+		                world.playSoundEffect((x + 0.5F), (y + 0.5F), (z + 0.5F), blockPlace.stepSound.getStepSound(), (blockPlace.stepSound.getVolume() + 1.0F) / 2.0F, blockPlace.stepSound.getPitch() * 0.8F);
+		                //TODO consume Items
+		             
+			            return true;
+		            }
+	
+	
+		        }
 	    	}
-	        int block = world.getBlockId(x, y, z);
-
-	        if (block == Block.snow.blockID)
-	        {
-	            side = 1;
-	        }
-	        //is replacable?
-	        else if (block != Block.vine.blockID && block != Block.tallGrass.blockID && block != Block.deadBush.blockID
-	                && (Block.blocksList[block] == null || !Block.blocksList[block].isBlockReplaceable(world, x, y, z)))
-	        {
-	        	//Placing on Side
-	            if (side == 0)
-	            {
-	                --y;
-	            }
-
-	            if (side == 1)
-	            {
-	                ++y;
-	            }
-
-	            if (side == 2)
-	            {
-	                --z;
-	            }
-
-	            if (side == 3)
-	            {
-	                ++z;
-	            }
-
-	            if (side == 4)
-	            {
-	                --x;
-	            }
-
-	            if (side == 5)
-	            {
-	                ++x;
-	            }
-	        }
-
-//	        if (itemstack.stackSize == 0)
-//	        {
-//	            return false;
-//	        }
-//	        else if (!entityplayer.canPlayerEdit(x, y, z))
-//	        {
-//	            return false;//?
-//	        }
-	        else if (y == 255)// && Block.blocksList[this.blockID].blockMaterial.isSolid()
-	        {
-	            return false;//?
-	        }
-	        else if (world.canPlaceEntityOnSide(this.blockID, x, y, z, false, side, null))
-	        {
-	            Block blockPlace = Block.blocksList[this.blockID];
-
-	            if (placeBlockAt(itemstack, entityplayer, world, x, y, z, side, par8, par9, par10))
-	            {
-	                world.playSoundEffect((x + 0.5F), (y + 0.5F), (z + 0.5F), blockPlace.stepSound.getStepSound(), (blockPlace.stepSound.getVolume() + 1.0F) / 2.0F, blockPlace.stepSound.getPitch() * 0.8F);
-	                //TODO consume Items
-	                
-//	                TileEntityHsbBuilding te = (TileEntityHsbBuilding) world.getBlockTileEntity(x, y, z);
-//	                int yaw = MathHelper.floor_double(entityplayer.rotationYaw * 4.0F / 360.0F + 0.5D) & 0x3;
-//                    int pitch = Math.round(entityplayer.rotationPitch);
-//                    short facing = 0;
-//                    if (pitch >= 65)
-//                    {
-//                        facing = 1;
-//                    }
-//                    else if (pitch <= -65)
-//                    {
-//                        facing=0;
-//                    }
-//                    else
-//                        switch (yaw)
-//                        {
-//                            case 0:
-//                            	facing=2;
-//                                break;
-//
-//                            case 1:
-//                            	facing=5;
-//                                break;
-//
-//                            case 2:
-//                            	facing=3;
-//                                break;
-//
-//                            case 3:
-//                            	facing=4;
-//                        }
-//                    te.setFacing(facing);
-//	                entityplayer.inventory.consumeInventoryItem(Items.itemBlockBuilding.shiftedIndex);
-		            return true;
-	            }
-
-
-	        }
 			return false;
-	    }
-
-	    @SideOnly(Side.CLIENT)
-
-	    /**
-	     * Returns true if the given ItemBlock can be placed on the given side of the given block position.
-	     */
-	    public boolean canPlaceItemBlockOnSide(World par1World, int par2, int par3, int par4, int par5, EntityPlayer par6EntityPlayer, ItemStack par7ItemStack)
-	    {
-	        int var8 = par1World.getBlockId(par2, par3, par4);
-
-	        if (var8 == Block.snow.blockID)
-	        {
-	            par5 = 1;
-	        }
-	        else if (var8 != Block.vine.blockID && var8 != Block.tallGrass.blockID && var8 != Block.deadBush.blockID
-	                && (Block.blocksList[var8] == null || !Block.blocksList[var8].isBlockReplaceable(par1World, par2, par3, par4)))
-	        {
-	            if (par5 == 0)
-	            {
-	                --par3;
-	            }
-
-	            if (par5 == 1)
-	            {
-	                ++par3;
-	            }
-
-	            if (par5 == 2)
-	            {
-	                --par4;
-	            }
-
-	            if (par5 == 3)
-	            {
-	                ++par4;
-	            }
-
-	            if (par5 == 4)
-	            {
-	                --par2;
-	            }
-
-	            if (par5 == 5)
-	            {
-	                ++par2;
-	            }
-	        }
-
-	        return par1World.canPlaceEntityOnSide(this.blockID, par2, par3, par4, false, par5, (Entity)null);
-	    }
-	    @Override
-	    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-	    {
-	        NBTTagCompound nbttagcompound;
-	        nbttagcompound = stack.getTagCompound();
-	        if (nbttagcompound == null || nbttagcompound.getBoolean("placeMode"))
-	        {
-	            return false;
-	        }
-	    	TileEntity te = world.getBlockTileEntity(x, y, z);
-	    	if(te instanceof TileEntityHsbBuilding)
-	    	{
-	    		//TODO better?
-	    		System.out.println("Removing Block at: " + x + ", " + y + ", " + z);
-	    		
-	    		world.removeBlockTileEntity(x, y, z);
-	    		world.setBlockAndMetadataWithNotify(x, y, z, 0, 0);
-	    		world.markBlockNeedsUpdate(x, y, z);
-	    		world.setBlock(x, y, y, 0);
-	    		return true;
-	    	}
-			return true;//false
-	    	
 	    }
 	    @Override
 	    public void onCreated(ItemStack itemstack, World world, EntityPlayer entityplayer)
@@ -314,16 +233,6 @@ public class ItemBlockPlacer extends Item
 	    {
 	        return CommonProxy.TEXTURE_ITEMS;
 	    }
-//	    @Override
-//	    @SideOnly(Side.CLIENT)
-//
-//	    /**
-//	     * gets the CreativeTab this item is displayed on
-//	     */
-//	    public CreativeTabs getCreativeTab()
-//	    {
-//		        return Block.blocksList[this.blockID].getCreativeTabToDisplayOn();
-//	    }
 	    /**
 	     * Called to actually place the block, after the location is determined
 	     * and all permission checks have been made.
@@ -334,9 +243,10 @@ public class ItemBlockPlacer extends Item
 	     */
 	    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	    {
-	       if (!world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, this.getMetadata(stack.getItemDamage())))
+	       if (!world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, 0))
 	       {
-	               return false;
+	    	   System.out.println("placing failed!");
+	           return false;
 	       }
 
 	       if (world.getBlockId(x, y, z) == this.blockID)
@@ -353,8 +263,9 @@ public class ItemBlockPlacer extends Item
 
 	       return true;
 	    }
+	    @Override
 	    public boolean getShareTag()
 	    {
-	        return false;
+	        return true;
 	    }
 }

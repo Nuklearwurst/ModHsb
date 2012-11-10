@@ -5,7 +5,6 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	void initRendering()
 	{
-		
 	}
 	
 }

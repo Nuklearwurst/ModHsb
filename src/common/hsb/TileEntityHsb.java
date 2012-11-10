@@ -26,6 +26,7 @@ public abstract class TileEntityHsb extends TileEntity
 	protected boolean init = false;
 	public  boolean locked = false;
 	public int port = 0;
+	public String pass;
 	
 	
 	public TileEntityHsb() {
@@ -35,6 +36,7 @@ public abstract class TileEntityHsb extends TileEntity
 		init = false;
 		locked = false;
 		port = 0;
+		pass = "";
 
 	}
 	@Override
@@ -65,7 +67,7 @@ public abstract class TileEntityHsb extends TileEntity
         prevFacing = this.facing;
         locked = nbttagcompound.getBoolean("locked");
         port = nbttagcompound.getInteger("port");
-    	System.out.println("Nbttag read: facing = " + String.valueOf(facing));
+        pass = nbttagcompound.getString("pass");
     	this.onInventoryChanged();
     }
 	@Override
@@ -75,6 +77,7 @@ public abstract class TileEntityHsb extends TileEntity
         nbttagcompound.setShort("facing", this.facing);
         nbttagcompound.setBoolean("locked", locked);
         nbttagcompound.setInteger("port", port);
+        nbttagcompound.setString("pass", pass);
     }
 	@Override
 	public short getFacing() {
@@ -93,15 +96,20 @@ public abstract class TileEntityHsb extends TileEntity
 	@Override
 	public boolean connectsTo(int side) {return true;}
 	@Override
-	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock) {
+	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass) {
 		if (lock == this.locked || te.port != this.port) {
 			return false;
 		}
 		else
 		{
+			if(this.locked && this.pass != pass)
+			{
+				return false;
+			}
 			if(te!=null)
 			{
 				this.locked=lock;
+				this.pass = pass;
 				
 				if(lock)
 				{
@@ -117,7 +125,7 @@ public abstract class TileEntityHsb extends TileEntity
 				TileEntity tile = this.worldObj.getBlockTileEntity(xCoord+Facing.offsetsXForSide[i],yCoord+Facing.offsetsYForSide[i], zCoord+Facing.offsetsZForSide[i]);
 				if(tile != null && tile instanceof ILockDataCable)
 				{
-					((ILockDataCable) tile).transferSignal(Facing.faceToSide[i], te, lock);
+					((ILockDataCable) tile).transferSignal(Facing.faceToSide[i], te, lock, pass);
 				}
 			}
 			return true;
@@ -140,8 +148,10 @@ public abstract class TileEntityHsb extends TileEntity
 	public List<String> getNetworkedFields() {
 		System.out.println("get networkedFields");
 //		List<String> list = new ArrayList<String>(1);
-		List list = new Vector(1);
+		List list = new Vector(3);
 	    list.add("facing");
+	    list.add("port");
+	    list.add("password");
 	    return list;
 	}
 	 @Override

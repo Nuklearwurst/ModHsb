@@ -1,5 +1,7 @@
 package hsb.gui;
 
+import ic2.api.NetworkHelper;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -152,6 +154,10 @@ public class GuiBlockPlacer extends GuiScreen {
 	    		updateNBTTag();
 	    	} else {
 	    		te.port = this.port;
+	    		if(!Config.ECLIPSE)
+	    		{
+	    			NetworkHelper.updateTileEntityField(te, "port");
+	    		}
 	    	}
 	        super.onGuiClosed();
 	    }

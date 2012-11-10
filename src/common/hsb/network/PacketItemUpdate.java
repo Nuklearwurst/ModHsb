@@ -92,28 +92,28 @@ public class PacketItemUpdate extends PacketHsb{
 	@Override
 	public void onPacketData(DataInputStream data, Player player) throws IOException {
 		ItemStack stack = ((EntityPlayer)player).getCurrentEquippedItem();
-		if(stack.getItem().getClass().getName()!=this.itemclass)
-		{
-			System.out.println("Hsb: invalid Itemclass ??");
-		}
 //		PacketItemUpdate packetI = new PacketItemUpdate();
 //		packetI.readData(data);
 		this.readData(data);
+//		if(stack.getItem().getClass().getName()!=this.itemclass)
+//		{
+//			System.out.println("Hsb: invalid Itemclass: " + stack.getItem().getClass().getName() + " ! " + this.itemclass + " ??");
+//		}
 		if(stack.getTagCompound().hasKey(this.tag))
 		{
 			switch(this.type)
 			{
 			case PacketItemUpdate.BOOLEAN_KEY:
 				stack.getTagCompound().setBoolean(this.tag, (Boolean) this.value);
-				System.out.println("Hsb: PacketHandler: Boolean Set!");
+//				System.out.println("Hsb: PacketHandler: Boolean Set!");
 				break;
 			case PacketItemUpdate.INTEGER_KEY:
 				stack.getTagCompound().setInteger(this.tag, (Integer) this.value);
-				System.out.println("Hsb: PacketHandler: Integer Set!");
+//				System.out.println("Hsb: PacketHandler: Integer Set!");
 				break;
 			case PacketItemUpdate.STRING_KEY:
 				stack.getTagCompound().setString(this.tag, (String) this.value);
-				System.out.println("Hsb: PacketHandler: String Set!");
+//				System.out.println("Hsb: PacketHandler: String Set!");
 				break;
 			default:
 				System.out.println("Hsb: PacketHandler: unexpected type!!");

@@ -55,7 +55,7 @@ public class BlockHsb extends BlockContainer {
     	if(Config.DEBUG)
     	{
     	}
-    	if(entityplayer.getCurrentEquippedItem()!=null) {
+    	if(entityplayer.getCurrentEquippedItem()!=null && !Config.ECLIPSE) {
     		if(entityplayer.getCurrentEquippedItem().itemID == Items.getItem("wrench").itemID || entityplayer.getCurrentEquippedItem().itemID == Items.getItem("electricWrench").itemID)
     			return false;
     	}
@@ -152,7 +152,8 @@ public class BlockHsb extends BlockContainer {
         switch(metadata) {
         case 0:
         	if(player instanceof EntityPlayer)
-        		((EntityPlayer) player).openGui(ModHsbCore.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
+        		if(((EntityPlayer) player).getCurrentEquippedItem().itemID == this.blockID)
+        			((EntityPlayer) player).openGui(ModHsbCore.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
         }
         if (player != null && te instanceof IWrenchable) 
         {
