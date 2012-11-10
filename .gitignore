@@ -60,6 +60,7 @@ Desktop.ini
 /src/common/*
 !/src/common/hsb/
 !/src/common/mcmod.info
+!/src/minecraft/hsb
 # !/src/common/SP.png
 
 *.bat
