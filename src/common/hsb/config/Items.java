@@ -15,6 +15,8 @@ public class Items {
 	//ItemBlocks
 	public static Item itemBlockHsb;
 	
+	public static Item itemHsbDoor;
+	
 	//Not in use!
 //	public static Item itemBlockBuilding;
 //	public static Item itemBlockLockTerminal;
@@ -23,6 +25,7 @@ public class Items {
 	
 	//List of Blocks
 	public static Block blockHsb;
+	public static Block blockHsbDoor;
 	//Config
 
 	//Register

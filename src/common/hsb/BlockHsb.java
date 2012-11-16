@@ -30,7 +30,7 @@ public class BlockHsb extends BlockContainer {
 
 	//TODO maybe use Facing.java instead of sideAndFacingToSpriteOffset to get the texture
 	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
-	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0}, {1, 1, 1, 17, 1, 1}};
+	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}, {1, 1, 1, 17, 1, 1, 16, 16, 16, 17, 16, 16}};
 	public String textureFile = "";
 	
 	/*
@@ -118,7 +118,7 @@ public class BlockHsb extends BlockContainer {
         int texid = sideAndFacingToSpriteOffset[side][facing];
         if(((TileEntityHsb)te).locked)
         {
-        	texid = texid + 2;
+        	texid = texid + 6;
         }
         int tex = blockTexture[meta][texid];
         return tex;

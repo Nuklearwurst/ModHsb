@@ -92,12 +92,12 @@ public class ItemBlockPlacer extends Item
 	    	{
 		    	if(world.isRemote)
 		    	{
-		    		System.out.println("World is Remote: ItemBlockPlacer  Removing!");
+//		    		System.out.println("World is Remote: ItemBlockPlacer  Removing!");
 		    	}
 		    	TileEntity te = world.getBlockTileEntity(x, y, z);
 		    	if(te instanceof TileEntityHsbBuilding)
 		    	{
-		    		if(((TileEntityHsbBuilding) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsbBuilding) te).locked)
+		    		if(((TileEntityHsbBuilding) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsb) te).locked)
 		    		{
 		    			return true;
 		    		}

@@ -25,6 +25,7 @@ public abstract class TileEntityHsb extends TileEntity
 	protected short prevFacing;
 	protected boolean init = false;
 	public  boolean locked = false;
+	public  boolean prevLocked = false;
 	public int port = 0;
 	public String pass;
 	
@@ -66,6 +67,7 @@ public abstract class TileEntityHsb extends TileEntity
         facing = nbttagcompound.getShort("facing");
         prevFacing = this.facing;
         locked = nbttagcompound.getBoolean("locked");
+        prevLocked = locked;
         port = nbttagcompound.getInteger("port");
         pass = nbttagcompound.getString("pass");
     	this.onInventoryChanged();
@@ -98,16 +100,19 @@ public abstract class TileEntityHsb extends TileEntity
 	@Override
 	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass) {
 		if (lock == this.locked || te.port != this.port) {
+//			System.out.println("transfer failed!");
 			return false;
 		}
 		else
 		{
 			if(this.locked && this.pass != pass)
 			{
+//				System.out.println("transfer failed 2 !");
 				return false;
 			}
 			if(te!=null)
 			{
+//				System.out.println("transfer in progress!");
 				this.locked=lock;
 				this.pass = pass;
 				
@@ -119,13 +124,21 @@ public abstract class TileEntityHsb extends TileEntity
 				{
 					te.blocksInUse--;
 				}
+				worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+//				if(!Config.ECLIPSE)
+//				{
+//					NetworkHelper.updateTileEntityField(this, "locked");
+//				}
 			}
-			for(int i = 0; i>5; i++)
+//			System.out.println("test !");
+			for(int i = 0; i<6; i++)
 			{
-				TileEntity tile = this.worldObj.getBlockTileEntity(xCoord+Facing.offsetsXForSide[i],yCoord+Facing.offsetsYForSide[i], zCoord+Facing.offsetsZForSide[i]);
+//				System.out.println("starting");
+				TileEntity tile = this.worldObj.getBlockTileEntity(xCoord+Facing.offsetsXForSide[i], yCoord+Facing.offsetsYForSide[i], zCoord+Facing.offsetsZForSide[i]);
 				if(tile != null && tile instanceof ILockDataCable)
 				{
 					((ILockDataCable) tile).transferSignal(Facing.faceToSide[i], te, lock, pass);
+//					System.out.println("transfer success!");
 				}
 			}
 			return true;
@@ -141,6 +154,11 @@ public abstract class TileEntityHsb extends TileEntity
 	         worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
 	         prevFacing = facing;
 	     }
+		 if (field.equals("locked") && prevLocked != locked)
+	     {
+	         worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+	         prevLocked = locked;
+	     }
 		
 	}
 
@@ -148,10 +166,11 @@ public abstract class TileEntityHsb extends TileEntity
 	public List<String> getNetworkedFields() {
 		System.out.println("get networkedFields");
 //		List<String> list = new ArrayList<String>(1);
-		List list = new Vector(3);
+		List list = new Vector(4);
 	    list.add("facing");
 	    list.add("port");
 	    list.add("password");
+	    list.add("locked");
 	    return list;
 	}
 	 @Override

@@ -1,9 +1,12 @@
 package hsb.gui;
 
+import ic2.api.NetworkHelper;
+
 import org.lwjgl.opengl.GL11;
 
 import hsb.ModHsbCore;
 import hsb.TileEntityLockTerminal;
+import hsb.config.Config;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.GuiButton;
@@ -62,20 +65,24 @@ public class GuiLockTerminal extends GuiContainer
         xPos = width / 2 - xSize / 2;
         yPos = height / 2 - ySize / 2;
         this.controlList.clear();
-//TODO
-//        if (te.locked)
-//        {
-//            lock = "Unlock";
-//        }
-//        else
-//        {
-//            lock = "Lock";
-//        }
+        
+        if (te.locked)
+        {
+            lock = "Unlock";
+        }
+        else
+        {
+            lock = "Lock";
+        }
 
         //Normal width = 52px
         //TODO Design
         int bPosX = 4;
         int bPosY = 4;
+        
+        
+        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
+        this.controlList.add(new GuiButton(1, xPos + 50, yPos + 50, 40, 20, lock));
 
         //TODO better
         int buttonSize = (int) Math.floor((this.xSize - 6) / (maxButtons / 2));
@@ -92,7 +99,7 @@ public class GuiLockTerminal extends GuiContainer
 //        this.controlList.add(new GuiButton(0, xPos + xSize - 57, yPos + ySize - 94, 52, 20, lock));
 //        this.controlList.add(new GuiButton(1, xPos + xSize - 57, yPos + ySize - 54, 52, 20, "Upgrades"));
 //        this.controlList.add(new GuiButton(2, xPos + xSize - 57, yPos + ySize - 74, 52, 20, "Password"));
-        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
+
     }
 
     @Override
@@ -105,6 +112,22 @@ public class GuiLockTerminal extends GuiContainer
                 this.mc.displayGuiScreen((GuiScreen)null);
                 this.mc.setIngameFocus();
                 break;
+            case 1:
+                if(te.emitLockSignal(6, !te.locked, te.port, te.pass))
+                {
+	            	if(!Config.ECLIPSE)
+	            	{
+	            		if(te.locked)
+	            		{
+	            			NetworkHelper.initiateClientTileEntityEvent(te, 1);
+	            		} else {
+	            			NetworkHelper.initiateClientTileEntityEvent(te, 0);	
+	            		}
+	            	}
+//	                this.entityplayer.worldObj.markBlockNeedsUpdate(te.xCoord, te.yCoord, te.zCoord);
+	                toggleButtonLock();
+                }
+                break;
         }
         if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
         {
@@ -114,23 +137,20 @@ public class GuiLockTerminal extends GuiContainer
         super.actionPerformed(guibutton);
     }
     
-//TODO rework
-//    public void toggleButtonLock()
-//    {
-//        GuiButton button = (GuiButton)controlList.get(0);
-//        te.toggleLock();
-//
-//        if (te.locked)
-//        {
-//            lock = "Unlock";
-//        }
-//        else
-//        {
-//            lock = "Lock";
-//        }
-//
-//        button.displayString = lock;
-//    }
+
+    public void toggleButtonLock()
+    {
+        GuiButton button = (GuiButton)controlList.get(1);
+        if (te.locked)
+        {
+            lock = "Unlock";
+        }
+        else
+        {
+            lock = "Lock";
+        }
+        button.displayString = lock;
+    }
 
     public void drawScreen(int par1, int par2, float par3)
     {

@@ -2,6 +2,8 @@ package hsb;
 
 import ic2.api.Direction;
 import ic2.api.IEnergySink;
+import ic2.api.INetworkClientTileEntityEventListener;
+import ic2.api.NetworkHelper;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.ItemStack;
@@ -9,204 +11,226 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.TileEntity;
 import hsb.config.Config;
 
-public class TileEntityLockTerminal extends TileEntityHsb 
-implements IEnergySink, IInventory
-{
-public int blocksInUse=0;
-//IC2
-public boolean isAddedToEnergyNet = false;
-public int energyStored = 0;
+public class TileEntityLockTerminal extends TileEntityHsb implements
+		IEnergySink, IInventory, INetworkClientTileEntityEventListener {
+	public int blocksInUse = 0;
+	// IC2
+	public boolean isAddedToEnergyNet = false;
+	public int energyStored = 0;
 
-private int updateCounter=0;
+	private int updateCounter = 0;
 
-public String pass = "";
+	public String pass = "";
 
-private ItemStack[] chestContents = new ItemStack[this.getSizeInventory()];
+	private ItemStack[] chestContents = new ItemStack[this.getSizeInventory()];
 
-//Defaults
-//TODO Config, maybe move to Defaults.java
-public int defaultEnergyStorage = 1000;
-public int defaultPassLength = 8;
-public static int maxPort = 100;
+	// Defaults
+	// TODO Config, maybe move to Defaults.java
+	public int defaultEnergyStorage = 1000;
+	public int defaultPassLength = 8;
+	public static int maxPort = 100;
 
-//Upgrades //Old TODO
-public int extraStorage = 0;
-public int extraPassLength = 0;
-public double energyUse=0.25;
+	// Upgrades //Old TODO
+	public int extraStorage = 0;
+	public int extraPassLength = 0;
+	public double energyUse = 0.25;
 
-public TileEntityLockTerminal() {
-	super();
-	blocksInUse = 0;
-}
+	public TileEntityLockTerminal() {
+		super();
+		blocksInUse = 0;
+	}
 
+	@Override
+	public boolean acceptsEnergyFrom(TileEntity emitter, Direction direction) {
+		return true;
+	}
 
-@Override
-public boolean wrenchCanSetFacing(EntityPlayer entityPlayer, int side) {
-	return true;
-}
+	@Override
+	public void closeChest() {
+	}
 
-@Override
-public boolean wrenchCanRemove(EntityPlayer entityPlayer) {
-	// TODO Upgrade?
-	return false;
-}
+	@Override
+	// TODO rewrite ?
+	public ItemStack decrStackSize(int slot, int amount) {
+		if (this.chestContents[slot] != null) {
+			ItemStack var3;
 
-@Override
-public float getWrenchDropRate() {
-	// TODO Upgrade?
-	return 0;
-}
+			if (this.chestContents[slot].stackSize <= amount) {
+				var3 = this.chestContents[slot];
+				this.chestContents[slot] = null;
+				this.onInventoryChanged();
+				return var3;
+			} else {
+				var3 = this.chestContents[slot].splitStack(amount);
 
-@Override
-public boolean acceptsEnergyFrom(TileEntity emitter, Direction direction) {
-	return true;
-}
+				if (this.chestContents[slot].stackSize == 0) {
+					this.chestContents[slot] = null;
+				}
 
-@Override
-public boolean isAddedToEnergyNet() {
-	return this.isAddedToEnergyNet;
-}
+				this.onInventoryChanged();
+				return var3;
+			}
+		} else {
+			return null;
+		}
+	}
 
-@Override
-public boolean demandsEnergy() {
-	return energyStored < defaultEnergyStorage + extraStorage;
-}
-
-@Override
-public int injectEnergy(Direction directionFrom, int amount) {
-	int missing = (this.defaultEnergyStorage + this.extraStorage)%energyStored;
-	if(Config.DEBUG)
-	System.out.println("Hsb: TileEntityLockTerminal: missing Energy to full: " + String.valueOf(missing));
-	return 0;
-}
-
-@Override
-public int getSizeInventory() {
-	// TODO Inventory Size
-	return 10;
-}
-
-@Override
-public ItemStack getStackInSlot(int slotid)
-{
-	//TODO Inventory
-    return this.chestContents[slotid];
-}
-
-@Override
-//TODO rewrite ?
-public ItemStack decrStackSize(int slot, int amount)
-{
-    if (this.chestContents[slot] != null)
-    {
-        ItemStack var3;
-
-        if (this.chestContents[slot].stackSize <= amount)
-        {
-            var3 = this.chestContents[slot];
-            this.chestContents[slot] = null;
-            this.onInventoryChanged();
-            return var3;
-        }
-        else
-        {
-            var3 = this.chestContents[slot].splitStack(amount);
-
-            if (this.chestContents[slot].stackSize == 0)
-            {
-                this.chestContents[slot] = null;
-            }
-
-            this.onInventoryChanged();
-            return var3;
-        }
-    }
-    else
-    {
-        return null;
-    }
-}
-
-@Override
-public ItemStack getStackInSlotOnClosing(int slot)
-{
+	@Override
+	public boolean demandsEnergy() {
+		return energyStored < defaultEnergyStorage + extraStorage;
+	}
 	
-	//TODO INventory
-    if (this.chestContents[slot] != null)
-    {
-        ItemStack var2 = this.chestContents[slot];
-        this.chestContents[slot] = null;
-        return var2;
-    }
-    else
-    {
-        return null;
-    }
-}
+	/**
+	 * transfers a lock signal to all valid blocks
+	 * 
+	 * @param side the side, can be 6 for all
+	 * @param lock true to lock, false to unlock
+	 * @param port the port to transfer
+	 * @param pass the password to transfer
+	 * @return success
+	 */
+	public boolean emitLockSignal(int side, boolean lock, int port, String pass) {
+		if(this.locked == lock)
+			return false;
+		if(side < 0 || side > 6)
+			return false;
+		if(port != this.port)
+			return false;
+		if(pass != this.pass)
+			return false;
+		if(side != 6)
+			return false;
+		if(side == 6) {
+//			System.out.println("transferring");
+			this.transferSignal(0, this, lock, pass);
+		}
+//		this.locked = lock;
+//		if(!Config.ECLIPSE)
+//			NetworkHelper.updateTileEntityField(this, "locked");
+//		System.out.println("hallo");
+		return true;
+	}
 
-@Override
-public void setInventorySlotContents(int slot, ItemStack itemstack)
-{
-	//TODO Inventory
-    this.chestContents[slot] = itemstack;
+	public int getEnergyScaled(int length) {
+		return /* this.energyStored */492 * length
+				/ (this.extraStorage + this.defaultEnergyStorage); // DEBUG
+																	// value:
+																	// 492
+	}
 
-    if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit())
-    {
-        itemstack.stackSize = this.getInventoryStackLimit();
-    }
+	@Override
+	public int getInventoryStackLimit() {
+		return 64;
+	}
 
-    this.onInventoryChanged();
-}
-@Override
-public String getInvName()
-{
-	//Inventory Name
-    return "LockTerminal Inventory";
-}
-@Override
-public int getInventoryStackLimit()
-{
-    return 64;
-}
-@Override
-public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer)
-{
-    return this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord, this.zCoord) != this ? false : par1EntityPlayer.getDistanceSq(this.xCoord + 0.5D, this.yCoord + 0.5D, this.zCoord + 0.5D) <= 64.0D;
-}
-@Override
-public void openChest()
-{
-}
-@Override
-public void closeChest()
-{
-}
+	@Override
+	public String getInvName() {
+		// Inventory Name
+		return "LockTerminal Inventory";
+	}
 
-public int getEnergyScaled(int length)
-{
-    return /*this.energyStored*/492 * length / (this.extraStorage + this.defaultEnergyStorage); //DEBUG value: 492
-}
+	@Override
+	public int getSizeInventory() {
+		// TODO Inventory Size
+		return 10;
+	}
 
-//@Override
-//public void onEvent(int event, int param) {
-//	switch(event)
-//	{
-//	case 1:
-//		this.setFacing((short) param);
-//		System.out.println("Facing set:" + String.valueOf(param));
-//		break;
-//	}
-//	
-//}
-@Override
-public void readFromNBT(NBTTagCompound nbttagcompound)
-{
-    super.readFromNBT(nbttagcompound);
-}
-@Override
-public void writeToNBT(NBTTagCompound nbttagcompound)
-{
-    super.writeToNBT(nbttagcompound);
-}
+	@Override
+	public ItemStack getStackInSlot(int slotid) {
+		// TODO Inventory
+		return this.chestContents[slotid];
+	}
+
+	@Override
+	public ItemStack getStackInSlotOnClosing(int slot) {
+
+		// TODO INventory
+		if (this.chestContents[slot] != null) {
+			ItemStack var2 = this.chestContents[slot];
+			this.chestContents[slot] = null;
+			return var2;
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public float getWrenchDropRate() {
+		// TODO Upgrade?
+		return 0;
+	}
+
+	@Override
+	public int injectEnergy(Direction directionFrom, int amount) {
+		int missing = (this.defaultEnergyStorage + this.extraStorage)
+				% energyStored;
+		if (Config.DEBUG)
+			System.out
+					.println("Hsb: TileEntityLockTerminal: missing Energy to full: "
+							+ String.valueOf(missing));
+		return 0;
+	}
+
+	@Override
+	public boolean isAddedToEnergyNet() {
+		return this.isAddedToEnergyNet;
+	}
+
+	@Override
+	public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer) {
+		return this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord,this.zCoord) != this ? false
+				: par1EntityPlayer.getDistanceSq(this.xCoord + 0.5D,
+						this.yCoord + 0.5D, this.zCoord + 0.5D) <= 64.0D;
+	}
+
+	@Override
+	public void openChest() {
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound nbttagcompound) {
+		super.readFromNBT(nbttagcompound);
+	}
+
+	@Override
+	public void setInventorySlotContents(int slot, ItemStack itemstack) {
+		// TODO Inventory
+		this.chestContents[slot] = itemstack;
+
+		if (itemstack != null
+				&& itemstack.stackSize > this.getInventoryStackLimit()) {
+			itemstack.stackSize = this.getInventoryStackLimit();
+		}
+
+		this.onInventoryChanged();
+	}
+
+	@Override
+	public boolean wrenchCanRemove(EntityPlayer entityPlayer) {
+		// TODO Upgrade?
+		return false;
+	}
+
+	@Override
+	public boolean wrenchCanSetFacing(EntityPlayer entityPlayer, int side) {
+		return true;
+	}
+
+	@Override
+	public void writeToNBT(NBTTagCompound nbttagcompound) {
+		super.writeToNBT(nbttagcompound);
+	}
+
+	@Override
+	public void onNetworkEvent(EntityPlayer player, int event) {
+		switch(event)
+		{
+		case 0:
+			this.emitLockSignal(6, true, this.port, this.pass);
+		case 1:
+			this.emitLockSignal(6, false, this.port, this.pass);
+		}
+		
+	}
 
 }

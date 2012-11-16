@@ -29,7 +29,7 @@ public class ItemDebugTool extends Item {
     		{
     			System.out.println("Player == null");
     		}
-    		player.sendChatToPlayer("Port: " + String.valueOf(((TileEntityHsb)te).port) + ". Facing: " + String.valueOf(((TileEntityHsb) te).getFacing()) + " Textur der Side " + String.valueOf(side) + " ist: " + String.valueOf(Items.blockHsb.getBlockTexture(world, x, y, z, side)));
+    		player.sendChatToPlayer("Port: " + String.valueOf(((TileEntityHsb)te).port) + ". Facing: " + String.valueOf(((TileEntityHsb) te).getFacing()) + " Textur der Side " + String.valueOf(side) + " ist: " + String.valueOf(Items.blockHsb.getBlockTexture(world, x, y, z, side)) + "\nLocked: " + ((TileEntityHsb) te).locked);
     		
     		return true;
     	}

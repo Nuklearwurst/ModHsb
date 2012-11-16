@@ -1,10 +1,12 @@
 package hsb.config;
 
 import hsb.BlockHsb;
+import hsb.BlockHsbDoor;
 import hsb.ItemBlockHsb;
 import hsb.ItemBlockPlacer;
 import hsb.ItemBlockBuilding;
 import hsb.ItemDebugTool;
+import hsb.ItemHsbDoor;
 import hsb.ItemLockTerminal;
 import hsb.ModHsbCore;
 import hsb.TileEntityHsb;
@@ -56,6 +58,9 @@ public class Config {
 			Items.itemBlockPlacerEmpty = new ItemBlockPlacer(Config.getItemId("itemBlockPlacer", Defaults.ITEM_BLOCKPLACEREMPTY)).setItemName("Block MultiTool");
 			
 			Items.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setBlockName("Hsb Block");
+			Items.blockHsbDoor = new BlockHsbDoor(Config.getBlockId("blockHsbDoor", Defaults.BLOCK_HSB_DOOR));
+			
+			Items.itemHsbDoor = new ItemHsbDoor(Config.getItemId("itemHsbDoor", Defaults.ITEM_HSB_DOOR));
 			
 			//Not in use!
 //			Items.itemBlockBuilding = new ItemBlockBuilding(Config.getItemId("itemBlockBuilding", Defaults.ITEM_BLOCKBUILDING)).setItemName("Everything");
