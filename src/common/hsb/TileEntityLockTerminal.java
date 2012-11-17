@@ -101,8 +101,8 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		if(side != 6)
 			return false;
 		if(side == 6) {
-//			System.out.println("transferring");
-			this.transferSignal(0, this, lock, pass);
+			System.out.println("transferring");
+			this.transferSignal(0, this, lock, pass, port);
 		}
 //		this.locked = lock;
 //		if(!Config.ECLIPSE)
@@ -223,14 +223,46 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public void onNetworkEvent(EntityPlayer player, int event) {
+		/*
+		 * case 0: lock
+		 * case 1: unlock
+		 */
 		switch(event)
 		{
 		case 0:
 			this.emitLockSignal(6, true, this.port, this.pass);
+			break;
 		case 1:
 			this.emitLockSignal(6, false, this.port, this.pass);
+			break;
+		default:
+			System.out.println("Unexpected event!! " + event);
 		}
+//		if(event == 0)
+//		{
+//			this.emitLockSignal(6, true, this.port, this.pass);
+//		} else if(event == 1) {
+//			this.emitLockSignal(6, false, this.port, this.pass);
+//		}
 		
+	}
+	@Override
+	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass, int port) {
+		if(!lock)
+		{
+			//if a tile is broken
+			if(te == null){
+				if(port == this.port && pass == this.pass)
+				{
+					//TODO make this function an upgrade
+					this.blocksInUse = 0;
+					return super.transferSignal(0, this, true, pass, port);
+				}
+			}
+			//if a lock signal was send by a terminal
+			//TODO
+		}	
+		return super.transferSignal(side, te, lock, pass, port);	
 	}
 
 }

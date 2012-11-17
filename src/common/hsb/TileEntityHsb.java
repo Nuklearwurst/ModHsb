@@ -98,46 +98,56 @@ public abstract class TileEntityHsb extends TileEntity
 	@Override
 	public boolean connectsTo(int side) {return true;}
 	@Override
-	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass) {
-		if (lock == this.locked || te.port != this.port) {
-//			System.out.println("transfer failed!");
+	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass, int port) {
+		if(te != null && te.worldObj.isRemote)
+		{
+			System.out.println("is Remote!");
+		}else {
+			System.out.println("is Server");
+		}
+		//check if Lock is the same, or if port is not the same
+		if (lock == this.locked || port != this.port) {
+			System.out.println("transfer failed!");
 			return false;
 		}
 		else
 		{
-			if(this.locked && this.pass != pass)
+			//Unlocking
+			if(!lock)
 			{
-//				System.out.println("transfer failed 2 !");
-				return false;
-			}
-			if(te!=null)
-			{
-//				System.out.println("transfer in progress!");
-				this.locked=lock;
-				this.pass = pass;
-				
-				if(lock)
+				if(this.pass != pass)
 				{
-					te.blocksInUse++;
-				} 
-				else 
-				{
-					te.blocksInUse--;
+					System.out.println("transfer failed 2 !");
+					return false;
 				}
-				worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
-//				if(!Config.ECLIPSE)
-//				{
-//					NetworkHelper.updateTileEntityField(this, "locked");
-//				}
+				
 			}
+			//setting new properties
+			System.out.println("transfer in progress!");
+			this.locked = lock;
+			
+			//locking
+			if(lock)
+			{
+				te.blocksInUse++;
+				this.pass = pass;
+			} 
+			//updating
+			worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+			if(!Config.ECLIPSE)
+			{
+				NetworkHelper.updateTileEntityField(this, "locked");
+			}
+		
 //			System.out.println("test !");
+			//continue sending the signal
 			for(int i = 0; i<6; i++)
 			{
 //				System.out.println("starting");
 				TileEntity tile = this.worldObj.getBlockTileEntity(xCoord+Facing.offsetsXForSide[i], yCoord+Facing.offsetsYForSide[i], zCoord+Facing.offsetsZForSide[i]);
 				if(tile != null && tile instanceof ILockDataCable)
 				{
-					((ILockDataCable) tile).transferSignal(Facing.faceToSide[i], te, lock, pass);
+					((ILockDataCable) tile).transferSignal(Facing.faceToSide[i], te, lock, pass, port);
 //					System.out.println("transfer success!");
 				}
 			}
@@ -169,7 +179,7 @@ public abstract class TileEntityHsb extends TileEntity
 		List list = new Vector(4);
 	    list.add("facing");
 	    list.add("port");
-	    list.add("password");
+	    list.add("pass");
 	    list.add("locked");
 	    return list;
 	}

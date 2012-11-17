@@ -97,6 +97,7 @@ public class Config {
 //		LanguageRegistry.addName(new ItemStack(Items.itemBlockBuilding, 1, 0), "Hsb Building Block");
 		LanguageRegistry.addName(new ItemStack(Items.blockHsb.blockID, 1, 0), "Hsb Building Block");
 		LanguageRegistry.addName(new ItemStack(Items.blockHsb.blockID, 1, 1), "Hsb Lock Terminal");
+		LanguageRegistry.addName(new ItemStack(Items.blockHsb.blockID, 1, 2), "Hsb Door Base");
 	}
 	
     public static int getBlockId(String name, int defaultId)//BlockIDs

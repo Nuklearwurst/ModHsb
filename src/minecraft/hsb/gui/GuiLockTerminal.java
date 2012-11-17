@@ -113,20 +113,20 @@ public class GuiLockTerminal extends GuiContainer
                 this.mc.setIngameFocus();
                 break;
             case 1:
-                if(te.emitLockSignal(6, !te.locked, te.port, te.pass))
-                {
-	            	if(!Config.ECLIPSE)
-	            	{
-	            		if(te.locked)
-	            		{
-	            			NetworkHelper.initiateClientTileEntityEvent(te, 1);
-	            		} else {
-	            			NetworkHelper.initiateClientTileEntityEvent(te, 0);	
-	            		}
-	            	}
+            	if(!Config.ECLIPSE)
+            	{
+                    toggleButtonLock(!te.locked);
+            		if(te.locked)
+            		{
+            			NetworkHelper.initiateClientTileEntityEvent(te, 1);
+            		} else {
+            			NetworkHelper.initiateClientTileEntityEvent(te, 0);	
+            		}
+            	} else {
+            		te.emitLockSignal(6, !te.locked, te.port, te.pass);
+            	}
 //	                this.entityplayer.worldObj.markBlockNeedsUpdate(te.xCoord, te.yCoord, te.zCoord);
-	                toggleButtonLock();
-                }
+
                 break;
         }
         if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
@@ -137,11 +137,16 @@ public class GuiLockTerminal extends GuiContainer
         super.actionPerformed(guibutton);
     }
     
+    /**
+     * function to update the button text
+     * 
+     * @param lockStatus the status after the button is pressed
+     */
 
-    public void toggleButtonLock()
+    public void toggleButtonLock(boolean lockStatus)
     {
         GuiButton button = (GuiButton)controlList.get(1);
-        if (te.locked)
+        if (lockStatus)
         {
             lock = "Unlock";
         }

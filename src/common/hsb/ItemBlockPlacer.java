@@ -95,9 +95,9 @@ public class ItemBlockPlacer extends Item
 //		    		System.out.println("World is Remote: ItemBlockPlacer  Removing!");
 		    	}
 		    	TileEntity te = world.getBlockTileEntity(x, y, z);
-		    	if(te instanceof TileEntityHsbBuilding)
+		    	if(te instanceof TileEntityHsb)
 		    	{
-		    		if(((TileEntityHsbBuilding) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsb) te).locked)
+		    		if(((TileEntityHsb) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsb) te).locked)
 		    		{
 		    			return true;
 		    		}
@@ -105,6 +105,7 @@ public class ItemBlockPlacer extends Item
 		    		System.out.println("Removing Block at: " + x + ", " + y + ", " + z);
 		    		
 //		    		world.removeBlockTileEntity(x, y, z);
+		    		Items.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 		    		world.setBlockAndMetadataWithNotify(x, y, z, 0, 0);
 //		    		world.markBlockNeedsUpdate(x, y, z);
 //		    		world.setBlock(x, y, y, 0);

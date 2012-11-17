@@ -9,7 +9,7 @@ public interface ILockDataCable {
 	 * 
 	 * @return success
 	 */
-	boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass);
+	boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass, int port);
 	
 	boolean connectsTo(int side);
 

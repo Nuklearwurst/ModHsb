@@ -37,6 +37,7 @@ public class BlockHsb extends BlockContainer {
 	 * Meta data
 	 * 0: normaler Block
 	 * 1: Terminal
+	 * 2: Door Base Block
 	 */
 	
 	public BlockHsb(int id) {
@@ -143,6 +144,25 @@ public class BlockHsb extends BlockContainer {
     {
         itemList.add(new ItemStack(id, 1, 0));
         itemList.add(new ItemStack(id, 1, 1));
+        itemList.add(new ItemStack(id, 1, 2));
+    }
+    @Override
+    public void onBlockAdded(World world, int x, int y, int z) {
+    	super.onBlockAdded(world, x, y, z);
+    	
+    }
+    @Override
+	/**
+     * ejects contained items into the world, and notifies neighbours of an update, as appropriate
+     */
+    public void breakBlock(World world, int x, int y, int z, int par5, int par6)
+    {
+    	TileEntityHsb te = (TileEntityHsb) world.getBlockTileEntity(x, y, z);
+    	if(te!=null)
+    	{
+    		te.transferSignal(0, null, false, te.pass, te.port);
+    	}
+        super.breakBlock(world, x, y, z, par5, par6);      
     }
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player) 
