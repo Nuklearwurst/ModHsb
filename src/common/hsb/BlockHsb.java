@@ -56,8 +56,13 @@ public class BlockHsb extends BlockContainer {
     	if(Config.DEBUG)
     	{
     	}
-    	if(entityplayer.getCurrentEquippedItem()!=null && !Config.ECLIPSE) {
-    		if(entityplayer.getCurrentEquippedItem().itemID == Items.getItem("wrench").itemID || entityplayer.getCurrentEquippedItem().itemID == Items.getItem("electricWrench").itemID)
+    	if(entityplayer.isSneaking())
+    		return false;
+    	if(entityplayer.getCurrentEquippedItem()!=null) {
+    		if(!Config.ECLIPSE)
+    			if(entityplayer.getCurrentEquippedItem().itemID == Items.getItem("wrench").itemID || entityplayer.getCurrentEquippedItem().itemID == Items.getItem("electricWrench").itemID)
+    				return false;
+    		if(entityplayer.getCurrentEquippedItem().getItem() instanceof ItemBlockPlacer)
     			return false;
     	}
     	switch (world.getBlockMetadata(i, j, k))

@@ -90,10 +90,6 @@ public class ItemBlockPlacer extends Item
 	    	 */
 	    	if(!itemstack.getTagCompound().getBoolean("placeMode"))
 	    	{
-		    	if(world.isRemote)
-		    	{
-//		    		System.out.println("World is Remote: ItemBlockPlacer  Removing!");
-		    	}
 		    	TileEntity te = world.getBlockTileEntity(x, y, z);
 		    	if(te instanceof TileEntityHsb)
 		    	{

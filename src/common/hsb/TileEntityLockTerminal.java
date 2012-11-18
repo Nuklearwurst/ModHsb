@@ -248,6 +248,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	}
 	@Override
 	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass, int port) {
+		System.out.println("transfeSignal te Lock Terminal");
 		if(!lock)
 		{
 			//if a tile is broken

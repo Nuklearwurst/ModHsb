@@ -99,6 +99,7 @@ public abstract class TileEntityHsb extends TileEntity
 	public boolean connectsTo(int side) {return true;}
 	@Override
 	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass, int port) {
+		System.out.println("transferSignal te Building");
 		if(te != null && te.worldObj.isRemote)
 		{
 			System.out.println("is Remote!");
