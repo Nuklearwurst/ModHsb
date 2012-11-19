@@ -165,7 +165,7 @@ public class BlockHsb extends BlockContainer {
     	TileEntityHsb te = (TileEntityHsb) world.getBlockTileEntity(x, y, z);
     	if(te!=null)
     	{
-    		te.transferSignal(0, null, false, te.pass, te.port);
+    		te.onRemove(world, x, y, z, par5, par6);
     	}
         super.breakBlock(world, x, y, z, par5, par6);      
     }

@@ -20,8 +20,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	private int updateCounter = 0;
 
-	public String pass = "";
-
 	private ItemStack[] chestContents = new ItemStack[this.getSizeInventory()];
 
 	// Defaults
@@ -238,24 +236,16 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		default:
 			System.out.println("Unexpected event!! " + event);
 		}
-//		if(event == 0)
-//		{
-//			this.emitLockSignal(6, true, this.port, this.pass);
-//		} else if(event == 1) {
-//			this.emitLockSignal(6, false, this.port, this.pass);
-//		}
-		
 	}
 	@Override
 	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass, int port) {
 		System.out.println("transfeSignal te Lock Terminal");
-		if(!lock)
+		if(this.locked && !locked)
 		{
 			//if a tile is broken
 			if(te == null){
 				if(port == this.port && pass == this.pass)
-				{
-					//TODO make this function an upgrade
+				{	
 					this.blocksInUse = 0;
 					return super.transferSignal(0, this, true, pass, port);
 				}

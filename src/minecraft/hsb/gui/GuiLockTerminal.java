@@ -113,9 +113,9 @@ public class GuiLockTerminal extends GuiContainer
                 this.mc.setIngameFocus();
                 break;
             case 1:
+                toggleButtonLock(!te.locked);
             	if(!Config.ECLIPSE)
             	{
-                    toggleButtonLock(!te.locked);
             		if(te.locked)
             		{
             			NetworkHelper.initiateClientTileEntityEvent(te, 1);
@@ -125,8 +125,6 @@ public class GuiLockTerminal extends GuiContainer
             	} else {
             		te.emitLockSignal(6, !te.locked, te.port, te.pass);
             	}
-//	                this.entityplayer.worldObj.markBlockNeedsUpdate(te.xCoord, te.yCoord, te.zCoord);
-
                 break;
         }
         if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
