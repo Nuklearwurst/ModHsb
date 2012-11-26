@@ -2,8 +2,10 @@ package hsb;
 
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
+import hsb.config.Config;
 import hsb.config.Items;
 import hsb.gui.GuiHandler;
+import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 import net.minecraft.src.Block;
 import net.minecraft.src.CreativeTabs;
@@ -161,14 +163,12 @@ public class ItemBlockPlacer extends Item
 		        {
 		            return false;
 		        }
-		        if (world.canPlaceEntityOnSide(this.blockID, x, y, z, false, side, entityplayer))
-		        {
-		            Block blockPlace = Block.blocksList[this.blockID];
-	
+	            Block blockPlace = Block.blocksList[this.blockID];
+		        if (world.canPlaceEntityOnSide(this.blockID, x, y, z, false, side, null))
+	            {
 		            if (placeBlockAt(itemstack, entityplayer, world, x, y, z, side, par8, par9, par10))
 		            {
 		                world.playSoundEffect((x + 0.5F), (y + 0.5F), (z + 0.5F), blockPlace.stepSound.getStepSound(), (blockPlace.stepSound.getVolume() + 1.0F) / 2.0F, blockPlace.stepSound.getPitch() * 0.8F);
-		                //TODO consume Items
 		             
 			            return true;
 		            }
@@ -240,25 +240,41 @@ public class ItemBlockPlacer extends Item
 	     */
 	    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
 	    {
-	       if (!world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, 0))
-	       {
-	    	   System.out.println("placing failed!");
-	           return false;
-	       }
-
-	       if (world.getBlockId(x, y, z) == this.blockID)
-	       {
-	           Block.blocksList[this.blockID].updateBlockMetadata(world, x, y, z, side, hitX, hitY, hitZ);
-	           Block.blocksList[this.blockID].onBlockPlacedBy(world, x, y, z, player);
-	           NBTTagCompound tag = stack.getTagCompound();
-	           if(tag!=null)
-	           {
-	        	   TileEntityHsb te = ((TileEntityHsb)world.getBlockTileEntity(x, y, z));
-	        	   te.port=tag.getInteger("port");
-	           }
-	       }
-
-	       return true;
+	    	if(!player.capabilities.isCreativeMode)
+	    	{
+	    		if(!Config.ECLIPSE)
+	    		{
+		    		if(ElectricItem.discharge(stack, energyUse, getTier(), true, true) >= 0)
+		    		{
+		    			ElectricItem.discharge(stack, energyUse, getTier(), false, false);
+		    		} else {
+		    			return false;
+		    		}
+	    		}
+				if(!Utils.removeFromInventory(this.blockID, 0, player.inventory))
+				{
+					return false;
+				}
+	    	}
+			if (!world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, 0))
+			{
+				   System.out.println("placing failed!");
+			       return false;
+			}
+			
+			if (world.getBlockId(x, y, z) == this.blockID)
+			{
+			    Block.blocksList[this.blockID].updateBlockMetadata(world, x, y, z, side, hitX, hitY, hitZ);
+			    Block.blocksList[this.blockID].onBlockPlacedBy(world, x, y, z, player);
+			    NBTTagCompound tag = stack.getTagCompound();
+			    if(tag!=null)
+			    {
+			 	   TileEntityHsb te = ((TileEntityHsb)world.getBlockTileEntity(x, y, z));
+			 	   te.port=tag.getInteger("port");
+			    }
+			}
+	
+		   return true;
 	    }
 	    @Override
 	    public boolean getShareTag()

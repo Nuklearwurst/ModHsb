@@ -7,7 +7,6 @@ import hsb.ItemBlockPlacer;
 import hsb.ItemBlockBuilding;
 import hsb.ItemDebugTool;
 import hsb.ItemHsbDoor;
-import hsb.ItemLockTerminal;
 import hsb.ModHsbCore;
 import hsb.TileEntityHsb;
 import hsb.TileEntityLockTerminal;
@@ -17,6 +16,7 @@ import java.io.File;
 import java.util.logging.Level;
 
 import net.minecraft.src.Block;
+import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Material;
 import net.minecraftforge.common.Configuration;
@@ -84,9 +84,21 @@ public class Config {
 		GameRegistry.registerTileEntity(TileEntityHsbBuilding.class, "TileEntityHsbBuilding");
 		GameRegistry.registerTileEntity(TileEntityLockTerminal.class, "TileEntityLockTerminal");
 		//Adding recipes
-		GameRegistry.addShapelessRecipe(new ItemStack(Items.itemDebugTool, 1),  new Object[] { Block.dirt});
-		GameRegistry.addShapelessRecipe(new ItemStack(Items.blockHsb, 1, 1),  new Object[] { Block.dirt, Block.dirt});
-		GameRegistry.addShapelessRecipe(new ItemStack(Items.itemBlockPlacer, 1),  new Object[] { Block.dirt, Block.dirt, Block.dirt});
+		
+		//DEBUG Recipes
+		if(Config.DEBUG)
+		{
+			GameRegistry.addShapelessRecipe(new ItemStack(Items.itemDebugTool, 1),  new Object[] { Block.dirt});
+			GameRegistry.addShapelessRecipe(new ItemStack(Items.blockHsb, 1, 1),  new Object[] { Block.dirt, Block.dirt});
+			GameRegistry.addShapelessRecipe(new ItemStack(Items.itemBlockPlacer, 1),  new Object[] { Block.dirt, Block.dirt, Block.dirt});
+		}
+	
+		//Recipes
+		
+		GameRegistry.addShapelessRecipe(new ItemStack(Items.blockHsb, 1, 0), new Object[] {Items.reinforcedStone, Item.redstone});
+		GameRegistry.addShapelessRecipe(new ItemStack(Items.blockHsb, 1, 1), new Object[] {new ItemStack(Items.blockHsb, 1, 0), Items.circuit});
+		
+		GameRegistry.addRecipe(new ItemStack(Items.itemBlockPlacer, 1), new Object[] {"I I", "ICI", " B ", 'B', Items.battery_empty, 'I', Items.refinedIron, 'C', Items.circuit});
 		//add Block Idsd
 		ItemBlockPlacer.setBlockId(Items.blockHsb.blockID);
 		//Adding names...
@@ -107,6 +119,15 @@ public class Config {
     public static int getItemId(String name, int defaultId)
     {
         return Integer.parseInt(config.getItem(name, defaultId).value); //ItemIDs
+    }
+    public static ItemStack getIC2Item(String name)
+    {
+    	if(!Config.ECLIPSE)
+    	{
+    		return ic2.api.Items.getItem(name);
+    	} else {
+    		return new ItemStack(Block.dirt, 1);
+    	}
     }
 
 }

@@ -25,16 +25,14 @@ import net.minecraft.src.Packet;
 import net.minecraft.src.RenderHelper;
 import net.minecraft.src.World;
 
-public class GuiBlockPlacer extends GuiScreen {
+public class GuiLockMonitor extends GuiScreen {
 
 	
     protected int xSize;
     protected int ySize;
     protected ItemStack itemstack;
-    private TileEntityHsb te;
     protected NBTTagCompound nbttag;
     protected int port = 0;
-    protected String name;
     int xPos;
     int yPos;
     private World world;
@@ -42,47 +40,16 @@ public class GuiBlockPlacer extends GuiScreen {
     private int y;
     private int z;
     private EntityPlayer player;
-    private boolean placeMode=true;
-    private boolean item;
     
-	public GuiBlockPlacer(Object placer, int x, int y, int z, World world, EntityPlayer player) {
+	public GuiLockMonitor(Object placer, int x, int y, int z, World world, EntityPlayer player) {
 		xSize=176;
 		ySize=105;
-		if(placer instanceof ItemStack)
-		{
-			this.itemstack = (ItemStack)placer;
-			this.item = true;
-		} else if(placer instanceof TileEntityHsb)
-		{
-			this.item = false;
-			this.te = (TileEntityHsb)placer;
-		} else {
-
-		}
         this.world = world;
         this.x = x;
         this.y = y;
         this.z = z;
         this.player = player;
-        if(item)
-        {
-	        nbttag = itemstack.getTagCompound();
-	        if(nbttag == null) {
-	        	System.out.println("nbttag == null Constructor");
-	//        	nbttag = new NBTTagCompound();
-	//        	itemstack.setTagCompound(nbttag);
-	//        	nbttag.setInteger("port", port);
-	//        	nbttag.setBoolean("placeMode", true);
-	        	
-	        }
-	        placeMode = nbttag.getBoolean("placeMode");
-	        port = nbttag.getInteger("port");
-	        name = itemstack.getItem().getItemDisplayName(itemstack);
-        } else {
-        	placeMode = true;
-        	port = 0;
-        	name = "Hsb Building Block";
-        }
+        nbttag = itemstack.getTagCompound();
 	}
 	@Override
     public void initGui() {
@@ -94,8 +61,6 @@ public class GuiBlockPlacer extends GuiScreen {
         controlList.add(new GuiButton(2, xPos + xSize / 2 - 50, yPos + ySize / 2 - 10, 20 , 20 , "-10"));
         controlList.add(new GuiButton(3, xPos + xSize / 2 + 30, yPos + ySize / 2 - 10, 20, 20, "+10"));
         controlList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 80, 40, 20, "Done"));
-        if(item)
-        	controlList.add(new GuiButton(5, xPos + xSize / 2 - 10, yPos + 80, 40, 20, "Mode"));
         super.initGui();
     	
     }
@@ -122,10 +87,6 @@ public class GuiBlockPlacer extends GuiScreen {
 	            case 4:
 	                this.mc.displayGuiScreen(null);
 	                break;
-	                
-	            case 5:
-	                this.placeMode = !this.placeMode;
-	                break;
 	        }
 	    }
 	 //TODO
@@ -149,26 +110,9 @@ public class GuiBlockPlacer extends GuiScreen {
 	    }
 	    public void onGuiClosed()
 	    {
-	    	if(item)
-	    	{
-	    		updateNBTTag();
-	    	} else {
-	    		te.port = this.port;
-	    		if(!Config.ECLIPSE)
-	    		{
-	    			NetworkHelper.initiateClientTileEntityEvent(te, port);
-	    		}
-	    	}
 	        super.onGuiClosed();
 	    }
 	    private void updateNBTTag() {
-	    	itemstack.getTagCompound().setInteger("port", port);
-	    	itemstack.getTagCompound().setBoolean("placeMode", placeMode);
-	    	//Sending Packet to Server
-	    	PacketItemUpdate packetPort = new PacketItemUpdate(this.itemstack.getItem(), "port", port);
-	    	((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packetPort.getPacket());    	
-	    	PacketItemUpdate packetMode = new PacketItemUpdate(this.itemstack.getItem(), "placeMode", placeMode);
-	    	((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packetMode.getPacket());  
 	    }
 	    
 	    public void drawScreen(int i, int j, float f)
@@ -197,17 +141,9 @@ public class GuiBlockPlacer extends GuiScreen {
 
 	    protected void drawGuiContainerForegroundLayer()
 	    {
-	    	if(item)
-	    	{
-		    	String mode;
-		    	if(placeMode) {
-		    		mode = "Place";
-		    	} else {
-		    		mode = "Remove";
-		    	}
-		        drawStringBorder(this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + mode) / 2, 6, this.xSize / 2 + this.fontRenderer.getStringWidth(name + " " + mode) / 2);
-		        this.fontRenderer.drawString(name + " " + mode, this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + mode) / 2, 6, 4210752);
-	    	}
+//	        drawStringBorder(this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + mode) / 2, 6, this.xSize / 2 + this.fontRenderer.getStringWidth(name + " " + mode) / 2);
+//	        this.fontRenderer.drawString(name + " " + mode, this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + mode) / 2, 6, 4210752);
+
 	    }
 
 	    protected void drawGuiContainerBackgroundLayer(float f)

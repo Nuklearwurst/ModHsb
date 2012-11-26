@@ -1,22 +1,26 @@
 package hsb;
 
 import ic2.api.Direction;
+import ic2.api.EnergyNet;
 import ic2.api.IEnergySink;
-import ic2.api.INetworkClientTileEntityEventListener;
 import ic2.api.NetworkHelper;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IInventory;
+import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.NBTTagCompound;
+import net.minecraft.src.NBTTagList;
 import net.minecraft.src.TileEntity;
 import hsb.config.Config;
 
 public class TileEntityLockTerminal extends TileEntityHsb implements
-		IEnergySink, IInventory, INetworkClientTileEntityEventListener {
+		IEnergySink, IInventory {
+
 	public int blocksInUse = 0;
+	private boolean needReconnect = false;
 	// IC2
 	public boolean isAddedToEnergyNet = false;
-	public int energyStored = 0;
+	public int energyStored = 100;// TODO
 
 	private int updateCounter = 0;
 
@@ -24,18 +28,25 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	// Defaults
 	// TODO Config, maybe move to Defaults.java
-	public int defaultEnergyStorage = 1000;
-	public int defaultPassLength = 8;
-	public static int maxPort = 100;
+	public final int defaultEnergyStorage = 10000;
+	public final int defaultPassLength = 8;
+	public final static int maxPort = 100;
+	public final static int UPGRADE_ENERGY_STORAGE = 1000; 
 
 	// Upgrades //Old TODO
+	private int storageUpgrades = 0;
+	private int transformerUpgrades = 0;
+	private int overclockerUpgrades = 0;
+	
 	public int extraStorage = 0;
 	public int extraPassLength = 0;
 	public double energyUse = 0.25;
+	public int maxInput = 32;
 
 	public TileEntityLockTerminal() {
 		super();
 		blocksInUse = 0;
+		isAddedToEnergyNet = false;
 	}
 
 	@Override
@@ -51,22 +62,22 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	// TODO rewrite ?
 	public ItemStack decrStackSize(int slot, int amount) {
 		if (this.chestContents[slot] != null) {
-			ItemStack var3;
+			ItemStack stack;
 
 			if (this.chestContents[slot].stackSize <= amount) {
-				var3 = this.chestContents[slot];
+				stack = this.chestContents[slot];
 				this.chestContents[slot] = null;
 				this.onInventoryChanged();
-				return var3;
+				return stack;
 			} else {
-				var3 = this.chestContents[slot].splitStack(amount);
+				stack = this.chestContents[slot].splitStack(amount);
 
 				if (this.chestContents[slot].stackSize == 0) {
 					this.chestContents[slot] = null;
 				}
 
 				this.onInventoryChanged();
-				return var3;
+				return stack;
 			}
 		} else {
 			return null;
@@ -75,45 +86,57 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public boolean demandsEnergy() {
-		return energyStored < defaultEnergyStorage + extraStorage;
+		return energyStored < (defaultEnergyStorage + extraStorage);
 	}
-	
+
 	/**
 	 * transfers a lock signal to all valid blocks
 	 * 
-	 * @param side the side, can be 6 for all
-	 * @param lock true to lock, false to unlock
-	 * @param port the port to transfer
-	 * @param pass the password to transfer
+	 * @param side
+	 *            the side, can be 6 for all
+	 * @param lock
+	 *            true to lock, false to unlock
+	 * @param port
+	 *            the port to transfer
+	 * @param pass
+	 *            the password to transfer
 	 * @return success
 	 */
-	public boolean emitLockSignal(int side, boolean lock, int port, String pass) {
-		if(this.locked == lock)
+	private boolean emitLockSignal(int side, boolean lock) {
+		if (this.worldObj == null)
 			return false;
-		if(side < 0 || side > 6)
+		if (this.worldObj.isRemote)
+			return true;
+		if (side < 0 || side > 6)
 			return false;
-		if(port != this.port)
+		// if(port != this.port)
+		// return false;
+		// if(pass != this.pass)
+		// return false;
+		if (side != 6)
 			return false;
-		if(pass != this.pass)
-			return false;
-		if(side != 6)
-			return false;
-		if(side == 6) {
-			System.out.println("transferring");
-			this.transferSignal(0, this, lock, pass, port);
+		if (side == 6) {
+			if (!lock) {
+				this.blocksInUse = 0;
+			}
+			System.out.println("emitting: side: " + side + " lock: " + lock
+					+ " pass: " + pass + " port: " + port);
+			this.locked = lock;
+			this.blocksInUse++;
+			if (this.transferSignal_do(this, lock, pass, port, side)) {
+
+			} else {
+				System.out.println("error!");
+			}
 		}
-//		this.locked = lock;
-//		if(!Config.ECLIPSE)
-//			NetworkHelper.updateTileEntityField(this, "locked");
-//		System.out.println("hallo");
+		if (!Config.ECLIPSE)
+			NetworkHelper.updateTileEntityField(this, "locked");
 		return true;
 	}
 
 	public int getEnergyScaled(int length) {
-		return /* this.energyStored */492 * length
-				/ (this.extraStorage + this.defaultEnergyStorage); // DEBUG
-																	// value:
-																	// 492
+		return this.energyStored * length
+				/ (this.extraStorage + this.defaultEnergyStorage);
 	}
 
 	@Override
@@ -130,23 +153,21 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public int getSizeInventory() {
 		// TODO Inventory Size
-		return 10;
+		return 15;
 	}
 
 	@Override
 	public ItemStack getStackInSlot(int slotid) {
-		// TODO Inventory
 		return this.chestContents[slotid];
 	}
 
 	@Override
 	public ItemStack getStackInSlotOnClosing(int slot) {
 
-		// TODO INventory
 		if (this.chestContents[slot] != null) {
-			ItemStack var2 = this.chestContents[slot];
+			ItemStack stack = this.chestContents[slot];
 			this.chestContents[slot] = null;
-			return var2;
+			return stack;
 		} else {
 			return null;
 		}
@@ -160,13 +181,29 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public int injectEnergy(Direction directionFrom, int amount) {
+		if(amount > this.maxInput)
+		{
+			this.worldObj.setBlockAndMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 0, 0);
+			this.worldObj.createExplosion(null, xCoord, yCoord, zCoord, 0.8F, false);
+			return 0;
+		}
 		int missing = (this.defaultEnergyStorage + this.extraStorage)
-				% energyStored;
-		if (Config.DEBUG)
-			System.out
-					.println("Hsb: TileEntityLockTerminal: missing Energy to full: "
-							+ String.valueOf(missing));
+				- energyStored;
+		if (missing < amount) {
+			energyStored += missing;
+			return amount - missing;
+		}
+		energyStored += amount;
 		return 0;
+	}
+
+	@Override
+	public void invalidate() {
+		super.validate();
+		if (!worldObj.isRemote && isAddedToEnergyNet) {
+			EnergyNet.getForWorld(worldObj).removeTileEntity(this);
+			isAddedToEnergyNet = false;
+		}
 	}
 
 	@Override
@@ -176,9 +213,27 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer) {
-		return this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord,this.zCoord) != this ? false
+		return this.worldObj.getBlockTileEntity(this.xCoord, this.yCoord,
+				this.zCoord) != this ? false
 				: par1EntityPlayer.getDistanceSq(this.xCoord + 0.5D,
 						this.yCoord + 0.5D, this.zCoord + 0.5D) <= 64.0D;
+	}
+
+	@Override
+	public void onNetworkEvent(EntityPlayer player, int event) {
+		/*
+		 * case 0: lock case 1: unlock
+		 */
+		switch (event) {
+		case 0:
+			this.emitLockSignal(6, true);
+			break;
+		case 1:
+			this.emitLockSignal(6, false);
+			break;
+		default:
+			super.onNetworkEvent(player, event);
+		}
 	}
 
 	@Override
@@ -188,11 +243,37 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public void readFromNBT(NBTTagCompound nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
+		//Items
+        NBTTagList nbtlist = nbttagcompound.getTagList("Items");
+        this.chestContents = new ItemStack[this.getSizeInventory()];
+
+        for (int i = 0; i < nbtlist.tagCount(); ++i)
+        {
+            NBTTagCompound nbttag = (NBTTagCompound)nbtlist.tagAt(i);
+            byte slot = nbttag.getByte("Slot");
+
+            if (slot >= 0 && slot < this.chestContents.length)
+            {
+                this.chestContents[slot] = ItemStack.loadItemStackFromNBT(nbttag);
+            }
+        }
+        
+		this.energyStored = nbttagcompound.getInteger("energyStored");
+	}
+
+	@Override
+	public void setFacing(short facing) {
+		if (isAddedToEnergyNet) {
+			EnergyNet.getForWorld(worldObj).removeTileEntity(this);
+		}
+		isAddedToEnergyNet = false;
+		super.setFacing(facing);
+		EnergyNet.getForWorld(worldObj).addTileEntity(this);
+		isAddedToEnergyNet = true;
 	}
 
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack itemstack) {
-		// TODO Inventory
 		this.chestContents[slot] = itemstack;
 
 		if (itemstack != null
@@ -201,6 +282,107 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		}
 
 		this.onInventoryChanged();
+	}
+
+	@Override
+	public boolean transferSignal(int side, TileEntityLockTerminal te,
+			boolean value, String pass, int port) {
+		if (this.worldObj.isRemote) {
+			return true;
+		}
+		System.out.println("transfeSignal te Lock Terminal");
+		if (this.locked && !value) {
+			// if a tile is broken
+			if (te == null) {
+				if (port == this.port && pass == this.pass) {
+					this.locked = false;
+					this.needReconnect = true;
+					this.blocksInUse = 0;
+					return true;
+				}
+			}
+			// TODO if a lock signal was send by a terminal
+		}
+		return super.transferSignal(side, te, value, pass, port);
+	}
+	
+	public void updateUpgrades(EntityPlayer player)
+	{
+		this.storageUpgrades = 0;
+		this.transformerUpgrades = 0;
+		this.overclockerUpgrades = 0;
+		for(int i = 0; i < this.chestContents.length; i++)
+		{
+			ItemStack stack = this.chestContents[i]; 
+			if(stack.isItemEqual(Config.getIC2Item("transformerUpgrade")))
+			{
+				this.transformerUpgrades = this.transformerUpgrades + stack.stackSize;
+			}
+				
+			if(stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")))
+			{
+				this.storageUpgrades = this.storageUpgrades + stack.stackSize;
+			}
+		
+			if(stack.isItemEqual(Config.getIC2Item("overclockerUpgrade")))
+			{
+				this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
+			}
+		}
+		this.extraStorage = this.storageUpgrades * UPGRADE_ENERGY_STORAGE;
+		switch(this.transformerUpgrades)
+		{
+		case 0:
+			this.maxInput = 32;
+		case 1:
+			this.maxInput = 128;
+		case 2:
+			this.maxInput = 512;
+		case 3:
+			this.maxInput = 2048;
+		default:
+			this.maxInput = 2048;
+		}
+	}
+
+	@Override
+	public void updateEntity() {
+
+		if (!worldObj.isRemote) {
+			if (!isAddedToEnergyNet && !Config.ECLIPSE) {
+				EnergyNet.getForWorld(worldObj).addTileEntity(this);
+				isAddedToEnergyNet = true;
+			}
+			this.updateCounter++;
+			if (updateCounter >= 5) {
+				updateCounter = 0;
+				//reconnecting
+				if (needReconnect) {
+					this.needReconnect = false;
+					this.emitLockSignal(6, true);
+				}
+				
+				//Use Energy
+				if (this.locked && this.blocksInUse > 0) {
+					double need = (this.energyUse * this.blocksInUse + 2);
+					if (need > energyStored) {
+						this.emitLockSignal(6, false);
+						System.out.println("not enough energy! need: " + need
+								+ " stored: " + energyStored);
+					} else {
+						energyStored = (int) Math.round(energyStored - need);
+					}
+				}
+				onInventoryChanged();
+			}
+
+		}
+		super.updateEntity();
+	}
+
+	@Override
+	public void validate() {
+		super.validate();
 	}
 
 	@Override
@@ -217,43 +399,22 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public void writeToNBT(NBTTagCompound nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
-	}
+		//Items
+        NBTTagList nbtlist = new NBTTagList();
 
-	@Override
-	public void onNetworkEvent(EntityPlayer player, int event) {
-		/*
-		 * case 0: lock
-		 * case 1: unlock
-		 */
-		switch(event)
-		{
-		case 0:
-			this.emitLockSignal(6, true, this.port, this.pass);
-			break;
-		case 1:
-			this.emitLockSignal(6, false, this.port, this.pass);
-			break;
-		default:
-			System.out.println("Unexpected event!! " + event);
-		}
-	}
-	@Override
-	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean lock, String pass, int port) {
-		System.out.println("transfeSignal te Lock Terminal");
-		if(this.locked && !locked)
-		{
-			//if a tile is broken
-			if(te == null){
-				if(port == this.port && pass == this.pass)
-				{	
-					this.blocksInUse = 0;
-					return super.transferSignal(0, this, true, pass, port);
-				}
-			}
-			//if a lock signal was send by a terminal
-			//TODO
-		}	
-		return super.transferSignal(side, te, lock, pass, port);	
+        for (int i = 0; i < this.chestContents.length; ++i)
+        {
+            if (this.chestContents[i] != null)
+            {
+                NBTTagCompound nbttag = new NBTTagCompound();
+                nbttag.setByte("Slot", (byte)i);
+                this.chestContents[i].writeToNBT(nbttag);
+                nbtlist.appendTag(nbttag);
+            }
+        }
+        nbttagcompound.setTag("Items", nbtlist);
+        
+		nbttagcompound.setInteger("energyStored", this.energyStored);
 	}
 
 }

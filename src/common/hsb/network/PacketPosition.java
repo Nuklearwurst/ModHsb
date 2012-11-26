@@ -4,7 +4,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import cpw.mods.fml.common.WorldAccessContainer;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.src.Item;
+import net.minecraft.src.World;
 
 public abstract class PacketPosition extends PacketHsb{
 	
@@ -18,7 +22,6 @@ public abstract class PacketPosition extends PacketHsb{
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		
 	}
 
 	@Override

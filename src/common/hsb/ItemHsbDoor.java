@@ -28,6 +28,10 @@ public class ItemHsbDoor extends ItemDoor{
         }
         else
         {
+        	if(!(world.getBlockTileEntity(x, y, z) instanceof TileEntityDoorBase))
+        	{
+        		return false;
+        	}
             ++y;
             Block block = Items.blockHsbDoor;
 

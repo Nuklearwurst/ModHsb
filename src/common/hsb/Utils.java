@@ -1,25 +1,24 @@
 package hsb;
 
+import net.minecraft.src.InventoryPlayer;
+import net.minecraft.src.ItemStack;
+
 public class Utils {
-//	public static int[] getPositionOfSide(int x, int y, int z, int side) {
-//		int[] pos={x, y, z};
-//		switch(side) {
-//		case 0:
-//			pos[1]--;
-//		case 1:
-//			pos[1]++;
-//		case 2:
-//			pos[2]--;
-//		case 3:
-//			pos[2]++;
-//		case 4:
-//			pos[0]--;
-//		case 5:
-//			pos[0]++;
-//		}
-//		
-//		return pos;
-//		
-//	}
+
+	public static boolean removeFromInventory(int itemId, int itemDamage, InventoryPlayer inventory) {
+		for(int i = 0; i < inventory.mainInventory.length; i++)
+		{
+			if(inventory.mainInventory[i]!=null && inventory.mainInventory[i].itemID == itemId && inventory.mainInventory[i].getItemDamage() == itemDamage)
+			{
+	            if (--inventory.mainInventory[i].stackSize <= 0)
+	            {
+	                inventory.mainInventory[i] = null;
+	            }
+	            return true;
+			}
+		}
+		return false;	
+	}
+	
 
 }

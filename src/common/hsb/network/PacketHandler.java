@@ -41,6 +41,15 @@ public class PacketHandler
 				itemPacket.onPacketData(data, player);
 				break;
 			}
+			
+			
+			case PacketIds.TILE_TERMINAL_UPDATE:
+			{
+				System.out.println("Hsb: PacketHandler: PacketId == TERMINAL_UPDATE!");
+				PacketTerminalUpdate tilePacket = new PacketTerminalUpdate();
+				tilePacket.onPacketData(data, player);
+				break;
+			}
 				
 				
 			}

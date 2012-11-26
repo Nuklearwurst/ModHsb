@@ -1,14 +1,17 @@
 package hsb;
 
+import java.util.Iterator;
 import java.util.logging.Level;
 
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Side;
+import cpw.mods.fml.common.asm.SideOnly;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.ICrafting;
 import net.minecraft.src.IInventory;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Slot;
-import net.minecraftforge.common.MinecraftForge;
 
 public class ContainerLockTerminal extends Container {
 
@@ -19,6 +22,9 @@ public class ContainerLockTerminal extends Container {
     private int inventorySize;
     int xPos;
     int yPos;
+    private int lastEnergyStored = 0;
+    private boolean lastLocked = false;
+    
     public ContainerLockTerminal(TileEntityLockTerminal te, EntityPlayer entityplayer)
     {
         if (te == null)
@@ -31,24 +37,16 @@ public class ContainerLockTerminal extends Container {
         this.inventory = te;
         inventorySize = inventory.getSizeInventory();
         int index = 0;
-//        int x = 10;
-//        int y = 20;
-
         int reihe;
         int spalte;
-
-//        //Block Inventory
-//        for (reihe = 0; reihe < 3; ++reihe)
-//        {
-//            for (spalte = 0; spalte < 2; ++spalte)
-//            {
-//                this.addSlotToContainer(new SlotLockTerminal(inventory, spalte + reihe * 2, 8 + spalte * 54 , 12 + reihe * 18));
-//            }
-//        }
-
-//        //2 weitere Slots :6+7
-//        this.addSlotToContainer(new SlotLockTerminal(inventory, 6, 115 , 12));
-//        this.addSlotToContainer(new SlotLockTerminal(inventory, 7, 115 , 30));
+        //Block Inventory
+        //upgrade IC2
+        this.addSlotToContainer(new SlotMachineUpgrade(te, 0, 6 -26, 51 -28));
+        this.addSlotToContainer(new SlotMachineUpgrade(te, 1, 6 -26, 69 -28));
+        this.addSlotToContainer(new SlotMachineUpgrade(te, 2, 6 -26, 87 -28));
+        this.addSlotToContainer(new SlotMachineUpgrade(te, 3, 6 -26, 105 -28));
+        //charge
+        this.addSlotToContainer(new SlotCharge(te, 4, 34 -26, 114 -28));
 
         // Player Inventory
         for (reihe = 0; reihe < 3; ++reihe)
@@ -64,6 +62,13 @@ public class ContainerLockTerminal extends Container {
         {
             this.addSlotToContainer(new Slot(invPlayer, reihe, 8 + reihe * 18, 198 - 28));
         }
+        
+    }
+    
+    public void onCraftGuiClosed(EntityPlayer player)
+    {
+    	super.onCraftGuiClosed(player);
+    	this.te.updateUpgrades(player);
     }
 
     @Override
@@ -75,6 +80,74 @@ public class ContainerLockTerminal extends Container {
     public ItemStack transferStackInSlot(int i)
     {
         return null;
+    }
+    @Override
+	public void addCraftingToCrafters(ICrafting par1ICrafting)
+    {
+        super.addCraftingToCrafters(par1ICrafting);
+        par1ICrafting.updateCraftingInventoryInfo(this, 0, this.te.energyStored);
+    	int lockInt;
+    	if(this.te.locked)
+    	{
+    		lockInt = 1;
+    	} else {
+    		lockInt = 0;
+    	}
+        par1ICrafting.updateCraftingInventoryInfo(this, 1, lockInt);
+    }
+
+    /**
+     * Updates crafting matrix; called from onCraftMatrixChanged. Args: none
+     */
+    @Override
+	public void updateCraftingResults()
+    {
+        super.updateCraftingResults();
+        Iterator var1 = this.crafters.iterator();
+
+        while (var1.hasNext())
+        {
+            ICrafting var2 = (ICrafting)var1.next();
+
+            if (this.lastEnergyStored != this.te.energyStored)
+            {
+                var2.updateCraftingInventoryInfo(this, 0, this.te.energyStored);
+            }
+            if (this.lastLocked != this.te.locked)
+            {
+            	int lockInt;
+            	if(this.te.locked)
+            	{
+            		lockInt = 1;
+            	} else {
+            		lockInt = 0;
+            	}
+            	var2.updateCraftingInventoryInfo(this, 1, lockInt);
+            }
+        }
+
+        this.lastEnergyStored = this.te.energyStored;
+        this.lastLocked = this.te.locked;
+    }
+
+    @Override
+	@SideOnly(Side.CLIENT)
+    public void updateProgressBar(int id, int value)
+    {
+        if (id == 0)
+        {
+            this.te.energyStored = value;
+        }
+        if (id == 1)
+        {
+        	if(value == 0)
+        	{
+        		this.te.locked = false;
+        	} else if(value == 1)
+        	{
+        		this.te.locked = true;
+        	}
+        }
     }
 
 }

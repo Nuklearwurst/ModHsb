@@ -30,7 +30,9 @@ public class BlockHsb extends BlockContainer {
 
 	//TODO maybe use Facing.java instead of sideAndFacingToSpriteOffset to get the texture
 	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
-	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}, {1, 1, 1, 17, 1, 1, 16, 16, 16, 17, 16, 16}};
+	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}, 
+												{1, 1, 1, 17, 1, 1, 16, 16, 16, 17, 16, 16}, 
+												{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}};
 	public String textureFile = "";
 	
 	/*
@@ -47,17 +49,15 @@ public class BlockHsb extends BlockContainer {
 		this.blockIndexInTexture = 0;
 		this.textureFile = CommonProxy.TEXTURE_BLOCKS;
 		this.setCreativeTab(CreativeTabs.tabBlock);
-		// TODO Auto-generated constructor stub
 	}
 	
     @Override
     public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int l, float m, float n, float o)
     {
-    	if(Config.DEBUG)
-    	{
-    	}
+    	//Sneaking
     	if(entityplayer.isSneaking())
     		return false;
+    	//Items
     	if(entityplayer.getCurrentEquippedItem()!=null) {
     		if(!Config.ECLIPSE)
     			if(entityplayer.getCurrentEquippedItem().itemID == Items.getItem("wrench").itemID || entityplayer.getCurrentEquippedItem().itemID == Items.getItem("electricWrench").itemID)
@@ -73,6 +73,8 @@ public class BlockHsb extends BlockContainer {
             	//TODO add pass protected Gui (Upgrades)
                 entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
                 return true;
+            case 2:
+            	return false;
             default:
                 return false;
         }
@@ -83,13 +85,14 @@ public class BlockHsb extends BlockContainer {
 	}
 	@Override
 	public TileEntity createNewTileEntity(World var1, int meta) {
-		// TODO Auto-generated method stub
 		switch(meta)
 		{
 		case 0:
 			return new TileEntityHsbBuilding();
 		case 1:
 			return new TileEntityLockTerminal();
+		case 2: 
+			return new TileEntityDoorBase();
 		default:
 			return null;
 		}
@@ -104,13 +107,17 @@ public class BlockHsb extends BlockContainer {
 	@Override
     public int idDropped(int meta, Random random, int j)
     {
-        return 0;
+        return this.blockID;
+    }
+	@Override
+    public int damageDropped(int meta)
+    {
+        return meta;
     }
 	@SideOnly(Side.CLIENT)
 	@Override
     public int getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int side)
     {
-		//TODO
         TileEntity te = iblockaccess.getBlockTileEntity(i, j, k);
         short facing = 1;
         //testing...
@@ -133,9 +140,11 @@ public class BlockHsb extends BlockContainer {
 	@Override
     public int getBlockTextureFromSideAndMetadata(int side, int meta)
 	{
-		 int texid = sideAndFacingToSpriteOffset[side][1];
-	     int tex = blockTexture[meta][texid];
-	     return tex;
+		if(meta > 1)
+			return 0;
+		int texid = sideAndFacingToSpriteOffset[side][1];
+		int tex = blockTexture[meta][texid];
+	    return tex;
 
     }
     @Override
@@ -174,15 +183,17 @@ public class BlockHsb extends BlockContainer {
     {
         TileEntity te = world.getBlockTileEntity(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);
+        
         switch(metadata) {
         case 0:
-        	if(player instanceof EntityPlayer)
+        	if(player instanceof EntityPlayer && te!=null)
         		if(((EntityPlayer) player).getCurrentEquippedItem().itemID == this.blockID)
         			((EntityPlayer) player).openGui(ModHsbCore.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
         }
+        
         if (player != null && te instanceof IWrenchable) 
         {
-        	System.out.println("Facing setting");
+//        	System.out.println("Facing setting");
             IWrenchable wrenchable = (IWrenchable)te;
             int rotationSegment = MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
             if (player.rotationPitch >= 65) 
@@ -206,19 +217,6 @@ public class BlockHsb extends BlockContainer {
                 }
             }
         }          
-    }
-    @Override
-    public void updateBlockMetadata(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
-    {
-        super.updateBlockMetadata(world, x, y, z, side, hitX, hitY, hitZ);
-        ForgeDirection dir = ForgeDirection.getOrientation(side);
-        int metadata = world.getBlockMetadata(x, y, z);
-        TileEntity tileentity = world.getBlockTileEntity(x, y, z);
-        if(tileentity instanceof IWrenchable)
-        {
-            ((IWrenchable)tileentity).setFacing((short)side);
-        }
-    
     }
 
 }
