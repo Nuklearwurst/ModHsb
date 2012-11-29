@@ -12,6 +12,7 @@ import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.TileEntity;
 import hsb.config.Config;
+import hsb.gui.GuiHandler;
 
 public class TileEntityLockTerminal extends TileEntityHsb implements
 		IEnergySink, IInventory {
@@ -20,26 +21,28 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	private boolean needReconnect = false;
 	// IC2
 	public boolean isAddedToEnergyNet = false;
-	public int energyStored = 100;// TODO
+	public int energyStored = 0;
 
 	private int updateCounter = 0;
 
-	private ItemStack[] chestContents = new ItemStack[this.getSizeInventory()];
+	private ItemStack[] mainInventory = new ItemStack[this.getSizeInventory()];
 
 	// Defaults
-	// TODO Config, maybe move to Defaults.java
-	public final int defaultEnergyStorage = 10000;
-	public final int defaultPassLength = 8;
-	public final static int maxPort = 100;
-	public final static int UPGRADE_ENERGY_STORAGE = 1000; 
+	public static final int defaultEnergyStorage = 10000;
+	public static final int defaultPassLength = 8;
+	public static final int maxPort = 100;
+	public static final int UPGRADE_ENERGY_STORAGE = 1000; 
 
-	// Upgrades //Old TODO
+	// Upgrades
+	//IC2
 	private int storageUpgrades = 0;
 	private int transformerUpgrades = 0;
 	private int overclockerUpgrades = 0;
+	//other
+	public int teslaUpgrade = 0;
 	
 	public int extraStorage = 0;
-	public int extraPassLength = 0;
+	public int extraPassLength = 0;//TODO old
 	public double energyUse = 0.25;
 	public int maxInput = 32;
 
@@ -61,19 +64,19 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	// TODO rewrite ?
 	public ItemStack decrStackSize(int slot, int amount) {
-		if (this.chestContents[slot] != null) {
+		if (this.mainInventory[slot] != null) {
 			ItemStack stack;
 
-			if (this.chestContents[slot].stackSize <= amount) {
-				stack = this.chestContents[slot];
-				this.chestContents[slot] = null;
+			if (this.mainInventory[slot].stackSize <= amount) {
+				stack = this.mainInventory[slot];
+				this.mainInventory[slot] = null;
 				this.onInventoryChanged();
 				return stack;
 			} else {
-				stack = this.chestContents[slot].splitStack(amount);
+				stack = this.mainInventory[slot].splitStack(amount);
 
-				if (this.chestContents[slot].stackSize == 0) {
-					this.chestContents[slot] = null;
+				if (this.mainInventory[slot].stackSize == 0) {
+					this.mainInventory[slot] = null;
 				}
 
 				this.onInventoryChanged();
@@ -125,6 +128,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			this.blocksInUse++;
 			if (this.transferSignal_do(this, lock, pass, port, side)) {
 
+				this.xTer = this.xCoord;
+				this.yTer = this.yCoord;
+				this.zTer = this.zCoord;
+
 			} else {
 				System.out.println("error!");
 			}
@@ -158,15 +165,15 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public ItemStack getStackInSlot(int slotid) {
-		return this.chestContents[slotid];
+		return this.mainInventory[slotid];
 	}
 
 	@Override
 	public ItemStack getStackInSlotOnClosing(int slot) {
 
-		if (this.chestContents[slot] != null) {
-			ItemStack stack = this.chestContents[slot];
-			this.chestContents[slot] = null;
+		if (this.mainInventory[slot] != null) {
+			ItemStack stack = this.mainInventory[slot];
+			this.mainInventory[slot] = null;
 			return stack;
 		} else {
 			return null;
@@ -225,6 +232,11 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		 * case 0: lock case 1: unlock
 		 */
 		switch (event) {
+		case -2:
+			player.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, worldObj, xCoord, yCoord, zCoord);
+		case -1:
+			player.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, worldObj, xCoord, yCoord, zCoord);
+			break;
 		case 0:
 			this.emitLockSignal(6, true);
 			break;
@@ -245,16 +257,16 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		super.readFromNBT(nbttagcompound);
 		//Items
         NBTTagList nbtlist = nbttagcompound.getTagList("Items");
-        this.chestContents = new ItemStack[this.getSizeInventory()];
+        this.mainInventory = new ItemStack[this.getSizeInventory()];
 
         for (int i = 0; i < nbtlist.tagCount(); ++i)
         {
             NBTTagCompound nbttag = (NBTTagCompound)nbtlist.tagAt(i);
             byte slot = nbttag.getByte("Slot");
 
-            if (slot >= 0 && slot < this.chestContents.length)
+            if (slot >= 0 && slot < this.mainInventory.length)
             {
-                this.chestContents[slot] = ItemStack.loadItemStackFromNBT(nbttag);
+                this.mainInventory[slot] = ItemStack.loadItemStackFromNBT(nbttag);
             }
         }
         
@@ -274,7 +286,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack itemstack) {
-		this.chestContents[slot] = itemstack;
+		this.mainInventory[slot] = itemstack;
 
 		if (itemstack != null
 				&& itemstack.stackSize > this.getInventoryStackLimit()) {
@@ -282,6 +294,29 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		}
 
 		this.onInventoryChanged();
+	}
+	
+	public boolean addToInventory(Item item, int number)
+	{
+		for(int i = 5; i <= 15; i++)
+		{
+			ItemStack slot = this.getStackInSlot(i);
+			if(slot == null)
+			{
+				this.mainInventory[i] = new ItemStack(item, number);
+				return true;
+			}
+			if(slot.getItem() == item)
+			{
+				int size = slot.stackSize + number;
+				if(size <= 64)
+				{
+					this.mainInventory[i] = new ItemStack(item, size);
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -311,9 +346,16 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		this.storageUpgrades = 0;
 		this.transformerUpgrades = 0;
 		this.overclockerUpgrades = 0;
-		for(int i = 0; i < this.chestContents.length; i++)
+		this.teslaUpgrade = 0;
+		this.energyUse = 0.25;
+		for(int i = 0; i < this.mainInventory.length; i++)
 		{
-			ItemStack stack = this.chestContents[i]; 
+			ItemStack stack = this.mainInventory[i]; 
+			if(stack == null)
+			{
+				continue;
+			}
+			
 			if(stack.isItemEqual(Config.getIC2Item("transformerUpgrade")))
 			{
 				this.transformerUpgrades = this.transformerUpgrades + stack.stackSize;
@@ -327,6 +369,11 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			if(stack.isItemEqual(Config.getIC2Item("overclockerUpgrade")))
 			{
 				this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
+			}
+			
+			if(stack.getItem() instanceof ILockUpgrade)
+			{
+				((ILockUpgrade)stack.getItem()).updateUpgrade(stack, this);
 			}
 		}
 		this.extraStorage = this.storageUpgrades * UPGRADE_ENERGY_STORAGE;
@@ -343,6 +390,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		default:
 			this.maxInput = 2048;
 		}
+//		energyUse = energyUse + 0.25 * teslaUpgrade;
 	}
 
 	@Override
@@ -402,13 +450,13 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		//Items
         NBTTagList nbtlist = new NBTTagList();
 
-        for (int i = 0; i < this.chestContents.length; ++i)
+        for (int i = 0; i < this.mainInventory.length; ++i)
         {
-            if (this.chestContents[i] != null)
+            if (this.mainInventory[i] != null)
             {
                 NBTTagCompound nbttag = new NBTTagCompound();
                 nbttag.setByte("Slot", (byte)i);
-                this.chestContents[i].writeToNBT(nbttag);
+                this.mainInventory[i].writeToNBT(nbttag);
                 nbtlist.appendTag(nbttag);
             }
         }

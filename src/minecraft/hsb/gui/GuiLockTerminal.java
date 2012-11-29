@@ -4,6 +4,7 @@ import ic2.api.NetworkHelper;
 
 import org.lwjgl.opengl.GL11;
 
+import hsb.ILockUpgrade;
 import hsb.ModHsbCore;
 import hsb.TileEntityLockTerminal;
 import hsb.config.Config;
@@ -12,6 +13,7 @@ import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiContainer;
 import net.minecraft.src.GuiScreen;
+import net.minecraft.src.ItemStack;
 
 public class GuiLockTerminal extends GuiContainer
 {
@@ -87,8 +89,13 @@ public class GuiLockTerminal extends GuiContainer
         		bPosY = 23; // one time bPosY + 20
         	}
         	bPosX= (i % 5) * buttonSize + 4;
-        	if(i<maxButtons)
-        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, String.valueOf(buttonSize)));
+        	ItemStack stack = te.getStackInSlot(i+5);
+        	if(stack != null)
+        	{
+        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, ((ILockUpgrade)stack.getItem()).getButtonName()));
+        	}
+//        	if(i<maxButtons)
+//        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, String.valueOf(buttonSize)));
         }
 //        this.controlList.add(new GuiButton(0, xPos + xSize - 57, yPos + ySize - 94, 52, 20, lock));
 //        this.controlList.add(new GuiButton(1, xPos + xSize - 57, yPos + ySize - 54, 52, 20, "Upgrades"));
@@ -124,12 +131,22 @@ public class GuiLockTerminal extends GuiContainer
             	
                 break;
             case 2: 
-            	this.entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+//            	this.entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+            	if(!Config.ECLIPSE)
+            	{
+            		NetworkHelper.initiateClientTileEntityEvent(te, -1);
+            	}
+            	break;
         }
         if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
         {
         	//do something upgrades TODO
         	this.entityplayer.sendChatToPlayer("Hello, you have pressed button: " + (guibutton.id-this.buttonIdStart));
+        	ItemStack stack = te.getStackInSlot(guibutton.id+5-this.buttonIdStart);
+        	if(stack != null)
+        	{
+        		((ILockUpgrade)stack.getItem()).onButtonClicked(te, stack, entityplayer);
+        	}
         }
 
         super.actionPerformed(guibutton);

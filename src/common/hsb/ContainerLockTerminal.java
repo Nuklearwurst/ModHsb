@@ -36,7 +36,7 @@ public class ContainerLockTerminal extends Container {
         this.te = te;
         this.inventory = te;
         inventorySize = inventory.getSizeInventory();
-        int index = 0;
+//        int index = 0;
         int reihe;
         int spalte;
         //Block Inventory
@@ -77,10 +77,10 @@ public class ContainerLockTerminal extends Container {
         // TODO Auto-generated method stub
         return this.te.isUseableByPlayer(entityplayer);
     }
-    public ItemStack transferStackInSlot(int i)
-    {
-        return null;
-    }
+//    public ItemStack transferStackInSlot(int i)
+//    {
+//        return null;
+//    }
     @Override
 	public void addCraftingToCrafters(ICrafting par1ICrafting)
     {

@@ -30,7 +30,9 @@ public abstract class TileEntityHsb extends TileEntity
 	public int port = 0;
 	public String pass;
 	public boolean removed = false;
-	
+	public int xTer = 0;
+	public int yTer = 0;
+	public int zTer = 0;
 	
 	public TileEntityHsb() {
 		super();
@@ -41,6 +43,13 @@ public abstract class TileEntityHsb extends TileEntity
 		port = 0;
 		pass = "password";
 
+	}
+	
+	public TileEntityLockTerminal getConnectedTerminal() {
+		TileEntity te = this.worldObj.getBlockTileEntity(xTer, yTer, zTer);
+		if(te instanceof TileEntityLockTerminal)
+			return (TileEntityLockTerminal) te;
+		return null;
 	}
 	
 	@Override
@@ -107,6 +116,9 @@ public abstract class TileEntityHsb extends TileEntity
         prevLocked = locked;
         port = nbttagcompound.getInteger("port");
         pass = nbttagcompound.getString("pass");
+        xTer = nbttagcompound.getInteger("xTer");
+        yTer = nbttagcompound.getInteger("yTer");
+        zTer = nbttagcompound.getInteger("zTer");
     	this.onInventoryChanged();
     }
 	
@@ -160,6 +172,9 @@ public abstract class TileEntityHsb extends TileEntity
 		//locking
 		if(value)
 		{
+			this.xTer = te.xCoord;
+			this.yTer = te.yCoord;
+			this.zTer = te.zCoord;
 			te.blocksInUse++;
 			this.pass = pass;
 		}
@@ -236,6 +251,9 @@ public abstract class TileEntityHsb extends TileEntity
         nbttagcompound.setBoolean("locked", locked);
         nbttagcompound.setInteger("port", port);
         nbttagcompound.setString("pass", pass);
+        nbttagcompound.setInteger("xTer", xTer);
+        nbttagcompound.setInteger("yTer", yTer);
+        nbttagcompound.setInteger("zTer", zTer);
     }
     
 	@Override

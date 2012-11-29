@@ -34,18 +34,7 @@ public class GuiLockTerminalOptions extends GuiContainer
     private int yPos;
     private Container container;
     private int port;
-    
-    //TODO design
-    /*
-     * Design:
-     * Buttons:
-     * 	exit
-     * 	back
-     * 	port
-     * 
-     * Password
-     * Upgrades
-     */
+
 
     public GuiLockTerminalOptions(TileEntityLockTerminal te, Container container, EntityPlayer entityplayer)
     {
@@ -55,6 +44,7 @@ public class GuiLockTerminalOptions extends GuiContainer
         this.entityplayer = entityplayer;
         xSize = 228;
         ySize = 222;
+        port = te.port;
     }
     public void initGui()
     {
@@ -74,11 +64,9 @@ public class GuiLockTerminalOptions extends GuiContainer
         this.textField.setMaxStringLength(te.defaultPassLength + te.extraPassLength);
         this.textField.setFocused(false);
         this.textField.setText(te.pass);
+        
+        
 
-        //Normal width = 52px
-        //TODO Design
-        int bPosX = 4;
-        int bPosY = 4;
         
         
         this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
@@ -111,7 +99,11 @@ public class GuiLockTerminalOptions extends GuiContainer
                 this.updatePort(+10);
                 break;
             case 5:
-            	this.entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+//            	this.entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+            	if(!Config.ECLIPSE)
+            	{
+            		NetworkHelper.initiateClientTileEntityEvent(te, -2);
+            	}
             	break;
         }
         super.actionPerformed(guibutton);

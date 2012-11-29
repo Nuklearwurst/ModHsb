@@ -30,6 +30,7 @@ public class ContainerLockTerminalOptions extends Container {
         	FMLLog.log(Level.SEVERE, "ContainerLockTermninal te == null!! BUG!");
         }
 
+        System.out.println("Hallo: " + ModHsbCore.side);
         this.invPlayer = entityplayer.inventory;
         this.te = te;
         this.inventory = te;
@@ -38,9 +39,9 @@ public class ContainerLockTerminalOptions extends Container {
         int reihe;
         int spalte;
         //Block Inventory
-        for (reihe = 0; reihe < 9; ++reihe)
+        for (reihe = 0; reihe < 10; ++reihe)
         {
-            this.addSlotToContainer(new Slot(invPlayer, reihe, 25 -26 + reihe * 18, 10 - 28));
+            this.addSlotToContainer(new SlotLockTerminal(inventory, reihe + 5, 25 -26 + reihe * 18, 10 - 28));
         }
 
         // Player Inventory
@@ -65,9 +66,16 @@ public class ContainerLockTerminalOptions extends Container {
     {
         return this.te.isUseableByPlayer(entityplayer);
     }
-    public ItemStack transferStackInSlot(int i)
+//    @Override
+//    public ItemStack transferStackInSlot(int i)
+//    {
+//        return null;
+//    }
+    @Override
+    public void onCraftGuiClosed(EntityPlayer player)
     {
-        return null;
+    	super.onCraftGuiClosed(player);
+    	this.te.updateUpgrades(player);
     }
 
 }

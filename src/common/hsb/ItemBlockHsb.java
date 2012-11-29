@@ -15,7 +15,6 @@ public class ItemBlockHsb extends ItemBlock {
 		super(id);
         this.setMaxDamage(0);
         this.setHasSubtypes(true);
-//        Items.itemBlockHsb = this;
 	}
     @SideOnly(Side.CLIENT)
 
@@ -44,6 +43,9 @@ public class ItemBlockHsb extends ItemBlock {
     		
     	case 1:
     		return "hsbLockTerminal";
+    		
+    	case 2:
+    		return "hsbDoorBase";
     	}
     	return null;
     }

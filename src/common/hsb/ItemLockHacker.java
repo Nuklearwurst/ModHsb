@@ -1,6 +1,8 @@
 package hsb;
 
+import hsb.config.Config;
 import hsb.config.Items;
+import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.Item;
@@ -8,40 +10,41 @@ import net.minecraft.src.ItemStack;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
 
-public class ItemLockMonitor extends Item
+public class ItemLockHacker extends Item
 	implements IElectricItem
 {
 
-	public ItemLockMonitor(int id) {
+	private int energyUse = 2;
+
+	public ItemLockHacker(int id) {
 		super(id);
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public boolean canProvideEnergy() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public int getChargedItemId() {
-		return Items.itemLockMonitor.shiftedIndex;
+		return Items.itemLockHacker.shiftedIndex;
 	}
 
 	@Override
 	public int getEmptyItemId() {
-		return Items.itemLockMonitorEmpty.shiftedIndex;
+		return Items.itemLockHacker.shiftedIndex;
 	}
 
 	@Override
 	public int getMaxCharge() {
-		//TODO
+		// TODO Auto-generated method stub
 		return 1000;
 	}
 
 	@Override
 	public int getTier() {
-		//TODO
+		// TODO Auto-generated method stub
 		return 1;
 	}
 
@@ -58,20 +61,37 @@ public class ItemLockMonitor extends Item
 		{
 			if(((TileEntityHsb) te).locked)
 			{
-				if(world.isRemote)
-					entityplayer.sendChatToPlayer("Locked!");
+				entityplayer.sendChatToPlayer("Locked!");
 				return true;
+			} else {
+				if(hackPort(itemstack, entityplayer,world, x, y, z, side, true, true)) {
+					entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+				}
 			}
 			
 		}
-		if(world.isRemote)
-			entityplayer.sendChatToPlayer("This does nothing yet!");
-		return true;
+		return false;
+	}
+
+	private boolean hackPort(ItemStack itemstack, EntityPlayer entityplayer,
+			World world, int x, int y, int z, int side, boolean simulate, boolean par) {
+		TileEntityHsb te = (TileEntityHsb) world.getBlockTileEntity(x, y, z);
+		if(!Config.ECLIPSE)
+		while(ElectricItem.canUse(itemstack, energyUse))
+		{
+			ElectricItem.use(itemstack, energyUse, entityplayer);
+			if(world.rand.nextInt(Config.maxPort) == te.port)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	@Override
 	public String getTextureFile() {
 		return CommonProxy.TEXTURE_ITEMS;
 		
 	}
+	
 
 }

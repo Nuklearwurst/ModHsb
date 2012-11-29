@@ -50,18 +50,26 @@ public class BlockHsbDoor extends BlockDoor {
     /**
      * Called whenever the block is added into the world. Args: world, x, y, z
      */
-    public void onBlockAdded(World par1World, int par2, int par3, int par4)
+    public void onBlockAdded(World world, int x, int y, int z)
     {
-        super.onBlockAdded(par1World, par2, par3, par4);
+        super.onBlockAdded(world, x, y, z);
     }
 	
     @Override
 	/**
      * ejects contained items into the world, and notifies neighbours of an update, as appropriate
      */
-    public void breakBlock(World par1World, int par2, int par3, int par4, int par5, int par6)
+    public void breakBlock(World world, int x, int y, int z, int par5, int par6)
     {
-        super.breakBlock(par1World, par2, par3, par4, par5, par6);
+    	if(world.getBlockMetadata(x, y, z) < 8)
+    	{
+    		TileEntity te = world.getBlockTileEntity(x, y, z);
+    		if(te != null && te instanceof TileEntityDoorBase)
+    		{
+    			((TileEntityDoorBase)te).onDoorBreak(world, x, y, z);
+    		}
+    	}
+        super.breakBlock(world, x, y, z, par5, par6);
     }
 	
     @Override
@@ -69,7 +77,22 @@ public class BlockHsbDoor extends BlockDoor {
     {
     	int meta = world.getBlockMetadata(x, y, z);
     	TileEntity te = this.getTileEntity(world, x, y, z, meta);
-    	this.toggleDoor(world, x, y, z, entityplayer);
+    	if(te != null && te instanceof TileEntityDoorBase)
+    	{
+    		if(entityplayer.getEntityName() == ((TileEntityDoorBase)te).placer && ((TileEntityDoorBase)te).upgradePlayer)
+    		{
+    			this.toggleDoor(world, x, y, z, entityplayer);
+    		} else {
+    			if(world.isRemote)
+    			{
+    				entityplayer.sendChatToPlayer("You are not Allowed to enter!");
+    				if(Config.DEBUG)
+    				{
+    					entityplayer.sendChatToPlayer("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.getEntityName());
+    				}
+    			}
+    		}
+    	}
         return true;
     }
     
@@ -159,6 +182,15 @@ public class BlockHsbDoor extends BlockDoor {
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player) 
     {
+		if(world.getBlockMetadata(x, y, z) < 8)
+		{
+			TileEntity te = world.getBlockTileEntity(x, y, z);
+			if(te instanceof TileEntityDoorBase)
+			{
+				((TileEntityDoorBase) te).upgradePlayer = true;
+				((TileEntityDoorBase) te).placer = ((EntityPlayer)player).getEntityName();
+			}
+		}
     }
     @SideOnly(Side.CLIENT)
 

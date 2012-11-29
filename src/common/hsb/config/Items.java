@@ -9,19 +9,32 @@ import net.minecraft.src.ItemStack;
 public class Items {
 
 	//IC2 Items
-	static ItemStack reinforcedStone = Config.getIC2Item("reinforcedStone");
-	static ItemStack circuit = Config.getIC2Item("electronicCircuit");
-	static ItemStack refinedIron = Config.getIC2Item("refinedIronIngot");
-	static ItemStack battery_empty = Config.getIC2Item("reBattery");
+	static ItemStack reinforcedStone;
+	static ItemStack circuit;
+	static ItemStack refinedIron;
+	static ItemStack battery_empty;
+	
+	public static void initIC2() {
+		reinforcedStone = Config.getIC2Item("reinforcedStone");
+		circuit = Config.getIC2Item("electronicCircuit");
+		refinedIron = Config.getIC2Item("refinedIronIngot");
+		battery_empty = Config.getIC2Item("reBattery");
+	}
 	
 	//List of Items
 	public static Item itemDebugTool;
 	public static Item itemBlockPlacer;	
 	public static Item itemBlockPlacerEmpty;
+	public static Item itemLockMonitor;
+	public static Item itemLockMonitorEmpty;
+	public static Item itemLockHacker;
+	public static Item itemLockHackerEmpty;
 	//ItemBlocks
 	public static Item itemBlockHsb;
 	
 	public static Item itemHsbDoor;
+	
+	public static Item itemUpgradeTesla;
 	
 	//Not in use!
 //	public static Item itemBlockBuilding;

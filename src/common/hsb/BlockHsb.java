@@ -11,9 +11,12 @@ import java.util.Random;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 
+import net.minecraft.src.AxisAlignedBB;
 import net.minecraft.src.Block;
 import net.minecraft.src.BlockContainer;
 import net.minecraft.src.CreativeTabs;
+import net.minecraft.src.DamageSource;
+import net.minecraft.src.Entity;
 import net.minecraft.src.EntityLiving;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.IBlockAccess;
@@ -166,6 +169,21 @@ public class BlockHsb extends BlockContainer {
     	
     }
     @Override
+    public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
+    {
+    	TileEntity te = world.getBlockTileEntity(x, y, z);
+        if(te instanceof TileEntityHsb)
+        {
+        	TileEntity ter = world.getBlockTileEntity(((TileEntityHsb) te).xTer, ((TileEntityHsb) te).yTer, ((TileEntityHsb) te).zTer);
+        	if( ter instanceof TileEntityLockTerminal)
+        	{
+        		float var5 = 0.0625F;
+                return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool((double)((float)x + var5), (double)y, (double)((float)z + var5), (double)((float)(x + 1) - var5), (double)(y + 1), (double)((float)(z + 1) - var5));
+        	}
+        }
+        return super.getSelectedBoundingBoxFromPool(world, x, y, z);
+    }
+    @Override
 	/**
      * ejects contained items into the world, and notifies neighbours of an update, as appropriate
      */
@@ -217,6 +235,27 @@ public class BlockHsb extends BlockContainer {
                 }
             }
         }          
+    }
+    @Override
+    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) 
+    {
+    	
+    	System.out.println("Collided!");
+    	TileEntity te = world.getBlockTileEntity(x, y, z);
+    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
+    	{
+    		TileEntity terminal = ((TileEntityHsb)te).getConnectedTerminal();
+    		if(terminal != null)
+    		{
+    			System.out.println("HsbTerminal TE found!");
+    			int tesla = ((TileEntityLockTerminal)terminal).teslaUpgrade;
+				System.out.println("Tesla found:" + tesla);
+    			if(tesla > 0)
+    			{
+    				entity.attackEntityFrom(DamageSource.magic, tesla);
+    			}
+    		}
+    	}
     }
 
 }

@@ -56,11 +56,7 @@ public class GuiLockMonitorDoor extends GuiScreen {
         xPos = width / 2 - xSize / 2;
         yPos = height / 2 - ySize / 2;
         controlList.clear();
-        controlList.add(new GuiButton(0, xPos + xSize / 2 - 30, yPos + ySize / 2 - 10, 20 , 20 , "-1"));
-        controlList.add(new GuiButton(1, xPos + xSize / 2 + 10, yPos + ySize / 2 - 10, 20, 20, "+1"));
-        controlList.add(new GuiButton(2, xPos + xSize / 2 - 50, yPos + ySize / 2 - 10, 20 , 20 , "-10"));
-        controlList.add(new GuiButton(3, xPos + xSize / 2 + 30, yPos + ySize / 2 - 10, 20, 20, "+10"));
-        controlList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 80, 40, 20, "Done"));
+        controlList.add(new GuiButton(0, xPos + xSize / 2 + 40, yPos + 80, 40, 20, "Done"));
         super.initGui();
     	
     }
@@ -68,40 +64,10 @@ public class GuiLockMonitorDoor extends GuiScreen {
 	    {
 	        switch (guibutton.id)
 	        {
+
 	            case 0:
-	                this.updatePort(-1);
-	                break;
-
-	            case 1:
-	                this.updatePort(1);
-	                break;
-
-	            case 2:
-	                this.updatePort(-10);
-	                break;
-
-	            case 3:
-	                this.updatePort(10);
-	                break;
-
-	            case 4:
 	                this.mc.displayGuiScreen(null);
 	                break;
-	        }
-	    }
-	 //TODO
-	    public void updatePort(int number)
-	    {
-	        this.port += number;
-
-	        if (this.port < 0)
-	        {
-	            this.port = Config.maxPort + this.port;
-	        }
-
-	        if (this.port >= Config.maxPort)
-	        {
-	            this.port -= Config.maxPort;
 	        }
 	    }
 	    public void updateScreen()

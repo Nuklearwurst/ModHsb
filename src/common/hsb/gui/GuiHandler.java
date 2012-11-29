@@ -26,7 +26,7 @@ public class GuiHandler
 		case GUI_LOCKTERMINAL:
 			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
 		case GUI_LOCKTERMINAL_OPTIONS :
-			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
+			return new ContainerLockTerminalOptions((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
 		default:
 			return null;
 		}
