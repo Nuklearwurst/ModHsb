@@ -75,7 +75,7 @@ public class ContainerLockTerminalOptions extends Container {
     public void onCraftGuiClosed(EntityPlayer player)
     {
     	super.onCraftGuiClosed(player);
-    	this.te.updateUpgrades(player);
+//    	this.te.updateUpgrades(player);
     }
 
 }

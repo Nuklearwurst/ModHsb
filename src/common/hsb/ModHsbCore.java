@@ -26,25 +26,30 @@ import cpw.mods.fml.common.registry.GameRegistry;
 /*
  * This Mod Part adds / plans to add:
  * 
- * block for building
- * door
- * fence
- * block for control
- * block for interaction
+ * block for building - done
+ * door - (no Upgrades yet!)
+ * fence - TODO
+ * block for control - done
+ * 	--> Upgrade System
+ * 		- 
+ * block for interaction - TODO
  * some upgrades
- * some light versions of the fence
+ * 	in progress:
+ * 		Tesla
+ * 
+ * some light versions of the fence - TODO
+ * 
  * ?? also for interaction
  * ???interaction cabeling/controlling
  * ?monitoring block
  * 
- * removetool (electric)
- * placertool (electric)
+ * placer/removetool (electric) - done
  * adminbreaker ?
  * 
  * upgrades
- * 
+ * 	tesla
  * Added:
- * DebugTool //TODO
+ * DebugTool
  * 
  */
 /**

@@ -68,6 +68,7 @@ public abstract class TileEntityHsb extends TileEntity
 	    list.add("port");
 	    list.add("pass");
 	    list.add("locked");
+	    
 	    return list;
 	}
 	

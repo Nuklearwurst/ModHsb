@@ -1,5 +1,6 @@
 package hsb;
 
+import hsb.api.UpgradeHsb;
 import hsb.config.Config;
 import hsb.gui.GuiHandler;
 import ic2.api.IWrenchable;
@@ -169,21 +170,6 @@ public class BlockHsb extends BlockContainer {
     	
     }
     @Override
-    public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
-    {
-    	TileEntity te = world.getBlockTileEntity(x, y, z);
-        if(te instanceof TileEntityHsb)
-        {
-        	TileEntity ter = world.getBlockTileEntity(((TileEntityHsb) te).xTer, ((TileEntityHsb) te).yTer, ((TileEntityHsb) te).zTer);
-        	if( ter instanceof TileEntityLockTerminal)
-        	{
-        		float var5 = 0.0625F;
-                return AxisAlignedBB.getAABBPool().addOrModifyAABBInPool((double)((float)x + var5), (double)y, (double)((float)z + var5), (double)((float)(x + 1) - var5), (double)(y + 1), (double)((float)(z + 1) - var5));
-        	}
-        }
-        return super.getSelectedBoundingBoxFromPool(world, x, y, z);
-    }
-    @Override
 	/**
      * ejects contained items into the world, and notifies neighbours of an update, as appropriate
      */
@@ -237,10 +223,8 @@ public class BlockHsb extends BlockContainer {
         }          
     }
     @Override
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) 
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) 
     {
-    	
-    	System.out.println("Collided!");
     	TileEntity te = world.getBlockTileEntity(x, y, z);
     	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
     	{
@@ -248,11 +232,13 @@ public class BlockHsb extends BlockContainer {
     		if(terminal != null)
     		{
     			System.out.println("HsbTerminal TE found!");
-    			int tesla = ((TileEntityLockTerminal)terminal).teslaUpgrade;
+    			int tesla = ((TileEntityLockTerminal)terminal).getUpgrade(UpgradeHsb.TESLA).number;
 				System.out.println("Tesla found:" + tesla);
     			if(tesla > 0)
     			{
-    				entity.attackEntityFrom(DamageSource.magic, tesla);
+    				if(world.isRemote)
+    					player.sendChatToPlayer("Don't do that!");
+    				player.attackEntityFrom(DamageSource.magic, tesla);
     			}
     		}
     	}

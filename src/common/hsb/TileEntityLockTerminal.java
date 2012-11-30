@@ -1,5 +1,12 @@
 package hsb;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import ic2.api.Direction;
 import ic2.api.EnergyNet;
 import ic2.api.IEnergySink;
@@ -11,6 +18,7 @@ import net.minecraft.src.ItemStack;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.NBTTagList;
 import net.minecraft.src.TileEntity;
+import hsb.api.UpgradeHsb;
 import hsb.config.Config;
 import hsb.gui.GuiHandler;
 
@@ -39,7 +47,8 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	private int transformerUpgrades = 0;
 	private int overclockerUpgrades = 0;
 	//other
-	public int teslaUpgrade = 0;
+	private Map upgrades;
+//	public int teslaUpgrade = 0;
 	
 	public int extraStorage = 0;
 	public int extraPassLength = 0;//TODO old
@@ -48,6 +57,8 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	public TileEntityLockTerminal() {
 		super();
+		upgrades = new HashMap();
+		
 		blocksInUse = 0;
 		isAddedToEnergyNet = false;
 	}
@@ -156,6 +167,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		// Inventory Name
 		return "LockTerminal Inventory";
 	}
+	
+	public UpgradeHsb getUpgrade(String id) {
+		return (UpgradeHsb) this.upgrades.get(id);
+	}
 
 	@Override
 	public int getSizeInventory() {
@@ -234,6 +249,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		switch (event) {
 		case -2:
 			player.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, worldObj, xCoord, yCoord, zCoord);
+			break;
 		case -1:
 			player.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, worldObj, xCoord, yCoord, zCoord);
 			break;
@@ -341,13 +357,22 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		return super.transferSignal(side, te, value, pass, port);
 	}
 	
-	public void updateUpgrades(EntityPlayer player)
+	public void onInventoryChanged()
 	{
+		//TODO
+		//needs to map Upgrades tp an instance of the Upgrade and needs to be able to read them all out/ refresh the data without losing information
+		
+		//IC2
 		this.storageUpgrades = 0;
 		this.transformerUpgrades = 0;
 		this.overclockerUpgrades = 0;
-		this.teslaUpgrade = 0;
+		
+		//Upgrade Data
+		//creating new Map for new data
+		Map newData = new HashMap();
+		
 		this.energyUse = 0.25;
+
 		for(int i = 0; i < this.mainInventory.length; i++)
 		{
 			ItemStack stack = this.mainInventory[i]; 
@@ -371,11 +396,48 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
 			}
 			
+			//register Upgrades (ILockUpgrade.class AND UpgradeHsb.class)
 			if(stack.getItem() instanceof ILockUpgrade)
 			{
-				((ILockUpgrade)stack.getItem()).updateUpgrade(stack, this);
+				ILockUpgrade item = (ILockUpgrade) stack.getItem();
+				if(newData.containsKey(item.getUniqueId()))
+				{
+					UpgradeHsb upgrade = (UpgradeHsb) newData.get(item.getUniqueId());
+					upgrade.number = upgrade.number + stack.stackSize;
+				} else {
+					UpgradeHsb upgrade = item.getUpgrade();
+					upgrade.number = stack.stackSize;
+					newData.put(item.getUniqueId(), upgrade);
+				}
 			}
 		}
+		
+		//backup old Map
+		Map oldData = upgrades;
+		//clearing old Map
+		this.upgrades.clear();
+		//getting keys to refresh
+		Iterator keys = newData.keySet().iterator();
+		while(keys.hasNext())
+		{
+			String c_key = (String) keys.next();
+			//get the new Upgrade
+			UpgradeHsb upgradeNew = (UpgradeHsb) newData.get(c_key);
+			//check for old data to retain
+			if(oldData.containsKey(c_key))
+			{
+				UpgradeHsb upgradeOld = (UpgradeHsb) newData.get(c_key);
+				//updating number of Upgrades
+				upgradeOld.number = upgradeNew.number;
+				//put the new data into the Map
+				upgrades.put(c_key, upgradeOld);
+				//TODO Upgrade: own fields to get
+			} else {
+				//put the new Upgrade into the Map
+				upgrades.put(c_key, upgradeNew);
+			}
+		}
+		//register IC2 Upgrades
 		this.extraStorage = this.storageUpgrades * UPGRADE_ENERGY_STORAGE;
 		switch(this.transformerUpgrades)
 		{
@@ -390,7 +452,19 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		default:
 			this.maxInput = 2048;
 		}
-//		energyUse = energyUse + 0.25 * teslaUpgrade;
+		this.updateUpgrades();
+		super.onInventoryChanged();
+	}
+	
+	public void updateUpgrades(){
+		Iterator keys = upgrades.keySet().iterator();
+		while(keys.hasNext())
+		{
+			UpgradeHsb upgrade = this.getUpgrade((String) keys.next());
+			if(upgrade!=null)
+				upgrade.item.updateUpgrade(this);
+		}
+		
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package hsb;
 
+import hsb.api.UpgradeHsb;
 import hsb.config.Items;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
@@ -38,9 +39,19 @@ public class ItemTeslaUpgrade extends Item
 		
 	}
 	@Override
-	public void updateUpgrade(ItemStack stack, TileEntityLockTerminal te) {
-		te.teslaUpgrade = te.teslaUpgrade + stack.stackSize;
-		te.energyUse = te.energyUse + 0.25 * stack.stackSize;
+	public void updateUpgrade(TileEntityLockTerminal te) {
+//		int i = te.teslaUpgrade + stack.stackSize;
+//		if(i > 32)
+//		{
+//			i = 32;
+//		}
+//		te.teslaUpgrade = i; 
+//		te.energyUse = te.energyUse + 0.25 * stack.stackSize;
+		UpgradeHsb upgrade = te.getUpgrade(getUniqueId());
+		if(upgrade.number > 32)
+			upgrade.number = 32;
+		if(upgrade.active)
+			te.energyUse = te.energyUse + 0.25 * upgrade.number;
 		
 	}
 
@@ -53,5 +64,14 @@ public class ItemTeslaUpgrade extends Item
 	@Override
 	public String getButtonName() {
 		return "Tesla";
+	}
+	@Override
+	public String getUniqueId() {
+		return "tesla";
+	}
+
+	@Override
+	public UpgradeHsb getUpgrade() {
+		return new UpgradeHsb(this);
 	}
 }
