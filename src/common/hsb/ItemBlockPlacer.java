@@ -155,7 +155,7 @@ public class ItemBlockPlacer extends Item
 		                ++x;
 		            }
 		        }
-		        else if (!entityplayer.func_82247_a(x, y, z, side, itemstack))
+		        else if (!entityplayer.canPlayerEdit(x, y, z, side, itemstack))
 		        {
 		            return false;
 		        }
@@ -264,7 +264,6 @@ public class ItemBlockPlacer extends Item
 			
 			if (world.getBlockId(x, y, z) == this.blockID)
 			{
-			    Block.blocksList[this.blockID].updateBlockMetadata(world, x, y, z, side, hitX, hitY, hitZ);
 			    Block.blocksList[this.blockID].onBlockPlacedBy(world, x, y, z, player);
 			    NBTTagCompound tag = stack.getTagCompound();
 			    if(tag!=null)

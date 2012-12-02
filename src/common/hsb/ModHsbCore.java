@@ -1,5 +1,8 @@
 package hsb;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.src.Material;
 import hsb.config.Config;
 import hsb.config.Defaults;

@@ -41,7 +41,7 @@ public class ItemHsbDoor extends ItemDoor{
             Block block = Items.blockHsbDoor;
 
 
-            if (player.func_82247_a(x, y, z, side, stack) && player.func_82247_a(x, y + 1, z, side, stack))
+            if (player.canPlayerEdit(x, y, z, side, stack) && player.canPlayerEdit(x, y + 1, z, side, stack))
             {
                 if (!block.canPlaceBlockAt(world, x, y, z))
                 {

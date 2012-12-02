@@ -104,12 +104,12 @@ public class BlockHsbDoor extends BlockDoor {
         if ((meta & 8) == 0)
         {
             world.setBlockMetadataWithNotify(x, y, z, var11);
-            world.markBlocksDirty(x, y, z, x, y, z);
+            world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
         }
         else
         {
             world.setBlockMetadataWithNotify(x, y - 1, z, var11);
-            world.markBlocksDirty(x, y - 1, z, x, y, z);
+            world.markBlockRangeForRenderUpdate(x, y - 1, z, x, y, z);
         }
 
         world.playAuxSFXAtEntity(entityplayer, 1003, x, y, z, 0);

@@ -85,7 +85,7 @@ public class ContainerLockTerminal extends Container {
 	public void addCraftingToCrafters(ICrafting par1ICrafting)
     {
         super.addCraftingToCrafters(par1ICrafting);
-        par1ICrafting.updateCraftingInventoryInfo(this, 0, this.te.energyStored);
+        par1ICrafting.sendProgressBarUpdate(this, 0, this.te.energyStored);
     	int lockInt;
     	if(this.te.locked)
     	{
@@ -93,7 +93,7 @@ public class ContainerLockTerminal extends Container {
     	} else {
     		lockInt = 0;
     	}
-        par1ICrafting.updateCraftingInventoryInfo(this, 1, lockInt);
+        par1ICrafting.sendProgressBarUpdate(this, 1, lockInt);
     }
 
     /**
@@ -111,7 +111,7 @@ public class ContainerLockTerminal extends Container {
 
             if (this.lastEnergyStored != this.te.energyStored)
             {
-                var2.updateCraftingInventoryInfo(this, 0, this.te.energyStored);
+                var2.sendProgressBarUpdate(this, 0, this.te.energyStored);
             }
             if (this.lastLocked != this.te.locked)
             {
@@ -122,7 +122,7 @@ public class ContainerLockTerminal extends Container {
             	} else {
             		lockInt = 0;
             	}
-            	var2.updateCraftingInventoryInfo(this, 1, lockInt);
+            	var2.sendProgressBarUpdate(this, 1, lockInt);
             }
         }
 

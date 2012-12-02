@@ -1,5 +1,6 @@
 package hsb;
 
+import ic2.api.NetworkHelper;
 import hsb.api.UpgradeHsb;
 import hsb.config.Items;
 import net.minecraft.src.CreativeTabs;
@@ -47,17 +48,32 @@ public class ItemTeslaUpgrade extends Item
 //		}
 //		te.teslaUpgrade = i; 
 //		te.energyUse = te.energyUse + 0.25 * stack.stackSize;
-		UpgradeHsb upgrade = te.getUpgrade(getUniqueId());
-		if(upgrade.number > 32)
-			upgrade.number = 32;
-		if(upgrade.active)
-			te.energyUse = te.energyUse + 0.25 * upgrade.number;
+		int index = te.getUpgradeId(this);
+		if(te.upgradeCount[index] > 32)
+			te.upgradeCount[index]  = 32;
+		if(te.upgradeActive[index])
+			te.energyUse = te.energyUse + 0.25 * te.upgradeCount[index];
 		
 	}
 
 	@Override
-	public void onButtonClicked(TileEntityLockTerminal te, ItemStack stack, EntityPlayer player) {
-		// TODO Auto-generated method stub
+	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player, int button) {
+
+		boolean active = te.upgradeActive[te.getUpgradeId(this)];
+		if(active)
+		{
+			if(!te.worldObj.isRemote)
+			{
+				player.sendChatToPlayer("Tesla Upgrade disabled!");
+			}
+			te.upgradeActive[te.getUpgradeId(this)] = false;
+		} else {
+			if(!te.worldObj.isRemote)
+			{
+				player.sendChatToPlayer("Tesla Upgrade enabled!");
+			}
+			te.upgradeActive[te.getUpgradeId(this)] = true;
+		}
 		
 	}
 
@@ -69,9 +85,9 @@ public class ItemTeslaUpgrade extends Item
 	public String getUniqueId() {
 		return "tesla";
 	}
-
-	@Override
-	public UpgradeHsb getUpgrade() {
-		return new UpgradeHsb(this);
-	}
+//
+//	@Override
+//	public UpgradeHsb getUpgrade() {
+//		return new UpgradeHsb(this);
+//	}
 }

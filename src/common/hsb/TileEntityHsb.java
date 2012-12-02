@@ -74,14 +74,11 @@ public abstract class TileEntityHsb extends TileEntity
 	
 	protected void initData()
     {
-    	if(!Config.ECLIPSE)
-    	{
-	        if(worldObj.isRemote)
-	        {
-	    		NetworkHelper.requestInitialData(this);
-	        }
-	        init = true;
-    	}
+		if(worldObj.isRemote)
+        {
+    		NetworkHelper.requestInitialData(this);
+        }
+        init = true;
     }
 	
 	@Override
@@ -96,12 +93,12 @@ public abstract class TileEntityHsb extends TileEntity
 	public void onNetworkUpdate(String field) {
 		 if (field.equals("facing") && prevFacing != facing)
 	     {
-	         worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+	         worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	         prevFacing = facing;
 	     }
 		 if (field.equals("locked") && prevLocked != locked)
 	     {
-	         worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+	         worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	         prevLocked = locked;
 	     }
 		
@@ -190,7 +187,7 @@ public abstract class TileEntityHsb extends TileEntity
 		{
 			NetworkHelper.updateTileEntityField(this, "locked");
 		}
-		worldObj.markBlockNeedsUpdate(xCoord, yCoord, zCoord);
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		return true;		
 	}
 	/**

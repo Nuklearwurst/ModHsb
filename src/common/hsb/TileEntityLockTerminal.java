@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import ic2.api.Direction;
 import ic2.api.EnergyNet;
@@ -47,8 +48,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	private int transformerUpgrades = 0;
 	private int overclockerUpgrades = 0;
 	//other
-	private Map upgrades;
-//	public int teslaUpgrade = 0;
+	private List upgrades;
+	public int[] upgradeCount = new int[9];
+	public boolean[] upgradeActive = new boolean[9];
+//	private int[] idToSlot = new int[9];
 	
 	public int extraStorage = 0;
 	public int extraPassLength = 0;//TODO old
@@ -57,7 +60,8 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	public TileEntityLockTerminal() {
 		super();
-		upgrades = new HashMap();
+		upgrades = new ArrayList();
+		
 		
 		blocksInUse = 0;
 		isAddedToEnergyNet = false;
@@ -168,8 +172,34 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		return "LockTerminal Inventory";
 	}
 	
-	public UpgradeHsb getUpgrade(String id) {
-		return (UpgradeHsb) this.upgrades.get(id);
+	@Override
+	public List<String> getNetworkedFields() {
+		List list = super.getNetworkedFields();
+	    list.add("upgradeActive");
+	    return list;
+	}
+	
+	public ILockUpgrade getUpgrade(String id) {
+		for(int i = 0; i<this.upgrades.size();i++){
+			ILockUpgrade upgrade = (ILockUpgrade) this.upgrades.get(i);
+			if(upgrade.getUniqueId() == id)
+			{
+				return upgrade;
+			}
+		}
+		return null;
+	}
+	
+	public ILockUpgrade getUpgrade(int id) {
+		return (ILockUpgrade) this.upgrades.get(id);
+	}
+	public int getUpgradeId(ILockUpgrade upgrade)
+	{
+		return this.upgrades.indexOf(upgrade);
+	}
+	public int getUpgradeId(String id)
+	{
+		return this.getUpgradeId(this.getUpgrade(id));
 	}
 
 	@Override
@@ -249,19 +279,29 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		switch (event) {
 		case -2:
 			player.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, worldObj, xCoord, yCoord, zCoord);
-			break;
+			return;
 		case -1:
 			player.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, worldObj, xCoord, yCoord, zCoord);
-			break;
+			return;
 		case 0:
 			this.emitLockSignal(6, true);
-			break;
+			return;
 		case 1:
 			this.emitLockSignal(6, false);
-			break;
-		default:
-			super.onNetworkEvent(player, event);
+			return;
 		}
+		if(event >= -12 && event <= -3)
+		{
+			// -3 - -12
+			int number = event * (-1) - 3;
+			//0 - 9
+			System.out.println("HalloHallo" + number);
+			ILockUpgrade upgrade = (ILockUpgrade) this.upgrades.get(number);
+			upgrade.onButtonClicked(this, player, number);
+			this.updateEntity();
+			return;
+		}
+		super.onNetworkEvent(player, event);
 	}
 
 	@Override
@@ -368,8 +408,14 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		this.overclockerUpgrades = 0;
 		
 		//Upgrade Data
-		//creating new Map for new data
-		Map newData = new HashMap();
+//		creating new Map for new data
+//		Map newData = new HashMap();
+		//clearing List for new Data
+		List oldData = upgrades;
+		this.upgrades.clear();
+		//variable to track index of Upgrade Arrays
+		int index = 0;
+		
 		
 		this.energyUse = 0.25;
 
@@ -400,43 +446,55 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			if(stack.getItem() instanceof ILockUpgrade)
 			{
 				ILockUpgrade item = (ILockUpgrade) stack.getItem();
-				if(newData.containsKey(item.getUniqueId()))
+				if(this.upgrades.contains(item))
 				{
-					UpgradeHsb upgrade = (UpgradeHsb) newData.get(item.getUniqueId());
-					upgrade.number = upgrade.number + stack.stackSize;
+					this.upgradeCount[index] = this.upgradeCount[index] + stack.stackSize;
 				} else {
-					UpgradeHsb upgrade = item.getUpgrade();
-					upgrade.number = stack.stackSize;
-					newData.put(item.getUniqueId(), upgrade);
+					this.upgrades.add(item);
+//					System.out.println("indexList: " + this.upgrades.indexOf(item) + " index_array: " + index);
+					this.upgradeCount[index] = stack.stackSize;
+					if(!oldData.contains(item))
+						this.upgradeActive[index] = false;
 				}
+				index++;
+					
+//				if(newData.containsKey(item.getUniqueId()))
+//				{
+//					UpgradeHsb upgrade = (UpgradeHsb) newData.get(item.getUniqueId());
+//					upgrade.number = upgrade.number + stack.stackSize;
+//				} else {
+//					UpgradeHsb upgrade = item.getUpgrade();
+//					upgrade.number = stack.stackSize;
+//					newData.put(item.getUniqueId(), upgrade);
+//				}
 			}
 		}
 		
 		//backup old Map
-		Map oldData = upgrades;
+//		Map oldData = upgrades;
 		//clearing old Map
-		this.upgrades.clear();
+//		this.upgrades.clear();
 		//getting keys to refresh
-		Iterator keys = newData.keySet().iterator();
-		while(keys.hasNext())
-		{
-			String c_key = (String) keys.next();
-			//get the new Upgrade
-			UpgradeHsb upgradeNew = (UpgradeHsb) newData.get(c_key);
-			//check for old data to retain
-			if(oldData.containsKey(c_key))
-			{
-				UpgradeHsb upgradeOld = (UpgradeHsb) newData.get(c_key);
-				//updating number of Upgrades
-				upgradeOld.number = upgradeNew.number;
-				//put the new data into the Map
-				upgrades.put(c_key, upgradeOld);
-				//TODO Upgrade: own fields to get
-			} else {
-				//put the new Upgrade into the Map
-				upgrades.put(c_key, upgradeNew);
-			}
-		}
+//		Iterator keys = newData.keySet().iterator();
+//		while(keys.hasNext())
+//		{
+//			String c_key = (String) keys.next();
+//			//get the new Upgrade
+//			UpgradeHsb upgradeNew = (UpgradeHsb) newData.get(c_key);
+//			//check for old data to retain
+//			if(oldData.containsKey(c_key))
+//			{
+//				UpgradeHsb upgradeOld = (UpgradeHsb) newData.get(c_key);
+//				//updating number of Upgrades
+//				upgradeOld.number = upgradeNew.number;
+//				//put the new data into the Map
+//				upgrades.put(c_key, upgradeOld);
+//				//TODO Upgrade: own fields to get
+//			} else {
+//				//put the new Upgrade into the Map
+//				upgrades.put(c_key, upgradeNew);
+//			}
+//		}
 		//register IC2 Upgrades
 		this.extraStorage = this.storageUpgrades * UPGRADE_ENERGY_STORAGE;
 		switch(this.transformerUpgrades)
@@ -457,12 +515,9 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	}
 	
 	public void updateUpgrades(){
-		Iterator keys = upgrades.keySet().iterator();
-		while(keys.hasNext())
+		for(int i = 0; i<this.upgrades.size(); i++)
 		{
-			UpgradeHsb upgrade = this.getUpgrade((String) keys.next());
-			if(upgrade!=null)
-				upgrade.item.updateUpgrade(this);
+			((ILockUpgrade) this.upgrades.get(i)).updateUpgrade(this);
 		}
 		
 	}
@@ -471,7 +526,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public void updateEntity() {
 
 		if (!worldObj.isRemote) {
-			if (!isAddedToEnergyNet && !Config.ECLIPSE) {
+			if (!isAddedToEnergyNet) {
 				EnergyNet.getForWorld(worldObj).addTileEntity(this);
 				isAddedToEnergyNet = true;
 			}
@@ -500,6 +555,12 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 		}
 		super.updateEntity();
+	}
+	@Override
+	protected void initData()
+	{
+		this.onInventoryChanged();
+		super.initData();
 	}
 
 	@Override

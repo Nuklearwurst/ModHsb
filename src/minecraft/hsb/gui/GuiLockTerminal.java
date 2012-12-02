@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 import hsb.ILockUpgrade;
 import hsb.ModHsbCore;
 import hsb.TileEntityLockTerminal;
+import hsb.api.UpgradeHsb;
 import hsb.config.Config;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
@@ -138,15 +139,14 @@ public class GuiLockTerminal extends GuiContainer
             	}
             	break;
         }
+        //button 0 - 9
         if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
         {
-        	//do something upgrades TODO
-        	this.entityplayer.sendChatToPlayer("Hello, you have pressed button: " + (guibutton.id-this.buttonIdStart));
-        	ItemStack stack = te.getStackInSlot(guibutton.id+5-this.buttonIdStart);
-        	if(stack != null)
-        	{
-        		((ILockUpgrade)stack.getItem()).onButtonClicked(te, stack, entityplayer);
-        	}
+    		//button : 0 - 9
+    		//events: -3 - -12
+    		NetworkHelper.initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
+    		te.getUpgrade(guibutton.id-this.buttonIdStart).onButtonClicked(te, entityplayer, guibutton.id - this.buttonIdStart);
+    		te.updateUpgrades();
         }
 
         super.actionPerformed(guibutton);
