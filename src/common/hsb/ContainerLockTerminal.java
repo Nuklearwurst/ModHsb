@@ -24,13 +24,17 @@ public class ContainerLockTerminal extends Container {
     int yPos;
     private int lastEnergyStored = 0;
     private boolean lastLocked = false;
+//    private ContainerLockTerminalOptions c;
+    private boolean isTerminal = false;
     
-    public ContainerLockTerminal(TileEntityLockTerminal te, EntityPlayer entityplayer)
+    public ContainerLockTerminal(TileEntityLockTerminal te, EntityPlayer entityplayer, boolean isTerminal)
     {
+    	this.isTerminal = isTerminal;
         if (te == null)
         {
         	FMLLog.log(Level.SEVERE, "ContainerLockTermninal te == null!! BUG!");
         }
+//        c = new ContainerLockTerminalOptions(te, entityplayer);
 
         this.invPlayer = entityplayer.inventory;
         this.te = te;
@@ -39,15 +43,24 @@ public class ContainerLockTerminal extends Container {
 //        int index = 0;
         int reihe;
         int spalte;
-        //Block Inventory
-        //upgrade IC2
-        this.addSlotToContainer(new SlotMachineUpgrade(te, 0, 6 -26, 51 -28));
-        this.addSlotToContainer(new SlotMachineUpgrade(te, 1, 6 -26, 69 -28));
-        this.addSlotToContainer(new SlotMachineUpgrade(te, 2, 6 -26, 87 -28));
-        this.addSlotToContainer(new SlotMachineUpgrade(te, 3, 6 -26, 105 -28));
-        //charge
-        this.addSlotToContainer(new SlotCharge(te, 4, 34 -26, 114 -28));
-
+        if(this.isTerminal)
+        {
+	        //Block Inventory
+	        //upgrade IC2
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 0, 6 -26, 51 -28));
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 1, 6 -26, 69 -28));
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 2, 6 -26, 87 -28));
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 3, 6 -26, 105 -28));
+	        //charge
+	        this.addSlotToContainer(new SlotCharge(te, 4, 34 -26, 114 -28));
+        } else {
+            //Block Inventory
+            for (reihe = 0; reihe < 10; ++reihe)
+            {
+                this.addSlotToContainer(new SlotLockTerminal(inventory, reihe + 5, 25 -26 + reihe * 18, 10 - 28));
+            }
+        }
+        
         // Player Inventory
         for (reihe = 0; reihe < 3; ++reihe)
         {
@@ -85,15 +98,18 @@ public class ContainerLockTerminal extends Container {
 	public void addCraftingToCrafters(ICrafting par1ICrafting)
     {
         super.addCraftingToCrafters(par1ICrafting);
-        par1ICrafting.sendProgressBarUpdate(this, 0, this.te.energyStored);
-    	int lockInt;
-    	if(this.te.locked)
-    	{
-    		lockInt = 1;
-    	} else {
-    		lockInt = 0;
-    	}
-        par1ICrafting.sendProgressBarUpdate(this, 1, lockInt);
+        if(this.isTerminal)
+        {
+	        par1ICrafting.sendProgressBarUpdate(this, 0, this.te.energyStored);
+	    	int lockInt;
+	    	if(this.te.locked)
+	    	{
+	    		lockInt = 1;
+	    	} else {
+	    		lockInt = 0;
+	    	}
+	        par1ICrafting.sendProgressBarUpdate(this, 1, lockInt);
+        }
     }
 
     /**
@@ -103,51 +119,57 @@ public class ContainerLockTerminal extends Container {
 	public void updateCraftingResults()
     {
         super.updateCraftingResults();
-        Iterator var1 = this.crafters.iterator();
-
-        while (var1.hasNext())
+        if(this.isTerminal) 
         {
-            ICrafting var2 = (ICrafting)var1.next();
-
-            if (this.lastEnergyStored != this.te.energyStored)
-            {
-                var2.sendProgressBarUpdate(this, 0, this.te.energyStored);
-            }
-            if (this.lastLocked != this.te.locked)
-            {
-            	int lockInt;
-            	if(this.te.locked)
-            	{
-            		lockInt = 1;
-            	} else {
-            		lockInt = 0;
-            	}
-            	var2.sendProgressBarUpdate(this, 1, lockInt);
-            }
+	        Iterator var1 = this.crafters.iterator();
+	
+	        while (var1.hasNext())
+	        {
+	            ICrafting var2 = (ICrafting)var1.next();
+	
+	            if (this.lastEnergyStored != this.te.energyStored)
+	            {
+	                var2.sendProgressBarUpdate(this, 0, this.te.energyStored);
+	            }
+	            if (this.lastLocked != this.te.locked)
+	            {
+	            	int lockInt;
+	            	if(this.te.locked)
+	            	{
+	            		lockInt = 1;
+	            	} else {
+	            		lockInt = 0;
+	            	}
+	            	var2.sendProgressBarUpdate(this, 1, lockInt);
+	            }
+	        }
+	
+	        this.lastEnergyStored = this.te.energyStored;
+	        this.lastLocked = this.te.locked;
         }
-
-        this.lastEnergyStored = this.te.energyStored;
-        this.lastLocked = this.te.locked;
     }
 
     @Override
 	@SideOnly(Side.CLIENT)
     public void updateProgressBar(int id, int value)
     {
-        if (id == 0)
-        {
-            this.te.energyStored = value;
-        }
-        if (id == 1)
-        {
-        	if(value == 0)
-        	{
-        		this.te.locked = false;
-        	} else if(value == 1)
-        	{
-        		this.te.locked = true;
-        	}
-        }
+    	if(this.isTerminal)
+    	{
+	    	if (id == 0)
+	        {
+	            this.te.energyStored = value;
+	        }
+	        if (id == 1)
+	        {
+	        	if(value == 0)
+	        	{
+	        		this.te.locked = false;
+	        	} else if(value == 1)
+	        	{
+	        		this.te.locked = true;
+	        	}
+	        }
+    	}
     }
 
 }

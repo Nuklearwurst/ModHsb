@@ -30,7 +30,7 @@ public class ContainerLockTerminalOptions extends Container {
         	FMLLog.log(Level.SEVERE, "ContainerLockTermninal te == null!! BUG!");
         }
 
-        System.out.println("Hallo: " + ModHsbCore.side);
+//        System.out.println("Hallo: " + ModHsbCore.side);
         this.invPlayer = entityplayer.inventory;
         this.te = te;
         this.inventory = te;

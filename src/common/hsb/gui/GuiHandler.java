@@ -24,9 +24,9 @@ public class GuiHandler
 		case GUI_BLOCKPLACER:
 			return null;
 		case GUI_LOCKTERMINAL:
-			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
+			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, true);
 		case GUI_LOCKTERMINAL_OPTIONS :
-			return new ContainerLockTerminalOptions((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
+			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, false);
 		default:
 			return null;
 		}
@@ -44,12 +44,12 @@ public class GuiHandler
 		case GUI_LOCKTERMINAL:
 		{
 			TileEntityLockTerminal te = (TileEntityLockTerminal) world.getBlockTileEntity(x, y, z);
-			return new GuiLockTerminal(te , new ContainerLockTerminal(te, player), player);
+			return new GuiLockTerminal(te , new ContainerLockTerminal(te, player, true), player);
 		}
 		case GUI_LOCKTERMINAL_OPTIONS:
 		{
 			TileEntityLockTerminal te = (TileEntityLockTerminal) world.getBlockTileEntity(x, y, z);
-			return new GuiLockTerminalOptions(te, new ContainerLockTerminalOptions(te, player), player);
+			return new GuiLockTerminalOptions(te, new ContainerLockTerminal(te, player, false), player);
 		}
 		case GUI_BLOCKBUILDING:
 			return new GuiBlockPlacer(world.getBlockTileEntity(x, y, z), x, y, z, world, player);

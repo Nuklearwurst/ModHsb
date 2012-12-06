@@ -41,13 +41,6 @@ public class ItemTeslaUpgrade extends Item
 	}
 	@Override
 	public void updateUpgrade(TileEntityLockTerminal te) {
-//		int i = te.teslaUpgrade + stack.stackSize;
-//		if(i > 32)
-//		{
-//			i = 32;
-//		}
-//		te.teslaUpgrade = i; 
-//		te.energyUse = te.energyUse + 0.25 * stack.stackSize;
 		int index = te.getUpgradeId(this);
 		if(te.upgradeCount[index] > 32)
 			te.upgradeCount[index]  = 32;

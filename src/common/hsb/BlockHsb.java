@@ -75,6 +75,7 @@ public class BlockHsb extends BlockContainer {
             	return false;
             case 1:
             	//TODO add pass protected Gui (Upgrades)
+            	world.getBlockTileEntity(i, j, k).onInventoryChanged();
                 entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
                 return true;
             case 2:

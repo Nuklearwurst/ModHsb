@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.Vector;
 
 import ic2.api.Direction;
+import ic2.api.ElectricItem;
 import ic2.api.EnergyNet;
+import ic2.api.IElectricItem;
 import ic2.api.IEnergySink;
 import ic2.api.NetworkHelper;
 import net.minecraft.src.EntityPlayer;
@@ -26,6 +28,8 @@ import hsb.gui.GuiHandler;
 public class TileEntityLockTerminal extends TileEntityHsb implements
 		IEnergySink, IInventory {
 
+	//TODO !!!
+	//upgradeCount reset!!!!
 	public int blocksInUse = 0;
 	private boolean needReconnect = false;
 	// IC2
@@ -33,7 +37,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public int energyStored = 0;
 
 	private int updateCounter = 0;
-
+//private
 	private ItemStack[] mainInventory = new ItemStack[this.getSizeInventory()];
 
 	// Defaults
@@ -44,14 +48,17 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	// Upgrades
 	//IC2
-	private int storageUpgrades = 0;
-	private int transformerUpgrades = 0;
-	private int overclockerUpgrades = 0;
+	public int storageUpgrades = 0;
+	public int transformerUpgrades = 0;
+	public int overclockerUpgrades = 0;
 	//other
+	//private
 	private List upgrades;
-	public int[] upgradeCount = new int[9];
-	public boolean[] upgradeActive = new boolean[9];
-//	private int[] idToSlot = new int[9];
+	//used to sync buttons
+	public String buttonNumber[] = {"", "", "", "", "", "", "", "", "", ""};
+	
+	public int[] upgradeCount;
+	public boolean[] upgradeActive;
 	
 	public int extraStorage = 0;
 	public int extraPassLength = 0;//TODO old
@@ -60,10 +67,12 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	public TileEntityLockTerminal() {
 		super();
+		upgradeCount = new int[10];
+		upgradeActive = new boolean[10];
 		upgrades = new ArrayList();
-		
-		
 		blocksInUse = 0;
+		maxInput = 32;
+		energyUse = 0.25;
 		isAddedToEnergyNet = false;
 	}
 
@@ -176,6 +185,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public List<String> getNetworkedFields() {
 		List list = super.getNetworkedFields();
 	    list.add("upgradeActive");
+	    list.add("buttonNumber");
 	    return list;
 	}
 	
@@ -191,7 +201,12 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	}
 	
 	public ILockUpgrade getUpgrade(int id) {
-		return (ILockUpgrade) this.upgrades.get(id);
+		if(this.upgrades.size() > id)
+		{
+			return (ILockUpgrade) this.upgrades.get(id);
+		} else {
+			return null;
+		}
 	}
 	public int getUpgradeId(ILockUpgrade upgrade)
 	{
@@ -204,7 +219,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public int getSizeInventory() {
-		// TODO Inventory Size
 		return 15;
 	}
 
@@ -230,7 +244,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		// TODO Upgrade?
 		return 0;
 	}
-
+	
 	@Override
 	public int injectEnergy(Direction directionFrom, int amount) {
 		if(amount > this.maxInput)
@@ -295,13 +309,25 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			// -3 - -12
 			int number = event * (-1) - 3;
 			//0 - 9
-			System.out.println("HalloHallo" + number);
-			ILockUpgrade upgrade = (ILockUpgrade) this.upgrades.get(number);
-			upgrade.onButtonClicked(this, player, number);
-			this.updateEntity();
+//			System.out.println("HalloHallo" + number);
+			ILockUpgrade upgrade = this.getUpgrade(number);
+			if(upgrade != null)
+			{
+				upgrade.onButtonClicked(this, player, number);
+				this.updateUpgrades();
+			}
 			return;
 		}
 		super.onNetworkEvent(player, event);
+	}
+	
+	@Override
+	public void onNetworkUpdate(String field) {
+		super.onNetworkUpdate(field);
+		if(field.equals("upgradeActive"))
+		{
+			onInventoryChanged();
+		}
 	}
 
 	@Override
@@ -311,6 +337,12 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public void readFromNBT(NBTTagCompound nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
+		//Upgrades
+		for(int i = 0; i<10;i++){
+			String name = "upgradeActive" + i;
+			this.upgradeActive[i]= nbttagcompound.getBoolean(name);
+		}
+		
 		//Items
         NBTTagList nbtlist = nbttagcompound.getTagList("Items");
         this.mainInventory = new ItemStack[this.getSizeInventory()];
@@ -327,6 +359,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
         }
         
 		this.energyStored = nbttagcompound.getInteger("energyStored");
+		onInventoryChanged();
 	}
 
 	@Override
@@ -397,120 +430,93 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		return super.transferSignal(side, te, value, pass, port);
 	}
 	
+	@Override
 	public void onInventoryChanged()
 	{
-		//TODO
-		//needs to map Upgrades tp an instance of the Upgrade and needs to be able to read them all out/ refresh the data without losing information
-		
-		//IC2
-		this.storageUpgrades = 0;
-		this.transformerUpgrades = 0;
-		this.overclockerUpgrades = 0;
-		
-		//Upgrade Data
-//		creating new Map for new data
-//		Map newData = new HashMap();
-		//clearing List for new Data
-		List oldData = upgrades;
-		this.upgrades.clear();
-		//variable to track index of Upgrade Arrays
-		int index = 0;
-		
-		
-		this.energyUse = 0.25;
-
-		for(int i = 0; i < this.mainInventory.length; i++)
+		if(worldObj != null/* && !worldObj.isRemote*/)
 		{
-			ItemStack stack = this.mainInventory[i]; 
-			if(stack == null)
-			{
-				continue;
-			}
-			
-			if(stack.isItemEqual(Config.getIC2Item("transformerUpgrade")))
-			{
-				this.transformerUpgrades = this.transformerUpgrades + stack.stackSize;
-			}
-				
-			if(stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")))
-			{
-				this.storageUpgrades = this.storageUpgrades + stack.stackSize;
-			}
-		
-			if(stack.isItemEqual(Config.getIC2Item("overclockerUpgrade")))
-			{
-				this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
-			}
-			
-			//register Upgrades (ILockUpgrade.class AND UpgradeHsb.class)
-			if(stack.getItem() instanceof ILockUpgrade)
-			{
-				ILockUpgrade item = (ILockUpgrade) stack.getItem();
-				if(this.upgrades.contains(item))
-				{
-					this.upgradeCount[index] = this.upgradeCount[index] + stack.stackSize;
-				} else {
-					this.upgrades.add(item);
-//					System.out.println("indexList: " + this.upgrades.indexOf(item) + " index_array: " + index);
-					this.upgradeCount[index] = stack.stackSize;
-					if(!oldData.contains(item))
-						this.upgradeActive[index] = false;
-				}
-				index++;
-					
-//				if(newData.containsKey(item.getUniqueId()))
-//				{
-//					UpgradeHsb upgrade = (UpgradeHsb) newData.get(item.getUniqueId());
-//					upgrade.number = upgrade.number + stack.stackSize;
-//				} else {
-//					UpgradeHsb upgrade = item.getUpgrade();
-//					upgrade.number = stack.stackSize;
-//					newData.put(item.getUniqueId(), upgrade);
-//				}
-			}
-		}
-		
-		//backup old Map
-//		Map oldData = upgrades;
-		//clearing old Map
-//		this.upgrades.clear();
-		//getting keys to refresh
-//		Iterator keys = newData.keySet().iterator();
-//		while(keys.hasNext())
-//		{
-//			String c_key = (String) keys.next();
-//			//get the new Upgrade
-//			UpgradeHsb upgradeNew = (UpgradeHsb) newData.get(c_key);
-//			//check for old data to retain
-//			if(oldData.containsKey(c_key))
-//			{
-//				UpgradeHsb upgradeOld = (UpgradeHsb) newData.get(c_key);
-//				//updating number of Upgrades
-//				upgradeOld.number = upgradeNew.number;
-//				//put the new data into the Map
-//				upgrades.put(c_key, upgradeOld);
-//				//TODO Upgrade: own fields to get
-//			} else {
-//				//put the new Upgrade into the Map
-//				upgrades.put(c_key, upgradeNew);
-//			}
-//		}
-		//register IC2 Upgrades
-		this.extraStorage = this.storageUpgrades * UPGRADE_ENERGY_STORAGE;
-		switch(this.transformerUpgrades)
-		{
-		case 0:
+			//IC2
+			this.storageUpgrades = 0;
+			this.transformerUpgrades = 0;
+			this.overclockerUpgrades = 0;
 			this.maxInput = 32;
-		case 1:
-			this.maxInput = 128;
-		case 2:
-			this.maxInput = 512;
-		case 3:
-			this.maxInput = 2048;
-		default:
-			this.maxInput = 2048;
+			
+			//Upgrade Data
+			//clearing List for new Data
+			List oldData = upgrades;
+			this.upgrades.clear();
+			this.upgrades = new ArrayList();
+			//variable to track index of Upgrade Arrays
+			int index = 0;
+			
+			
+			this.energyUse = 0.25;
+	
+			for(int i = 0; i < this.mainInventory.length; i++)
+			{
+				ItemStack stack = this.mainInventory[i]; 
+				if(stack == null)
+				{
+					continue;
+				}
+				
+				if(stack.isItemEqual(Config.getIC2Item("transformerUpgrade")))
+				{
+					this.transformerUpgrades = this.transformerUpgrades + stack.stackSize;
+				}
+					
+				if(stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")))
+				{
+					this.storageUpgrades = this.storageUpgrades + stack.stackSize;
+				}
+			
+				if(stack.isItemEqual(Config.getIC2Item("overclockerUpgrade")))
+				{
+					this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
+				}
+				
+				//register Upgrades (ILockUpgrade)
+				if(stack.getItem() instanceof ILockUpgrade)
+				{
+					ILockUpgrade item = (ILockUpgrade) stack.getItem();
+					if(this.upgrades.contains(item))
+					{
+						int j = this.upgrades.indexOf(item);
+						this.upgradeCount[j] = this.upgradeCount[j] + stack.stackSize;
+						this.buttonNumber[j] = item.getButtonName();
+						System.out.println("updated: " + stack + "__" + this.upgradeCount[j] + ModHsbCore.side + "  " + j + "   isremote: " + worldObj.isRemote);
+					} else {
+						this.upgrades.add(item);
+						this.upgradeCount[index] = stack.stackSize;
+						if(!oldData.contains(item))
+							this.upgradeActive[index] = false;
+						System.out.println("added: " + stack + "__" + this.upgradeCount[index] + ModHsbCore.side + "  " + index + "   isremote: " + worldObj.isRemote);
+						index++;
+					}
+				}
+			}
+			
+			//register IC2 Upgrades
+			this.extraStorage = this.storageUpgrades * UPGRADE_ENERGY_STORAGE;
+			switch(this.transformerUpgrades)
+			{
+			case 0:
+				this.maxInput = 32;
+			case 1:
+				this.maxInput = 128;
+			case 2:
+				this.maxInput = 512;
+			case 3:
+				this.maxInput = 2048;
+			default:
+				this.maxInput = 2048;
+			}
+			this.updateUpgrades();
+			if(this.energyStored > (this.extraStorage + this.defaultEnergyStorage))
+			{
+				this.energyStored = (this.extraStorage + this.defaultEnergyStorage);
+			}
 		}
-		this.updateUpgrades();
 		super.onInventoryChanged();
 	}
 	
@@ -526,41 +532,48 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public void updateEntity() {
 
 		if (!worldObj.isRemote) {
+			//add to EnergyNet
 			if (!isAddedToEnergyNet) {
+				this.onInventoryChanged();
 				EnergyNet.getForWorld(worldObj).addTileEntity(this);
 				isAddedToEnergyNet = true;
 			}
+			//charge from battery //4:ChargeSlot(-->ContainerLockTerminal)
+			ItemStack item = this.getStackInSlot(4);
+			if(item != null && item.getItem() instanceof IElectricItem && this.demandsEnergy())
+			{
+				int leftover = this.injectEnergy(Direction.YN, ElectricItem.discharge(item, this.maxInput, 2, false, false));
+				ElectricItem.charge(item, leftover, 2, false, false);
+			}
+			//Use Energy
+			if (this.locked && this.blocksInUse > 0) {
+				double need = (this.energyUse * this.blocksInUse + 2);
+				if (need > energyStored) {
+					this.emitLockSignal(6, false);
+					System.out.println("not enough energy! need: " + need
+							+ " stored: " + energyStored);
+				} else {
+					energyStored = (int) Math.round(energyStored - need);
+				}
+			}
+//			onInventoryChanged();
 			this.updateCounter++;
-			if (updateCounter >= 5) {
+			if (updateCounter >= 20) {
 				updateCounter = 0;
 				//reconnecting
 				if (needReconnect) {
 					this.needReconnect = false;
 					this.emitLockSignal(6, true);
 				}
-				
-				//Use Energy
-				if (this.locked && this.blocksInUse > 0) {
-					double need = (this.energyUse * this.blocksInUse + 2);
-					if (need > energyStored) {
-						this.emitLockSignal(6, false);
-						System.out.println("not enough energy! need: " + need
-								+ " stored: " + energyStored);
-					} else {
-						energyStored = (int) Math.round(energyStored - need);
-					}
-				}
-				onInventoryChanged();
 			}
-
 		}
 		super.updateEntity();
 	}
 	@Override
 	protected void initData()
 	{
-		this.onInventoryChanged();
 		super.initData();
+		this.onInventoryChanged();
 	}
 
 	@Override
@@ -582,6 +595,13 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public void writeToNBT(NBTTagCompound nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
+		//UpgradeActive
+		//TODO save Upgrade Data
+		for(int i = 0; i<10;i++){
+			String name = "upgradeActive" + i;
+			nbttagcompound.setBoolean(name, this.upgradeActive[i]);
+		}
+
 		//Items
         NBTTagList nbtlist = new NBTTagList();
 

@@ -18,4 +18,6 @@ public class SlotCharge extends Slot{
     {
         return stack.getItem() instanceof IElectricItem;
     }
+	
+	
 }

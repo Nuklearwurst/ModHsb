@@ -48,9 +48,6 @@ public class GuiLockTerminal extends GuiContainer
      * Status
      * 
      * 
-     * Maybe Add Buttons, by Upgrades
-     * 	--> maximum Buttons (eg. 10)
-     * 
      * 
      * TODO network code	
      */
@@ -90,18 +87,12 @@ public class GuiLockTerminal extends GuiContainer
         		bPosY = 23; // one time bPosY + 20
         	}
         	bPosX= (i % 5) * buttonSize + 4;
-        	ItemStack stack = te.getStackInSlot(i+5);
-        	if(stack != null)
+        	String button = te.buttonNumber[i];
+        	if(button != null && button != "")
         	{
-        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, ((ILockUpgrade)stack.getItem()).getButtonName()));
+        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, te.buttonNumber[i]));
         	}
-//        	if(i<maxButtons)
-//        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, String.valueOf(buttonSize)));
         }
-//        this.controlList.add(new GuiButton(0, xPos + xSize - 57, yPos + ySize - 94, 52, 20, lock));
-//        this.controlList.add(new GuiButton(1, xPos + xSize - 57, yPos + ySize - 54, 52, 20, "Upgrades"));
-//        this.controlList.add(new GuiButton(2, xPos + xSize - 57, yPos + ySize - 74, 52, 20, "Password"));
-
     }
 
     @Override
@@ -145,8 +136,8 @@ public class GuiLockTerminal extends GuiContainer
     		//button : 0 - 9
     		//events: -3 - -12
     		NetworkHelper.initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
-    		te.getUpgrade(guibutton.id-this.buttonIdStart).onButtonClicked(te, entityplayer, guibutton.id - this.buttonIdStart);
-    		te.updateUpgrades();
+//    		te.getUpgrade(guibutton.id-this.buttonIdStart).onButtonClicked(te, entityplayer, guibutton.id - this.buttonIdStart);
+//    		te.updateUpgrades();
         }
 
         super.actionPerformed(guibutton);
