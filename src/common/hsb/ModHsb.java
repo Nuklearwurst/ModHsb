@@ -61,10 +61,10 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * @author Jonas
  *
  */
-@Mod(modid = "Hsb|Core", name = "Hsb Core", version = "0.1")
+@Mod(modid = "HSB", name = "High Security Blocks", version = "0.1")
 @NetworkMod(clientSideRequired = true, versionBounds = "0.1", serverSideRequired=false, 
 channels={Defaults.NET_CHANNEL}, packetHandler = PacketHandler.class)
-public class ModHsbCore {
+public class ModHsb {
 	public static Side side;
 	
 	@PreInit
@@ -87,7 +87,7 @@ public class ModHsbCore {
 	}
 	
 	@Instance
-	public static ModHsbCore instance;
+	public static ModHsb instance;
 	
 	@SidedProxy(clientSide = "hsb.ClientProxy", serverSide = "hsb.CommonProxy") //TODO Bukkit
 	public static CommonProxy proxy;

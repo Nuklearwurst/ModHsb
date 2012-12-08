@@ -9,7 +9,7 @@ import hsb.ItemHsbDoor;
 import hsb.ItemLockHacker;
 import hsb.ItemLockMonitor;
 import hsb.ItemTeslaUpgrade;
-import hsb.ModHsbCore;
+import hsb.ModHsb;
 import hsb.TileEntityDoorBase;
 import hsb.TileEntityHsb;
 import hsb.TileEntityLockTerminal;

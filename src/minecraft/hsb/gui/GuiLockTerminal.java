@@ -5,7 +5,7 @@ import ic2.api.NetworkHelper;
 import org.lwjgl.opengl.GL11;
 
 import hsb.ILockUpgrade;
-import hsb.ModHsbCore;
+import hsb.ModHsb;
 import hsb.TileEntityLockTerminal;
 import hsb.api.UpgradeHsb;
 import hsb.config.Config;
@@ -106,31 +106,14 @@ public class GuiLockTerminal extends GuiContainer
                 this.mc.setIngameFocus();
                 break;
             case 1:
-//                toggleButtonLock(!te.locked);
-            	if(!Config.ECLIPSE)
-            	{
-                    GuiButton button = (GuiButton)controlList.get(1);
-            		if(te.locked)
-            		{
-            			NetworkHelper.initiateClientTileEntityEvent(te, 1);
-            	        button.displayString = getLock(false);
-            			
-            		} else {
-            			NetworkHelper.initiateClientTileEntityEvent(te, 0);	
-            	        button.displayString = getLock(true);
-            		}
-            	}
-            	
+                GuiButton button = (GuiButton)controlList.get(1);
+                NetworkHelper.initiateClientTileEntityEvent(te, 1);
                 break;
             case 2: 
-//            	this.entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
-            	if(!Config.ECLIPSE)
-            	{
-            		NetworkHelper.initiateClientTileEntityEvent(te, -1);
-            	}
+            	NetworkHelper.initiateClientTileEntityEvent(te, -1);
             	break;
         }
-        //button 0 - 9
+        //button 0 - 9 (3 - 12)
         if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
         {
     		//button : 0 - 9
@@ -139,7 +122,6 @@ public class GuiLockTerminal extends GuiContainer
 //    		te.getUpgrade(guibutton.id-this.buttonIdStart).onButtonClicked(te, entityplayer, guibutton.id - this.buttonIdStart);
 //    		te.updateUpgrades();
         }
-
         super.actionPerformed(guibutton);
     }
     
@@ -169,6 +151,7 @@ public class GuiLockTerminal extends GuiContainer
     	super.drawScreen(par1, par2, par3);
         String energyBar=te.energyStored + "EU/" + (te.defaultEnergyStorage + te.extraStorage) + "EU";
         this.drawString(this.fontRenderer, energyBar, xPos + 105 - this.fontRenderer.getStringWidth(energyBar) / 2, yPos + 118, 10526880);
+        ((GuiButton)controlList.get(1)).displayString = getLock(te.locked);
         
     }
 

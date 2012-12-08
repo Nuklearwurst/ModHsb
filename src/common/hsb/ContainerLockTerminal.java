@@ -1,5 +1,8 @@
 package hsb;
 
+import hsb.config.Config;
+import ic2.api.IElectricItem;
+
 import java.util.Iterator;
 import java.util.logging.Level;
 
@@ -8,10 +11,13 @@ import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import net.minecraft.src.Container;
 import net.minecraft.src.EntityPlayer;
+import net.minecraft.src.FurnaceRecipes;
 import net.minecraft.src.ICrafting;
 import net.minecraft.src.IInventory;
+import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.Slot;
+import net.minecraft.src.TileEntityFurnace;
 
 public class ContainerLockTerminal extends Container {
 
@@ -53,12 +59,14 @@ public class ContainerLockTerminal extends Container {
 	        this.addSlotToContainer(new SlotMachineUpgrade(te, 3, 6 -26, 105 -28));
 	        //charge
 	        this.addSlotToContainer(new SlotCharge(te, 4, 34 -26, 114 -28));
+	        //4
         } else {
             //Block Inventory
             for (reihe = 0; reihe < 10; ++reihe)
             {
                 this.addSlotToContainer(new SlotLockTerminal(inventory, reihe + 5, 25 -26 + reihe * 18, 10 - 28));
             }
+            //14
         }
         
         // Player Inventory
@@ -69,12 +77,14 @@ public class ContainerLockTerminal extends Container {
                 this.addSlotToContainer(new Slot(invPlayer, spalte + reihe * 9 + 9, 8 + spalte * 18, 140 - 28 + reihe * 18));
             }
         }
+        //41
 
         //Hotbar
         for (reihe = 0; reihe < 9; ++reihe)
         {
             this.addSlotToContainer(new Slot(invPlayer, reihe, 8 + reihe * 18, 198 - 28));
         }
+        //50
         
     }
     
@@ -170,6 +180,101 @@ public class ContainerLockTerminal extends Container {
 	        	}
 	        }
     	}
+    }
+    
+    @Override
+    /**
+     * returns stack left in the slot?
+     */
+    public ItemStack transferStackInSlot(EntityPlayer player, int id)
+    {
+        ItemStack stack = null;
+        Slot slot = (Slot)this.inventorySlots.get(id);
+
+        //Slot has content
+        if (slot != null && slot.getHasStack())
+        {
+        	//get Stack
+            ItemStack stackSlot = slot.getStack();
+            //copy for output
+            stack = stackSlot.copy();
+            
+            Item item = stackSlot.getItem();
+            
+            //Terminal
+            if(this.isTerminal)
+            {
+	            //to player
+	            if(id >= 0 && id < 5)
+	            {
+	            	if(!this.mergeItemStack(stackSlot, 5, this.inventorySlots.size(), false))
+	            	{
+	            		return null;
+	            	}
+	
+	            }
+	            //from player:
+	           //Ic2 Upgrades
+	            else if((stack.isItemEqual(Config.getIC2Item("transformerUpgrade")) || stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")) || stack.isItemEqual(Config.getIC2Item("overclockerUpgrade"))))
+	            {
+	            	if(!this.mergeItemStack(stackSlot, 0, 4, false))
+	            	{
+	            		return null;
+	            	}
+	            }
+	            //battery
+	            else if(item instanceof IElectricItem && ((IElectricItem) item).canProvideEnergy())
+	        	{
+	        		if(!this.mergeItemStack(stackSlot, 4, 5, true))
+	        		{
+	        			return null;
+	        		}
+	        	}
+            } else {
+            //lockUpgrades (Options)
+	            if(item instanceof ILockUpgrade)
+	            {
+		            //to player
+		            if(id >= 0 && id < 10)
+		            {
+		            	if(!this.mergeItemStack(stackSlot, 10, this.inventorySlots.size(), false))
+		            	{
+		            		return null;
+		            	}
+		            	//from player:
+		            } else if(!this.mergeItemStack(stackSlot, 0, 10, false))
+	        		{
+	        			return null;
+	        		}
+	            }
+            }
+//            else if (id >= 15 && id < 42)
+//            {
+//                if (!this.mergeItemStack(stackSlot, 42, 51, false))
+//                {
+//                    return null;
+//                }
+//            }
+//            else if (id >= 42 && id < 51 && !this.mergeItemStack(stackSlot, 15, 42, false))
+//            {
+//                return null;
+//            }
+            if (stackSlot.stackSize == 0)
+            {
+                slot.putStack((ItemStack)null);
+            }
+            else
+            {
+                slot.onSlotChanged();
+            }
+            if (stackSlot.stackSize == stack.stackSize)
+            {
+                return null;
+            }
+//            slot.onPickupFromSlot(player, stackSlot);
+        }
+
+        return stack;
     }
 
 }

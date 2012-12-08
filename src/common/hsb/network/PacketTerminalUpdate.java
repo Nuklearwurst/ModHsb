@@ -37,14 +37,11 @@ public class PacketTerminalUpdate extends PacketPosition{
 			throws IOException {
 		this.readData(data);
 		te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-//		System.out.println("HEY!");
 		if (te != null && te instanceof TileEntityLockTerminal)
 		{
-//			System.out.println("YIPPIE!");
 			((TileEntityLockTerminal)te).pass = pass;
 			((TileEntityLockTerminal)te).port = port;
-		} else {
-//			System.out.println("Tile Update: " + te +" x: " + x + " y: " + " z: " + z);
+			te.onInventoryChanged();
 		}
 		
 	}

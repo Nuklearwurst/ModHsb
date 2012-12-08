@@ -66,7 +66,7 @@ public class ItemBlockPlacer extends Item
 	    		}
 	    	}
 //	    	if(itemstack.getTagCompound()==null)
-	    		entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_BLOCKPLACER, world, (int)entityplayer.posX, (int)entityplayer.posY, (int)entityplayer.posZ);
+	    		entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_BLOCKPLACER, world, (int)entityplayer.posX, (int)entityplayer.posY, (int)entityplayer.posZ);
 	        return itemstack;
 	    }
 	    @Override

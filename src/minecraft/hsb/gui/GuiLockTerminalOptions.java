@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11;
 
 import hsb.ContainerLockTerminal;
 import hsb.ContainerLockTerminalOptions;
-import hsb.ModHsbCore;
+import hsb.ModHsb;
 import hsb.TileEntityLockTerminal;
 import hsb.config.Config;
 import hsb.network.PacketItemUpdate;
@@ -99,11 +99,7 @@ public class GuiLockTerminalOptions extends GuiContainer
                 this.updatePort(+10);
                 break;
             case 5:
-//            	this.entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
-            	if(!Config.ECLIPSE)
-            	{
-            		NetworkHelper.initiateClientTileEntityEvent(te, -2);
-            	}
+            	NetworkHelper.initiateClientTileEntityEvent(te, -2);
             	break;
         }
         super.actionPerformed(guibutton);

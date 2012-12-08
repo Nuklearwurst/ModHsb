@@ -74,20 +74,13 @@ public abstract class TileEntityHsb extends TileEntity
 	
 	protected void initData()
     {
+        onInventoryChanged();
 		if(worldObj.isRemote)
         {
     		NetworkHelper.requestInitialData(this);
         }
         init = true;
     }
-	
-	@Override
-	public void invalidate() {
-//		super.invalidate();
-//		if(init)
-//			init = false;
-		
-	}
 	
 	@Override
 	public void onNetworkUpdate(String field) {
@@ -223,8 +216,11 @@ public abstract class TileEntityHsb extends TileEntity
 		if (!init)
         {
             initData();
-            onInventoryChanged();
+    		onInventoryChanged();
+
         }  
+
+
         super.updateEntity();
     }
 	

@@ -33,12 +33,7 @@ public class ItemDebugTool extends Item {
     			String upgrades = "";
     			for(int i = 0; i<10;i++)
     			{
-    				upgrades = upgrades + ";" + ter.getUpgrade(i);
-    			}
-    			String inv = "";
-    			for(int i = 0; i<10;i++)
-    			{
-    				inv = inv + ";" + ter.getStackInSlot(i);
+    				upgrades = upgrades + ";" + ter.buttonNumber[i];
     			}
     			String count = "";
     			for(int i = 0; i<10;i++)
@@ -50,7 +45,7 @@ public class ItemDebugTool extends Item {
     			{
     				active = active + ";" + ter.upgradeActive[i];
     			}
-    			player.sendChatToPlayer("upgrade list: " + upgrades + " \ninventory: " + inv + " \nupgradeCount: " + count + " \nactive: " + active + "\ninit: " + ter.init + " \nIC2 upgrades (maxInput, transformer, extraenergy, energy, overclock) : " + ter.maxInput + ", " + ter.transformerUpgrades + ", " + ter.extraStorage + ", " + ter.storageUpgrades + ", " + ter.overclockerUpgrades);
+    			player.sendChatToPlayer("upgrade list: " + upgrades + " \nupgradeCount: " + count + " \nactive: " + active + "\ninit: " + ter.init + " \nIC2 upgrades (maxInput, transformer, extraenergy, energy, overclock) : " + ter.maxInput + ", " + ter.transformerUpgrades + ", " + ter.extraStorage + ", " + ter.storageUpgrades + ", " + ter.overclockerUpgrades);
     		}else{
     			player.sendChatToPlayer("Port: " + String.valueOf(((TileEntityHsb)te).port) + " Pass: |" + ((TileEntityHsb)te).pass + "|\nFacing: " + String.valueOf(((TileEntityHsb) te).getFacing()) + " Textur der Side " + String.valueOf(side) + " ist: " + String.valueOf(Items.blockHsb.getBlockTexture(world, x, y, z, side)) + "\nLocked: " + ((TileEntityHsb) te).locked);
     		}

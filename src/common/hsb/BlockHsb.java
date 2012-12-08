@@ -76,7 +76,7 @@ public class BlockHsb extends BlockContainer {
             case 1:
             	//TODO add pass protected Gui (Upgrades)
             	world.getBlockTileEntity(i, j, k).onInventoryChanged();
-                entityplayer.openGui(ModHsbCore.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
+                entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
                 return true;
             case 2:
             	return false;
@@ -193,7 +193,7 @@ public class BlockHsb extends BlockContainer {
         case 0:
         	if(player instanceof EntityPlayer && te!=null)
         		if(((EntityPlayer) player).getCurrentEquippedItem().itemID == this.blockID)
-        			((EntityPlayer) player).openGui(ModHsbCore.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
+        			((EntityPlayer) player).openGui(ModHsb.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
         }
         
         if (player != null && te instanceof IWrenchable) 

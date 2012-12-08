@@ -1,0 +1,16 @@
+[
+{
+	"modid": "HSB",
+	"name": "High Security Blocks",
+	"description": "Minecraft PvP Mod.",
+	"version": "DEV_1",
+	"credits": "Minecaft Forge, Industrial Craft II",
+	"authors": ["Nuklearwurst"],
+	"logoFile": "",
+	"url": "",
+	"updateUrl": "",
+	"parent": "",
+	"screenshots": [],
+	"dependencies": ["Industrial Craft 2"]
+}
+]

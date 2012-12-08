@@ -11,7 +11,7 @@ import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.common.network.NetworkRegistry;
 
-import hsb.ModHsbCore;
+import hsb.ModHsb;
 import hsb.TileEntityHsb;
 import hsb.config.Config;
 import hsb.network.PacketItemUpdate;
