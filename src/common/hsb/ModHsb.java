@@ -6,7 +6,7 @@ import java.util.List;
 import net.minecraft.src.Material;
 import hsb.config.Config;
 import hsb.config.Defaults;
-import hsb.config.Items;
+import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
 import hsb.network.PacketHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -61,12 +61,12 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * @author Jonas
  *
  */
-@Mod(modid = "HSB", name = "High Security Blocks", version = "0.1")
+
+@Mod(modid = "HSB", name = "High Security Blocks", version = ModHsb.version, useMetadata = true)//!!TODO
 @NetworkMod(clientSideRequired = true, versionBounds = "0.1", serverSideRequired=false, 
 channels={Defaults.NET_CHANNEL}, packetHandler = PacketHandler.class)
 public class ModHsb {
-	public static Side side;
-	
+	static final String version= "0.1";
 	@PreInit
 	void preInit(FMLPreInitializationEvent evt) {
 		Config.preinit(evt);
@@ -77,13 +77,12 @@ public class ModHsb {
 		Config.init(evt);
 		proxy.initRendering();
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
-		side = FMLCommonHandler.instance().getEffectiveSide();
 	}
 	
 	@PostInit
 	void postInit(FMLPostInitializationEvent evt) {
-		side = FMLCommonHandler.instance().getEffectiveSide();
-		System.out.println("Hsb Version: 0.1 loaded.");
+		Config.initRecipes();
+		System.out.println("Hsb Version: "+ version + " loaded.");
 	}
 	
 	@Instance

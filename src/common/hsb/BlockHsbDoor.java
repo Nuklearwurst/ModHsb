@@ -199,7 +199,7 @@ public class BlockHsbDoor extends BlockDoor {
      */
     public int idPicked(World par1World, int par2, int par3, int par4)
     {
-        return hsb.config.Items.itemHsbDoor.shiftedIndex;
+        return hsb.config.HsbItems.itemHsbDoor.shiftedIndex;
     }
 
 }

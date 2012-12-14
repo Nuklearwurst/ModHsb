@@ -1,7 +1,7 @@
 package hsb;
 
 import hsb.config.Config;
-import hsb.config.Items;
+import hsb.config.HsbItems;
 import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 import net.minecraft.src.EntityPlayer;
@@ -18,7 +18,7 @@ public class ItemLockHacker extends Item
 
 	public ItemLockHacker(int id) {
 		super(id);
-		// TODO Auto-generated constructor stub
+		this.setMaxDamage(13);
 	}
 
 	@Override
@@ -28,12 +28,12 @@ public class ItemLockHacker extends Item
 
 	@Override
 	public int getChargedItemId() {
-		return Items.itemLockHacker.shiftedIndex;
+		return HsbItems.itemLockHacker.shiftedIndex;
 	}
 
 	@Override
 	public int getEmptyItemId() {
-		return Items.itemLockHacker.shiftedIndex;
+		return HsbItems.itemLockHacker.shiftedIndex;
 	}
 
 	@Override
@@ -53,39 +53,41 @@ public class ItemLockHacker extends Item
 		// TODO Auto-generated method stub
 		return 32;
 	}
+
 	@Override
 	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
 	{
-		TileEntity te = world.getBlockTileEntity(x, y, z); 
-		if(te instanceof TileEntityHsb)
-		{
-			if(((TileEntityHsb) te).locked)
+		
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(!world.isRemote)
+		{ 
+			if(te instanceof TileEntityHsb)
 			{
-				entityplayer.sendChatToPlayer("Locked!");
-				return true;
-			} else {
-				if(hackPort(itemstack, entityplayer,world, x, y, z, side, true, true)) {
-					entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+				if(((TileEntityHsb) te).locked)
+				{
+					int energyUse = this.energyUse * 32 * (((TileEntityHsb) te).getConnectedTerminal().getSecurityLevel() + 1);
+					if(ElectricItem.canUse(itemstack, energyUse))
+					{
+						ElectricItem.use(itemstack, energyUse, entityplayer);
+						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+					} else {
+						entityplayer.sendChatToPlayer("Not enough energy for operation!");
+					}
+					return true;
+				} else {
+					if(ElectricItem.canUse(itemstack, energyUse))
+					{
+						ElectricItem.use(itemstack, energyUse, entityplayer);
+						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+					} else {
+						entityplayer.sendChatToPlayer("Not enough energy for operation!");
+					}
 				}
 			}
-			
+			return false;
+		} else {
+			return te instanceof TileEntityHsb;
 		}
-		return false;
-	}
-
-	private boolean hackPort(ItemStack itemstack, EntityPlayer entityplayer,
-			World world, int x, int y, int z, int side, boolean simulate, boolean par) {
-		TileEntityHsb te = (TileEntityHsb) world.getBlockTileEntity(x, y, z);
-		if(!Config.ECLIPSE)
-		while(ElectricItem.canUse(itemstack, energyUse))
-		{
-			ElectricItem.use(itemstack, energyUse, entityplayer);
-			if(world.rand.nextInt(Config.maxPort) == te.port)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 	@Override
 	public String getTextureFile() {

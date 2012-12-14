@@ -3,7 +3,7 @@ package hsb;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import hsb.config.Config;
-import hsb.config.Items;
+import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
 import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
@@ -103,7 +103,7 @@ public class ItemBlockPlacer extends Item
 		    		System.out.println("Removing Block at: " + x + ", " + y + ", " + z);
 		    		
 //		    		world.removeBlockTileEntity(x, y, z);
-		    		Items.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
+		    		HsbItems.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 		    		world.setBlockAndMetadataWithNotify(x, y, z, 0, 0);
 //		    		world.markBlockNeedsUpdate(x, y, z);
 //		    		world.setBlock(x, y, y, 0);
@@ -202,12 +202,13 @@ public class ItemBlockPlacer extends Item
 	    @Override
 		public int getChargedItemId()
 	    {
-	        return Items.itemBlockPlacer.shiftedIndex;
+	        return HsbItems.itemBlockPlacer.shiftedIndex;
 	    }
 	    @Override
 		public int getEmptyItemId()
 	    {
-	        return Items.itemBlockPlacerEmpty.shiftedIndex;
+//	        return HsbItems.itemBlockPlacerEmpty.shiftedIndex;
+	        return HsbItems.itemBlockPlacer.shiftedIndex;	    	
 	    }
 	    @Override
 		public int getMaxCharge()

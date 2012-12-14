@@ -88,7 +88,7 @@ public class GuiLockTerminal extends GuiContainer
         	}
         	bPosX= (i % 5) * buttonSize + 4;
         	String button = te.buttonNumber[i];
-        	if(button != null && button != "")
+        	if(button != null && button != "" && button.length() > 0)
         	{
         		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, te.buttonNumber[i]));
         	}

@@ -226,22 +226,24 @@ public class BlockHsb extends BlockContainer {
     @Override
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) 
     {
-    	TileEntity te = world.getBlockTileEntity(x, y, z);
-    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
-    	{
-    		TileEntityLockTerminal terminal = ((TileEntityHsb)te).getConnectedTerminal();
-    		if(terminal != null)
-    		{
-    			System.out.println("HsbTerminal TE found!");
-    			int tesla = terminal.upgradeCount[terminal.getUpgradeId("tesla")];
-				System.out.println("Tesla found:" + tesla);
-    			if(tesla > 0 && terminal.upgradeActive[terminal.getUpgradeId("tesla")])
-    			{
-    				if(world.isRemote)
-    					player.sendChatToPlayer("Don't do that!");
-    				player.attackEntityFrom(DamageSource.magic, tesla);
-    			}
-    		}
+    	if(!world.isRemote) {
+	    	TileEntity te = world.getBlockTileEntity(x, y, z);
+	    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
+	    	{
+	    		TileEntityLockTerminal terminal = ((TileEntityHsb)te).getConnectedTerminal();
+	    		if(terminal != null)
+	    		{
+	    			System.out.println("HsbTerminal TE found!");
+	    			int tesla = terminal.upgradeCount[terminal.getUpgradeId("tesla")];
+					System.out.println("Tesla found:" + tesla);
+	    			if(tesla > 0 && terminal.upgradeActive[terminal.getUpgradeId("tesla")])
+	    			{
+	    				if(world.isRemote)
+	    					player.sendChatToPlayer("Don't do that!");
+	    				player.attackEntityFrom(DamageSource.magic, tesla);
+	    			}
+	    		}
+	    	}
     	}
     }
 

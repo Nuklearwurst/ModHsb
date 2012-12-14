@@ -23,6 +23,7 @@ import net.minecraft.src.NBTTagList;
 import net.minecraft.src.TileEntity;
 import hsb.api.UpgradeHsb;
 import hsb.config.Config;
+import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
 
 public class TileEntityLockTerminal extends TileEntityHsb implements
@@ -190,6 +191,9 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	    list.add("upgradeActive");
 	    list.add("buttonNumber");
 	    return list;
+	}
+	public int getSecurityLevel() {
+		return 0;
 	}
 	
 	public ILockUpgrade getUpgrade(String id) {
@@ -432,6 +436,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		return super.transferSignal(side, te, value, pass, port);
 	}
 	
+	
 	@Override
 	public void onInventoryChanged()
 	{
@@ -491,7 +496,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 					//updating existing  Upgrade
 						int j = this.upgrades.indexOf(item);
 						this.upgradeCount[j] = this.upgradeCount[j] + stack.stackSize;
-						System.out.println("updated: " + stack + "__" + this.upgradeCount[j] + ModHsb.side + "  " + j + "   isremote: " + worldObj.isRemote + "    buttonNumber: " + buttonNumber[j]);
+						System.out.println("updated: " + stack + "__" + this.upgradeCount[j] + "  " + j + "   isremote: " + worldObj.isRemote + "    buttonNumber: " + buttonNumber[j]);
 					} else {
 					//adding new Upgrade
 						this.buttonNumber[index] = item.getButtonName();
@@ -504,7 +509,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 							System.out.println("No prior Upgrade found!");
 							this.upgradeActive[index] = false;
 						}
-						System.out.println("added: " + stack + "__" + this.upgradeCount[index] + ModHsb.side + "  " + index + "   isremote: " + worldObj.isRemote);
+						System.out.println("added: " + stack + "__" + this.upgradeCount[index] + "  " + index + "   isremote: " + worldObj.isRemote);
 						index++;
 					}
 				}
@@ -639,6 +644,11 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		nbttagcompound.setInteger("energyStored", this.energyStored);
 		
 		nbttagcompound.setInteger("blocksInUse", this.blocksInUse);
+	}
+
+	@Override
+	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
+		return new ItemStack(HsbItems.blockHsb, 1, 1);
 	}
 
 }

@@ -2,7 +2,7 @@ package hsb;
 
 import ic2.api.NetworkHelper;
 import hsb.api.UpgradeHsb;
-import hsb.config.Items;
+import hsb.config.HsbItems;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.Item;
@@ -25,7 +25,7 @@ public class ItemTeslaUpgrade extends Item
 		TileEntity te = world.getBlockTileEntity(x, y, z); 
 		if(te instanceof TileEntityLockTerminal && (!((TileEntityLockTerminal) te).locked))
 		{
-			((TileEntityLockTerminal)te).addToInventory(Items.itemUpgradeTesla, 1);
+			((TileEntityLockTerminal)te).addToInventory(HsbItems.itemUpgradeTesla, 1);
 			//TODO sound
 			System.out.println("Tesla upgraded!");
 			itemstack.stackSize--;

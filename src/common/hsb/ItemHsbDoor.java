@@ -1,7 +1,8 @@
 package hsb;
 
-import hsb.config.Items;
+import hsb.config.HsbItems;
 import net.minecraft.src.Block;
+import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.ItemDoor;
 import net.minecraft.src.ItemStack;
@@ -13,7 +14,7 @@ public class ItemHsbDoor extends ItemDoor{
 
 	public ItemHsbDoor(int id) {
 		super(id, Material.wood);
-		// TODO Auto-generated constructor stub
+		this.setCreativeTab(CreativeTabHsb.tabHsb);
 	}
 	@Override
 	public String getTextureFile() {
@@ -38,7 +39,7 @@ public class ItemHsbDoor extends ItemDoor{
         		return false;
         	}
             ++y;
-            Block block = Items.blockHsbDoor;
+            Block block = HsbItems.blockHsbDoor;
 
 
             if (player.canPlayerEdit(x, y, z, side, stack) && player.canPlayerEdit(x, y + 1, z, side, stack))

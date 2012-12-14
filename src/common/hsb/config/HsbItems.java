@@ -6,13 +6,15 @@ import net.minecraft.src.Block;
 import net.minecraft.src.Item;
 import net.minecraft.src.ItemStack;
 
-public class Items {
+public class HsbItems {
+	
 
 	//IC2 Items
 	static ItemStack reinforcedStone;
 	static ItemStack circuit;
 	static ItemStack refinedIron;
 	static ItemStack battery_empty;
+	static ItemStack battery;
 	
 	public static void initIC2() {
 		reinforcedStone = Config.getIC2Item("reinforcedStone");

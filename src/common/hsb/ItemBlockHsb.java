@@ -1,6 +1,6 @@
 package hsb;
 
-import hsb.config.Items;
+import hsb.config.HsbItems;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import net.minecraft.src.Block;
@@ -23,7 +23,7 @@ public class ItemBlockHsb extends ItemBlock {
      */
     public int getIconFromDamage(int meta)
     {
-        return Items.blockHsb.getBlockTextureFromSideAndMetadata(2, meta);
+        return HsbItems.blockHsb.getBlockTextureFromSideAndMetadata(2, meta);
     }
 
     /**

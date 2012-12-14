@@ -1,6 +1,8 @@
 package hsb;
 
-import hsb.config.Items;
+import hsb.config.Config;
+import hsb.config.HsbItems;
+import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.Item;
@@ -12,9 +14,10 @@ public class ItemLockMonitor extends Item
 	implements IElectricItem
 {
 
+	private static final int energyUse = 10;
 	public ItemLockMonitor(int id) {
 		super(id);
-		// TODO Auto-generated constructor stub
+		this.setMaxDamage(13);
 	}
 
 	@Override
@@ -25,12 +28,12 @@ public class ItemLockMonitor extends Item
 
 	@Override
 	public int getChargedItemId() {
-		return Items.itemLockMonitor.shiftedIndex;
+		return HsbItems.itemLockMonitor.shiftedIndex;
 	}
 
 	@Override
 	public int getEmptyItemId() {
-		return Items.itemLockMonitorEmpty.shiftedIndex;
+		return HsbItems.itemLockMonitor.shiftedIndex;
 	}
 
 	@Override
@@ -47,26 +50,35 @@ public class ItemLockMonitor extends Item
 
 	@Override
 	public int getTransferLimit() {
-		// TODO Auto-generated method stub
 		return 32;
 	}
 	@Override
 	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
 	{
-		TileEntity te = world.getBlockTileEntity(x, y, z); 
-		if(te instanceof TileEntityHsb)
-		{
-			if(((TileEntityHsb) te).locked)
+
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		if(!world.isRemote)
+		{ 
+			if(te instanceof TileEntityHsb)
 			{
-				if(world.isRemote)
+				if(((TileEntityHsb) te).locked)
+				{
 					entityplayer.sendChatToPlayer("Locked!");
-				return true;
+					return true;
+				} else {
+					if(ElectricItem.canUse(itemstack, energyUse))
+					{
+						ElectricItem.use(itemstack, energyUse, entityplayer);
+						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+					} else {
+						entityplayer.sendChatToPlayer("Not enough energy for operation!");
+					}
+				}
 			}
-			
+			return false;
+		} else {
+			return te instanceof TileEntityHsb;
 		}
-		if(world.isRemote)
-			entityplayer.sendChatToPlayer("This does nothing yet!");
-		return true;
 	}
 	@Override
 	public String getTextureFile() {
