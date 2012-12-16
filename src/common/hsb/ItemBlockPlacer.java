@@ -65,7 +65,7 @@ public class ItemBlockPlacer extends Item
 	    			return itemstack;
 	    		}
 	    	}
-//	    	if(itemstack.getTagCompound()==null)
+	    	if(entityplayer.isSneaking())
 	    		entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_BLOCKPLACER, world, (int)entityplayer.posX, (int)entityplayer.posY, (int)entityplayer.posZ);
 	        return itemstack;
 	    }
@@ -84,9 +84,14 @@ public class ItemBlockPlacer extends Item
 		    		itemstack.getTagCompound().setInteger("port", 0);
 		    		itemstack.getTagCompound().setBoolean("placeMode", true);
 	    		} else {
-	    			return false;
+	    			return true;
 	    		}
 	    	}
+	    	/*
+	    	 * open Gui while sneaking
+	    	 */
+	    	if(entityplayer.isSneaking())
+	    		return false;
 	    	/*
 	    	 * Blockremoving Part
 	    	 */

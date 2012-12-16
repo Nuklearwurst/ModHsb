@@ -75,29 +75,25 @@ public class BlockHsbDoor extends BlockDoor {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int l, float m, float n, float o)
     {
-    	int meta = world.getBlockMetadata(x, y, z);
-    	TileEntity te = this.getTileEntity(world, x, y, z, meta);
+    	TileEntity te = this.getTileEntity(world, x, y, z);
     	if(te != null && te instanceof TileEntityDoorBase)
     	{
-    		if(entityplayer.getEntityName() == ((TileEntityDoorBase)te).placer && ((TileEntityDoorBase)te).upgradePlayer)
+    		if((entityplayer.username.equals(((TileEntityDoorBase)te).placer)) && ((TileEntityDoorBase)te).upgradePlayer)
     		{
     			this.toggleDoor(world, x, y, z, entityplayer);
     		} else {
-    			if(world.isRemote)
-    			{
-    				entityplayer.sendChatToPlayer("You are not Allowed to enter!");
-    				if(Config.DEBUG)
-    				{
-    					entityplayer.sendChatToPlayer("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.getEntityName());
-    				}
-    			}
+				entityplayer.sendChatToPlayer("You are not Allowed to enter!");
+				if(Config.DEBUG)
+				{
+					entityplayer.sendChatToPlayer("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.username);
+				}
     		}
-    	}
-        return true;
+		}
+    	return true;
     }
     
     private void toggleDoor(World world, int x, int y, int z, EntityPlayer entityplayer) {
-    	int meta = this.getFullMetadata(world, x, y, z);
+        int meta = this.getFullMetadata(world, x, y, z);
         int var11 = meta & 7;
         var11 ^= 4;
 
@@ -115,15 +111,16 @@ public class BlockHsbDoor extends BlockDoor {
         world.playAuxSFXAtEntity(entityplayer, 1003, x, y, z, 0);
     }
     
-    private TileEntity getTileEntity(World world, int x, int y, int z, int meta) {
+    private TileEntity getTileEntity(World world, int x, int y, int z) {
     	TileEntity te;
-    	if(meta >= 8)
-    	{
+        int meta = this.getFullMetadata(world, x, y, z);
+        if ((meta & 8) == 0)
+        {
     		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
-    		te = world.getBlockTileEntity(x, y - 2, z);
+    		te = world.getBlockTileEntity(x, y - 1, z);
     	} else {
      		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
-    		te = world.getBlockTileEntity(x, y - 1, z);
+    		te = world.getBlockTileEntity(x, y - 2, z);
     	}
     	return te;
     	
@@ -141,19 +138,19 @@ public class BlockHsbDoor extends BlockDoor {
 	
 	@SideOnly(Side.CLIENT)
 	@Override
-    public int getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int side)
+    public int getBlockTexture(IBlockAccess iblockaccess, int x, int y, int z, int side)
     {
-		int meta = iblockaccess.getBlockMetadata(i, j, k);
-		int facing = meta % 8;
+		int meta = iblockaccess.getBlockMetadata(x, y, z);
+//		int facing = meta % 8;
 		TileEntity te = null;
-		if(meta >= 8)
-		{
-			te = iblockaccess.getBlockTileEntity(i, j - 2, k);
-		} else
-		if(meta <= 0)
-		{
-			te = iblockaccess.getBlockTileEntity(i, j - 1, k);
-		}
+    	if(meta >= 8)
+    	{
+    		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
+    		te = iblockaccess.getBlockTileEntity(x, y - 2, z);
+    	} else {
+     		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
+    		te = iblockaccess.getBlockTileEntity(x, y - 1, z);
+    	}
 
         //testing...
 
@@ -185,10 +182,10 @@ public class BlockHsbDoor extends BlockDoor {
 		if(world.getBlockMetadata(x, y, z) < 8)
 		{
 			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te instanceof TileEntityDoorBase)
+			if(te instanceof TileEntityDoorBase && player instanceof EntityPlayer)
 			{
 				((TileEntityDoorBase) te).upgradePlayer = true;
-				((TileEntityDoorBase) te).placer = ((EntityPlayer)player).getEntityName();
+				((TileEntityDoorBase) te).placer = ((EntityPlayer)player).username;
 			}
 		}
     }

@@ -1,5 +1,8 @@
 package hsb;
 
+import java.util.List;
+import java.util.Vector;
+
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.World;
 
@@ -26,4 +29,12 @@ public class TileEntityDoorBase extends TileEntityHsbBuilding {
 		upgradePlayer = nbttagcompound.getBoolean("upgradePlayer");
 		super.readFromNBT(nbttagcompound); 
     }
+	
+	@Override
+	public List<String> getNetworkedFields() {
+		List list = super.getNetworkedFields();
+	    list.add("placer");
+	    list.add("upgradePlayer");
+	    return list;
+	}
 }

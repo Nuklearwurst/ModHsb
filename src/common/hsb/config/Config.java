@@ -71,14 +71,11 @@ public class Config {
 			
 //			Items.itemLockHackerEmpty = new ItemLockHacker(Config.getItemId("itemLockHackerEmpty", Defaults.ITEM_LOCK_HACKER_EMPTY)).setItemName("Lock Hacker");
 			
-			HsbItems.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setBlockName("Hsb Block");
-			LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb.blockID, 1, 0), "Hsb Building Block");
-			LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb.blockID, 1, 1), "Hsb Lock Terminal");
-			LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb.blockID, 1, 2), "Hsb Door Base");
+			HsbItems.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setBlockName("Hsb Building Block");
 			
 			HsbItems.blockHsbDoor = new BlockHsbDoor(Config.getBlockId("blockHsbDoor", Defaults.BLOCK_HSB_DOOR));
 			
-			HsbItems.itemHsbDoor = new ItemHsbDoor(Config.getItemId("itemHsbDoor", Defaults.ITEM_HSB_DOOR));
+			HsbItems.itemHsbDoor = new ItemHsbDoor(Config.getItemId("itemHsbDoor", Defaults.ITEM_HSB_DOOR)).setItemName("LockDoor");
 			LanguageRegistry.addName(HsbItems.itemHsbDoor, "HSB Door");
 			
 			HsbItems.itemUpgradeTesla = new ItemTeslaUpgrade(Config.getItemId("itemUpgradeTesla", Defaults.ITEM_UPGRADE_TESLA)).setItemName("Item Tesla Upgrade");
@@ -97,6 +94,10 @@ public class Config {
 	{
 		//register Blocks
 		GameRegistry.registerBlock(HsbItems.blockHsb, ItemBlockHsb.class);
+		
+		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 0), "Hsb Building Block");
+		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 1), "Hsb Lock Terminal");
+		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 2), "Hsb Door Base");
 		
 		//register TileEntitys
 		GameRegistry.registerTileEntity(TileEntityHsb.class, "TileEntityHsb");
@@ -127,12 +128,12 @@ public class Config {
 		//Recipes
 		
 		//TODO : fix
-//		GameRegistry.addShapelessRecipe(new ItemStack(Items.blockHsb, 1, 0), new Object[] {Items.reinforcedStone, new ItemStack(Item.redstone,1)});
-		GameRegistry.addShapelessRecipe(new ItemStack(HsbItems.blockHsb, 1, 1), new Object[] {new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.circuit});
+		GameRegistry.addShapelessRecipe(new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.reinforcedStone, new ItemStack(Item.redstone,1));
+		GameRegistry.addShapelessRecipe(new ItemStack(HsbItems.blockHsb, 1, 1), new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.circuit);
 		
-		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), new Object[] {"I I", "ICI", " B ", 'B', HsbItems.battery, 'I', HsbItems.refinedIron, 'C', HsbItems.circuit});
+//		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), "I I", "ICI", " B ", 'B', HsbItems.battery, 'I', HsbItems.refinedIron, 'C', HsbItems.circuit);
 		
-		GameRegistry.addRecipe(new ItemStack(HsbItems.itemUpgradeTesla, 1), new Object[] {"   ", "TCT", "   ", 'T', Config.getIC2Item("teslaCoil"), 'C', HsbItems.circuit});
+//		GameRegistry.addRecipe(new ItemStack(HsbItems.itemUpgradeTesla, 1), "   ", "TCT", "   ", 'T', Config.getIC2Item("teslaCoil"), 'C', HsbItems.circuit);
 	}
 	
     public static int getBlockId(String name, int defaultId)//BlockIDs

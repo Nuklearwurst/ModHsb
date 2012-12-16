@@ -231,11 +231,11 @@ public class BlockHsb extends BlockContainer {
 	    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
 	    	{
 	    		TileEntityLockTerminal terminal = ((TileEntityHsb)te).getConnectedTerminal();
-	    		if(terminal != null)
+	    		if(terminal != null && terminal.getUpgradeId("tesla")!=-1)
 	    		{
-	    			System.out.println("HsbTerminal TE found!");
+//	    			System.out.println("HsbTerminal TE found!");
 	    			int tesla = terminal.upgradeCount[terminal.getUpgradeId("tesla")];
-					System.out.println("Tesla found:" + tesla);
+//					System.out.println("Tesla found:" + tesla);
 	    			if(tesla > 0 && terminal.upgradeActive[terminal.getUpgradeId("tesla")])
 	    			{
 	    				if(world.isRemote)

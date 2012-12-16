@@ -119,8 +119,6 @@ public class GuiLockTerminal extends GuiContainer
     		//button : 0 - 9
     		//events: -3 - -12
     		NetworkHelper.initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
-//    		te.getUpgrade(guibutton.id-this.buttonIdStart).onButtonClicked(te, entityplayer, guibutton.id - this.buttonIdStart);
-//    		te.updateUpgrades();
         }
         super.actionPerformed(guibutton);
     }

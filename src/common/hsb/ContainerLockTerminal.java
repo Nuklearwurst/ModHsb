@@ -30,6 +30,7 @@ public class ContainerLockTerminal extends Container {
     int yPos;
     private int lastEnergyStored = 0;
     private boolean lastLocked = false;
+    private int lastExtraStorage = 0;
 //    private ContainerLockTerminalOptions c;
     private boolean isTerminal = false;
     
@@ -152,10 +153,15 @@ public class ContainerLockTerminal extends Container {
 	            	}
 	            	var2.sendProgressBarUpdate(this, 1, lockInt);
 	            }
+	            if (this.lastExtraStorage != this.te.extraStorage)
+	            {
+	            	var2.sendProgressBarUpdate(this, 2, this.te.extraStorage);
+	            }
 	        }
-	
+	        
 	        this.lastEnergyStored = this.te.energyStored;
 	        this.lastLocked = this.te.locked;
+	        this.lastExtraStorage = this.te.extraStorage;
         }
     }
 
@@ -178,6 +184,10 @@ public class ContainerLockTerminal extends Container {
 	        	{
 	        		this.te.locked = true;
 	        	}
+	        }
+	        if(id == 2) 
+	        {
+	        	this.te.extraStorage = value;
 	        }
     	}
     }
