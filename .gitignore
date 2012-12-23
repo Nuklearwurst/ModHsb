@@ -1,67 +1,27 @@
-#################
-## Eclipse
-#################
-
-*.pydevproject
-.project
-.metadata
-bin/
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.classpath
-.settings/
-.loadpath
-
-# External tool builders
-.externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
-*.launch
-
-# CDT-specific
-.cproject
-
-# PDT-specific
-.buildpath
-
-
-############
-## Windows
-############
-
-# Windows image file caches
-Thumbs.db
-
-# Folder config file
-Desktop.ini
-
 #############
 ## Minecraft
 #############
-/bin/*
-/conf/*
-/docs/*
-/eclipse/*
-/forge/*
-/jars/*
-/lib/*
-/logs/*
-/modsrc/*
-/reobf/*
-/runtime/*
-/temp/*
+/client/*
+/common/*
+/fml/*
+/patches/*
 
-/src/minecraft/*
-/src/minecraft_server/*
-/src/common/*
-!/src/common/hsb/
-!/src/common/mcmod.info
-!/src/minecraft/hsb
-# !/src/common/SP.png
+## Mod Code
+/mcp/*
+!/mcp/src/
+/mcp/src/minecraft/*
+!/mcp/src/minecraft/hsb/
+!/mcp/src/minecraft/mcmod.info
+
 
 *.bat
 *.sh
+*.py
+*.pyc
+*.properties
+*.cmd
+
+*.txt
+!README.txt
+
+CHANGELOG
