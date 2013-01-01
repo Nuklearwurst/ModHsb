@@ -15,14 +15,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.MinecraftForge;
 
 import ic2.api.Direction;
 import ic2.api.ElectricItem;
-import ic2.api.EnergyNet;
 import ic2.api.IElectricItem;
-import ic2.api.IEnergySink;
-import ic2.api.NetworkHelper;
-import hsb.api.UpgradeHsb;
+import ic2.api.energy.EnergyNet;
+import ic2.api.energy.event.EnergyTileLoadEvent;
+import ic2.api.energy.tile.IEnergySink;
+import ic2.api.network.NetworkHelper;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
@@ -30,7 +31,7 @@ import hsb.gui.GuiHandler;
 public class TileEntityLockTerminal extends TileEntityHsb implements
 		IEnergySink, IInventory {
 
-	//TODO !!!
+	//TODO clean Up
 	//upgradeCount reset!!!!
 	public int blocksInUse = 0;
 	private boolean needReconnect = false;
@@ -88,7 +89,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	}
 
 	@Override
-	// TODO rewrite ?
 	public ItemStack decrStackSize(int slot, int amount) {
 		if (this.mainInventory[slot] != null) {
 			ItemStack stack;
@@ -114,8 +114,8 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	}
 
 	@Override
-	public boolean demandsEnergy() {
-		return energyStored < (defaultEnergyStorage + extraStorage);
+	public int demandsEnergy() {
+		return (defaultEnergyStorage + extraStorage) - energyStored;
 	}
 
 	/**
@@ -560,12 +560,14 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			//add to EnergyNet
 			if (!isAddedToEnergyNet) {
 				this.onInventoryChanged();
-				EnergyNet.getForWorld(worldObj).addTileEntity(this);
+//				Deprecated
+//				EnergyNet.getForWorld(worldObj).addTileEntity(this);
+				MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
 				isAddedToEnergyNet = true;
 			}
 			//charge from battery //4:ChargeSlot(-->ContainerLockTerminal)
 			ItemStack item = this.getStackInSlot(4);
-			if(item != null && item.getItem() instanceof IElectricItem && this.demandsEnergy())
+			if(item != null && item.getItem() instanceof IElectricItem && (this.demandsEnergy() > 0))
 			{
 				int leftover = this.injectEnergy(Direction.YN, ElectricItem.discharge(item, this.maxInput, 2, false, false));
 				ElectricItem.charge(item, leftover, 2, false, false);
@@ -581,7 +583,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 					energyStored = (int) Math.round(energyStored - need);
 				}
 			}
-//			onInventoryChanged();
 			this.updateCounter++;
 			if (updateCounter >= 20) {
 				updateCounter = 0;
@@ -647,9 +648,14 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		nbttagcompound.setInteger("blocksInUse", this.blocksInUse);
 	}
 
-//	@Override
-//	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
-//		return new ItemStack(HsbItems.blockHsb, 1, 1);
-//	}
+	@Override
+	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
+		return new ItemStack(HsbItems.blockHsb, 1, 1);
+	}
+
+	@Override
+	public int getMaxSafeInput() {
+		return this.maxInput;
+	}
 
 }

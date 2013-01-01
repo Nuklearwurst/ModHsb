@@ -1,10 +1,12 @@
 package hsb;
 
 import hsb.config.Config;
+import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
 import java.util.List;
 import java.util.Random;
 
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -51,20 +53,29 @@ public class BlockHsbDoor extends BlockDoor {
      */
     public void breakBlock(World world, int x, int y, int z, int par5, int par6)
     {
-    	if(world.getBlockMetadata(x, y, z) < 8)
-    	{
-    		TileEntity te = world.getBlockTileEntity(x, y, z);
-    		if(te != null && te instanceof TileEntityDoorBase)
-    		{
-    			((TileEntityDoorBase)te).onDoorBreak(world, x, y, z);
-    		}
-    	}
+		TileEntity te = this.getTileEntity(world, x, y, z);
+		if(te != null && te instanceof TileEntityDoorBase)
+		{
+			((TileEntityDoorBase)te).onDoorBreak(world, x, y, z);
+		} else {
+			if(te != null && world.getBlockId(te.xCoord, te.yCoord, te.zCoord) == HsbItems.blockHsb.blockID && world.getBlockMetadata(te.xCoord, te.yCoord, te.zCoord) == 2)
+			{
+				world.setBlockMetadataWithNotify(te.xCoord, te.yCoord, te.zCoord, 0);
+				world.setBlockTileEntity(te.xCoord, te.yCoord, te.zCoord, new TileEntityHsbBuilding());
+			} else {
+				FMLLog.severe("Error during removal of Door Block, see BlockHsbDoor l. 66");
+			}
+		}
         super.breakBlock(world, x, y, z, par5, par6);
     }
 	
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int l, float m, float n, float o)
     {
+    	if(entityplayer != null && entityplayer.getCurrentEquippedItem()!=null && entityplayer.getCurrentEquippedItem().itemID == HsbItems.itemBlockPlacer.shiftedIndex)
+    	{
+    		return false;
+    	}
     	TileEntity te = this.getTileEntity(world, x, y, z);
     	if(te != null && te instanceof TileEntityDoorBase)
     	{
@@ -78,6 +89,8 @@ public class BlockHsbDoor extends BlockDoor {
 					entityplayer.sendChatToPlayer("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.username);
 				}
     		}
+		} else {
+			entityplayer.sendChatToPlayer("Huch!! Die Tuer sollte nicht hier sein!");
 		}
     	return true;
     }
@@ -101,7 +114,7 @@ public class BlockHsbDoor extends BlockDoor {
         world.playAuxSFXAtEntity(entityplayer, 1003, x, y, z, 0);
     }
     
-    private TileEntity getTileEntity(World world, int x, int y, int z) {
+    public TileEntity getTileEntity(World world, int x, int y, int z) {
     	TileEntity te;
         int meta = this.getFullMetadata(world, x, y, z);
         if ((meta & 8) == 0)
@@ -123,7 +136,7 @@ public class BlockHsbDoor extends BlockDoor {
 	@Override
     public int idDropped(int meta, Random random, int j)
     {
-        return 0;
+        return HsbItems.itemHsbDoor.shiftedIndex;
     }
 	
 	@SideOnly(Side.CLIENT)
@@ -131,24 +144,27 @@ public class BlockHsbDoor extends BlockDoor {
     public int getBlockTexture(IBlockAccess iblockaccess, int x, int y, int z, int side)
     {
 		int meta = iblockaccess.getBlockMetadata(x, y, z);
-//		int facing = meta % 8;
 		TileEntity te = null;
     	if(meta >= 8)
     	{
-    		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
+    		Config.logDebug("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
     		te = iblockaccess.getBlockTileEntity(x, y - 2, z);
     	} else {
-     		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
+    		Config.logDebug("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
     		te = iblockaccess.getBlockTileEntity(x, y - 1, z);
     	}
 
         //testing...
 
 		
-		int index = 0;
+		int index = 19;
+		if(meta >= 8)
+		{
+			index = 3;
+		}
         if(te != null && ((TileEntityHsb)te).locked)
         {
-        	index = 16;
+        	index = index + 32;
         	
         }
         return index;
@@ -157,7 +173,12 @@ public class BlockHsbDoor extends BlockDoor {
 	@Override
     public int getBlockTextureFromSideAndMetadata(int side, int meta)
 	{
-	     return 0;
+		int index = 19;
+		if(meta >= 8)
+		{
+			index = 3;
+		}
+	     return index;
 
     }
     @Override
@@ -172,10 +193,20 @@ public class BlockHsbDoor extends BlockDoor {
 		if(world.getBlockMetadata(x, y, z) < 8)
 		{
 			TileEntity te = world.getBlockTileEntity(x, y, z);
-			if(te instanceof TileEntityDoorBase && player instanceof EntityPlayer)
+			if(te instanceof TileEntityHsbBuilding && player instanceof EntityPlayer)
 			{
-				((TileEntityDoorBase) te).upgradePlayer = true;
-				((TileEntityDoorBase) te).placer = ((EntityPlayer)player).username;
+				int port = ((TileEntityHsbBuilding) te).port;
+				world.setBlockMetadataWithNotify(te.xCoord, te.yCoord, te.zCoord, 2);
+				world.setBlockTileEntity(x, y, z, new TileEntityDoorBase());
+				te = world.getBlockTileEntity(x, y, z);
+				if(te instanceof TileEntityDoorBase)
+				{
+					((TileEntityDoorBase) te).upgradePlayer = true;
+					((TileEntityDoorBase) te).placer = ((EntityPlayer)player).username;
+					((TileEntityDoorBase) te).port = port;
+				} else {
+					FMLLog.severe("Hsb: error when placing Door!");
+				}
 			}
 		}
     }

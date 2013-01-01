@@ -1,10 +1,10 @@
 package hsb;
 
-import ic2.api.INetworkClientTileEntityEventListener;
-import ic2.api.INetworkDataProvider;
-import ic2.api.INetworkUpdateListener;
 import ic2.api.IWrenchable;
-import ic2.api.NetworkHelper;
+import ic2.api.network.INetworkClientTileEntityEventListener;
+import ic2.api.network.INetworkDataProvider;
+import ic2.api.network.INetworkUpdateListener;
+import ic2.api.network.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,6 @@ public abstract class TileEntityHsb extends TileEntity
 	
 	@Override
 	public List<String> getNetworkedFields() {
-		System.out.println("get networkedFields");
 		List list = new Vector(4);
 	    list.add("facing");
 	    list.add("port");

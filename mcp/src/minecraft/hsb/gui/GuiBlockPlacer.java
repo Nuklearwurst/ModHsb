@@ -1,7 +1,6 @@
 package hsb.gui;
 
-import ic2.api.NetworkHelper;
-
+import ic2.api.network.NetworkHelper;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -40,7 +39,13 @@ public class GuiBlockPlacer extends GuiScreen {
     private int y;
     private int z;
     private EntityPlayer player;
-    private boolean placeMode=true;
+    
+    /*
+     * Place: 0
+     * Remove: 1
+     */
+    private int mode = 0;
+//    private boolean placeMode=true;
     private boolean item;
     
 	public GuiBlockPlacer(Object placer, int x, int y, int z, World world, EntityPlayer player) {
@@ -66,20 +71,16 @@ public class GuiBlockPlacer extends GuiScreen {
         {
 	        nbttag = itemstack.getTagCompound();
 	        if(nbttag == null) {
-	        	System.out.println("nbttag == null Constructor");
-	//        	nbttag = new NBTTagCompound();
-	//        	itemstack.setTagCompound(nbttag);
-	//        	nbttag.setInteger("port", port);
-	//        	nbttag.setBoolean("placeMode", true);
-	        	
+	        	Config.logDebug("nbttag == null Constructor");	        	
 	        }
-	        placeMode = nbttag.getBoolean("placeMode");
+	        mode = nbttag.getInteger("mode");
 	        port = nbttag.getInteger("port");
-	        name = itemstack.getItem().getItemDisplayName(itemstack);
+//	        name = itemstack.getItem().getItemDisplayName(itemstack);
+	        name = "Block Placer";
         } else {
-        	placeMode = true;
+        	mode = 0;
         	port = 0;
-        	name = "Hsb Building Block";
+        	name = "Set Port:";
         }
 	}
 	@Override
@@ -122,11 +123,16 @@ public class GuiBlockPlacer extends GuiScreen {
 	                break;
 	                
 	            case 5:
-	                this.placeMode = !this.placeMode;
+	            	//See Declaration
+	                this.mode++;
+	                if(mode > 2)
+	                {
+	                	mode = 0;
+	                }
 	                break;
 	        }
 	    }
-	 //TODO
+	 //works for now
 	    public void updatePort(int number)
 	    {
 	        this.port += number;
@@ -152,20 +158,17 @@ public class GuiBlockPlacer extends GuiScreen {
 	    		updateNBTTag();
 	    	} else {
 	    		te.port = this.port;
-	    		if(!Config.ECLIPSE)
-	    		{
-	    			NetworkHelper.initiateClientTileEntityEvent(te, port);
-	    		}
+	    		NetworkHelper.initiateClientTileEntityEvent(te, port);
 	    	}
 	        super.onGuiClosed();
 	    }
 	    private void updateNBTTag() {
 	    	itemstack.getTagCompound().setInteger("port", port);
-	    	itemstack.getTagCompound().setBoolean("placeMode", placeMode);
+	    	itemstack.getTagCompound().setInteger("mode", mode);
 	    	//Sending Packet to Server
 	    	PacketItemUpdate packetPort = new PacketItemUpdate(this.itemstack.getItem(), "port", port);
 	    	((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packetPort.getPacket());    	
-	    	PacketItemUpdate packetMode = new PacketItemUpdate(this.itemstack.getItem(), "placeMode", placeMode);
+	    	PacketItemUpdate packetMode = new PacketItemUpdate(this.itemstack.getItem(), "mode", mode);
 	    	((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packetMode.getPacket());  
 	    }
 	    
@@ -197,14 +200,24 @@ public class GuiBlockPlacer extends GuiScreen {
 	    {
 	    	if(item)
 	    	{
-		    	String mode;
-		    	if(placeMode) {
-		    		mode = "Place";
-		    	} else {
-		    		mode = "Remove";
+		    	String modeStr = "Error";
+		    	switch(mode) 
+		    	{
+		    	case 0:
+		    		modeStr = "Place";
+		    		break;
+		    	case 1:
+		    		modeStr = "Remove";
+		    		break;
+		    	case 2:
+		    		modeStr = "Wrench";
+		    		break;
+		    	default:
+		    		modeStr = "Error";
+		    		break;
 		    	}
-		        drawStringBorder(this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + mode) / 2, 6, this.xSize / 2 + this.fontRenderer.getStringWidth(name + " " + mode) / 2);
-		        this.fontRenderer.drawString(name + " " + mode, this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + mode) / 2, 6, 4210752);
+		        drawStringBorder(this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + modeStr) / 2, 6, this.xSize / 2 + this.fontRenderer.getStringWidth(name + " " + modeStr) / 2);
+		        this.fontRenderer.drawString(name + " " + modeStr, this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + modeStr) / 2, 6, 4210752);
 	    	}
 	    }
 

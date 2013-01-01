@@ -1,12 +1,20 @@
 package hsb;
 
+import java.util.Iterator;
+import java.util.List;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import hsb.config.Config;
 import hsb.config.HsbItems;
@@ -52,10 +60,10 @@ public class ItemBlockPlacer extends Item
 	    	{
 	    		if(!world.isRemote)
 	    		{
-		    		System.out.println("nbttag == null!!!");
+		    		Config.logDebug("nbttag == null!!!");
 		    		itemstack.setTagCompound(new NBTTagCompound());
 		    		itemstack.getTagCompound().setInteger("port", 0);
-		    		itemstack.getTagCompound().setBoolean("placeMode", true);
+		    		itemstack.getTagCompound().setInteger("mode", 0);
 	    		} else {
 	    			return itemstack;
 	    		}
@@ -74,10 +82,10 @@ public class ItemBlockPlacer extends Item
 	    	{
 	    		if(!world.isRemote)
 	    		{
-		    		System.out.println("nbttag == null!!!");
+	    			Config.logDebug("nbttag == null!!!");
 		    		itemstack.setTagCompound(new NBTTagCompound());
 		    		itemstack.getTagCompound().setInteger("port", 0);
-		    		itemstack.getTagCompound().setBoolean("placeMode", true);
+		    		itemstack.getTagCompound().setInteger("mode", 0);
 	    		} else {
 	    			return true;
 	    		}
@@ -87,94 +95,116 @@ public class ItemBlockPlacer extends Item
 	    	 */
 	    	if(entityplayer.isSneaking())
 	    		return false;
+	    	
+	    	switch(itemstack.getTagCompound().getInteger("mode"))
+	    	{
 	    	/*
 	    	 * Blockremoving Part
 	    	 */
-	    	if(!itemstack.getTagCompound().getBoolean("placeMode"))
-	    	{
-		    	TileEntity te = world.getBlockTileEntity(x, y, z);
-		    	if(te instanceof TileEntityHsb)
+		    	case 1:
 		    	{
-		    		if(((TileEntityHsb) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsb) te).locked)
-		    		{
-		    			return true;
-		    		}
-		    		//TODO better?
-		    		System.out.println("Removing Block at: " + x + ", " + y + ", " + z);
-		    		
-//		    		world.removeBlockTileEntity(x, y, z);
-		    		HsbItems.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
-		    		world.setBlockAndMetadataWithNotify(x, y, z, 0, 0);
-//		    		world.markBlockNeedsUpdate(x, y, z);
-//		    		world.setBlock(x, y, y, 0);
-		    		return true;
+			    	TileEntity te = world.getBlockTileEntity(x, y, z);
+			    	if(te instanceof TileEntityHsb)
+			    	{
+			    		if(((TileEntityHsb) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsb) te).locked)
+			    		{
+			    			return true;
+			    		}
+			    		Config.logDebug("Removing Block at: " + x + ", " + y + ", " + z);
+			    		if(world.setBlockAndMetadataWithNotify(x, y, z, 0, 0))
+			    			HsbItems.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
+			    		return true;
+			    	} else if(world.getBlockId(x, y, z) == HsbItems.blockHsbDoor.blockID)
+			    	{
+			    		te = ((BlockHsbDoor)HsbItems.blockHsbDoor).getTileEntity(world, x, y, z);
+			    		if(te != null && te instanceof TileEntityDoorBase)
+			    		{
+			    			if(((TileEntityDoorBase)te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityDoorBase) te).locked)
+			    			{
+			    				return true;
+			    			}
+				    		Config.logDebug("Trying to Remove Door!!");
+				    		if(world.setBlockAndMetadataWithNotify(x, y, z, 0, 0))
+				    		{
+				    			HsbItems.blockHsbDoor.breakBlock(world, x, y, z, 0, 0);
+				    			HsbItems.blockHsbDoor.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
+				    			Config.logDebug("Door succesfully removed!");
+				    			return true;
+				    		} else {
+				    			Config.logDebug("Door removal failed!");
+				    		}
+			    		}
+			     	}
+					return true;
 		    	}
-				return true;
-			/*
-			 * Blockplacing Part
-			 */
-	    	} else {
-		        int block = world.getBlockId(x, y, z);
-	
-		        if (block == Block.snow.blockID)
-		        {
-		            side = 1;
-		        }
-		        //is replacable?
-		        else if (block != Block.vine.blockID && block != Block.tallGrass.blockID && block != Block.deadBush.blockID
-		                && (Block.blocksList[block] == null || !Block.blocksList[block].isBlockReplaceable(world, x, y, z)))
-		        {
-		        	//Placing on Side
-		            if (side == 0)
+				/*
+				 * Blockplacing Part
+				 */
+		    	case 0:
+		    	{
+			        int block = world.getBlockId(x, y, z);
+		
+			        if (block == Block.snow.blockID)
+			        {
+			            side = 1;
+			        }
+			        //is replacable?
+			        else if (block != Block.vine.blockID && block != Block.tallGrass.blockID && block != Block.deadBush.blockID
+			                && (Block.blocksList[block] == null || !Block.blocksList[block].isBlockReplaceable(world, x, y, z)))
+			        {
+			        	//Placing on Side
+			            if (side == 0)
+			            {
+			                --y;
+			            }
+		
+			            if (side == 1)
+			            {
+			                ++y;
+			            }
+		
+			            if (side == 2)
+			            {
+			                --z;
+			            }
+		
+			            if (side == 3)
+			            {
+			                ++z;
+			            }
+		
+			            if (side == 4)
+			            {
+			                --x;
+			            }
+		
+			            if (side == 5)
+			            {
+			                ++x;
+			            }
+			        }
+			        else if (!entityplayer.canPlayerEdit(x, y, z, side, itemstack))
+			        {
+			            return false;
+			        }
+			        else if (y == 255)
+			        {
+			            return false;
+			        }
+		            Block blockPlace = Block.blocksList[this.blockID];
+			        if (world.canPlaceEntityOnSide(this.blockID, x, y, z, false, side, null))
 		            {
-		                --y;
-		            }
-	
-		            if (side == 1)
-		            {
-		                ++y;
-		            }
-	
-		            if (side == 2)
-		            {
-		                --z;
-		            }
-	
-		            if (side == 3)
-		            {
-		                ++z;
-		            }
-	
-		            if (side == 4)
-		            {
-		                --x;
-		            }
-	
-		            if (side == 5)
-		            {
-		                ++x;
-		            }
-		        }
-		        else if (!entityplayer.canPlayerEdit(x, y, z, side, itemstack))
-		        {
-		            return false;
-		        }
-		        else if (y == 255)
-		        {
-		            return false;
-		        }
-	            Block blockPlace = Block.blocksList[this.blockID];
-		        if (world.canPlaceEntityOnSide(this.blockID, x, y, z, false, side, null))
-	            {
-		            if (placeBlockAt(itemstack, entityplayer, world, x, y, z, side, par8, par9, par10))
-		            {
-		                world.playSoundEffect((x + 0.5F), (y + 0.5F), (z + 0.5F), blockPlace.stepSound.getStepSound(), (blockPlace.stepSound.getVolume() + 1.0F) / 2.0F, blockPlace.stepSound.getPitch() * 0.8F);
-		             
-			            return true;
-		            }
-	
-	
-		        }
+			            if (placeBlockAt(itemstack, entityplayer, world, x, y, z, side, par8, par9, par10))
+			            {
+			                world.playSoundEffect((x + 0.5F), (y + 0.5F), (z + 0.5F), blockPlace.stepSound.getStepSound(), (blockPlace.stepSound.getVolume() + 1.0F) / 2.0F, blockPlace.stepSound.getPitch() * 0.8F);
+			             
+				            return true;
+			            }
+		
+		
+			        }
+			        break;
+		    	}
 	    	}
 			return false;
 	    }
@@ -191,7 +221,7 @@ public class ItemBlockPlacer extends Item
 	        }
 
 	        nbttagcompound.setInteger("port", 0);
-	        nbttagcompound.setBoolean("placeMode", true);
+	        nbttagcompound.setInteger("mode", 0);
 	    }
 
 	    @Override
@@ -259,7 +289,7 @@ public class ItemBlockPlacer extends Item
 	    	}
 			if (!world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, 0))
 			{
-				   System.out.println("placing failed!");
+				   Config.logDebug("placing failed!");
 			       return false;
 			}
 			
@@ -280,5 +310,43 @@ public class ItemBlockPlacer extends Item
 	    public boolean getShareTag()
 	    {
 	        return true;
+	    }
+	    
+	    @SideOnly(Side.CLIENT)
+	    @Override
+
+	    /**
+	     * allows items to add custom lines of information to the mouseover description
+	     * Here: Port
+	     */
+	    public void addInformation(ItemStack itemstack, EntityPlayer player, List list, boolean par4)
+	    {
+	        if(itemstack.getTagCompound()!=null)
+	        {
+	        	int port = itemstack.getTagCompound().getInteger("port");
+	        	list.add("Port: " + port);
+	        }
+	    }
+	    
+	    @Override
+	    public String getItemDisplayName(ItemStack itemstack)
+	    {
+    		String mode = "";
+	    	if(itemstack.getTagCompound() != null)
+	    	{
+	    		switch(itemstack.getTagCompound().getInteger("mode"))
+	    		{
+	    		case 0:
+	    			mode = " <Place> ";
+	    			break;
+	    		case 1:
+	    			mode = " <Remove> ";
+	    			break;
+	    		default:
+	    			mode = " <Error> ";
+	    			break;
+	    		}
+	    	}
+	    	return super.getItemDisplayName(itemstack) + mode;
 	    }
 }

@@ -14,6 +14,7 @@ public class ItemHsbDoor extends ItemDoor{
 	public ItemHsbDoor(int id) {
 		super(id, Material.wood);
 		this.setCreativeTab(CreativeTabHsb.tabHsb);
+		this.setIconIndex(2);
 	}
 	@Override
 	public String getTextureFile() {
@@ -33,9 +34,15 @@ public class ItemHsbDoor extends ItemDoor{
         }
         else
         {
-        	if(!(world.getBlockTileEntity(x, y, z) instanceof TileEntityDoorBase))
+        	if(!(world.getBlockTileEntity(x, y, z) instanceof TileEntityHsbBuilding))
         	{
         		return false;
+        	}
+        	if(((TileEntityHsbBuilding)world.getBlockTileEntity(x, y, z)).locked)
+        	{
+        		if(world.isRemote)
+        			player.sendChatToPlayer("Locked!");
+        		return true;
         	}
             ++y;
             Block block = HsbItems.blockHsbDoor;

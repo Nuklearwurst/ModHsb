@@ -14,15 +14,16 @@ public class ItemLockMonitor extends Item
 	implements IElectricItem
 {
 
-	private static final int energyUse = 10;
+	private static final int energyUse = 100;
 	public ItemLockMonitor(int id) {
 		super(id);
 		this.setMaxDamage(13);
+		this.setIconIndex(3);
+		this.setCreativeTab(CreativeTabHsb.tabHsb);
 	}
 
 	@Override
 	public boolean canProvideEnergy() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -38,13 +39,12 @@ public class ItemLockMonitor extends Item
 
 	@Override
 	public int getMaxCharge() {
-		//TODO
-		return 1000;
+		//TODO Charge
+		return 10000;
 	}
 
 	@Override
 	public int getTier() {
-		//TODO
 		return 1;
 	}
 

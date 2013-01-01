@@ -1,7 +1,6 @@
 package hsb.gui;
 
-import ic2.api.NetworkHelper;
-
+import ic2.api.network.NetworkHelper;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -77,7 +76,6 @@ public class GuiLockTerminalOptions extends GuiContainer
     @Override
     protected void actionPerformed(GuiButton guibutton)
     {
-    	//TODO
         switch (guibutton.id)
         {
             case 0:

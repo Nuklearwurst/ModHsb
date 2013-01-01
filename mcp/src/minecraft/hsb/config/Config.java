@@ -14,6 +14,8 @@ import hsb.TileEntityDoorBase;
 import hsb.TileEntityHsb;
 import hsb.TileEntityLockTerminal;
 import hsb.TileEntityHsbBuilding;
+import ic2.api.Ic2Recipes;
+
 import java.io.File;
 import java.util.logging.Level;
 
@@ -30,7 +32,6 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public class Config {
 	
-	//TODO registerBlocks
 	public static Configuration config;
 	public static boolean DEBUG = false;
 	public static boolean ECLIPSE = false;
@@ -42,12 +43,12 @@ public class Config {
 		try {
 			
 			config.load();
-			//Properties TODO
+			//Properties
 			Property debugMode = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false);
 			debugMode.comment="Debug Mode";
 			DEBUG = Boolean.parseBoolean(debugMode.value);
 			
-			//Plugins TODO
+			//Plugins TODO Plugins
 			
 			//Blocks, Items
 			HsbItems.itemDebugTool = new ItemDebugTool(Config.getItemId("Debug Tool", Defaults.ITEM_DEBUG)).setItemName("Debug Tool");
@@ -90,7 +91,7 @@ public class Config {
 	public static void init(FMLInitializationEvent evt)
 	{
 		//register Blocks
-		GameRegistry.registerBlock(HsbItems.blockHsb, ItemBlockHsb.class);
+		GameRegistry.registerBlock(HsbItems.blockHsb, ItemBlockHsb.class, "blockHsb");
 		
 		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 0), "Hsb Building Block");
 		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 1), "Hsb Lock Terminal");
@@ -102,7 +103,7 @@ public class Config {
 		GameRegistry.registerTileEntity(TileEntityLockTerminal.class, "TileEntityLockTerminal");
 		GameRegistry.registerTileEntity(TileEntityDoorBase.class, "TileEntityDoorBase");
 		
-		//add Block Idsd
+		//add Block Ids
 		ItemBlockPlacer.setBlockId(HsbItems.blockHsb.blockID);
 		
 		//Adding names...
@@ -124,13 +125,74 @@ public class Config {
 		HsbItems.initIC2();
 		//Recipes
 		
-		//TODO : fix
+		//Shapeless:
+		//Building Block
 		GameRegistry.addShapelessRecipe(new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.reinforcedStone, new ItemStack(Item.redstone,1));
+		//Terminal
 		GameRegistry.addShapelessRecipe(new ItemStack(HsbItems.blockHsb, 1, 1), new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.circuit);
+		//HsbDoor
+		GameRegistry.addShapelessRecipe(new ItemStack(HsbItems.itemHsbDoor, 1, 0), Config.getIC2Item("reinforcedDoor"), Item.redstone);
 		
-//		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), "I I", "ICI", " B ", 'B', HsbItems.battery, 'I', HsbItems.refinedIron, 'C', HsbItems.circuit);
+		//Shaped:
 		
-//		GameRegistry.addRecipe(new ItemStack(HsbItems.itemUpgradeTesla, 1), "   ", "TCT", "   ", 'T', Config.getIC2Item("teslaCoil"), 'C', HsbItems.circuit);
+		//Lock Monitor(Charge-aware)
+		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemLockMonitor, 1), new Object[] 
+			{
+				"ICI", "IGI", " B ", 
+				Character.valueOf('B'), HsbItems.battery, 
+				Character.valueOf('I'), HsbItems.refinedIron, 
+				Character.valueOf('C'), HsbItems.circuit,
+				Character.valueOf('G'), Block.glass 
+			});
+		
+		//Lock Monitor(Empty)
+		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemLockMonitor, 1), new Object[] 
+			{
+				"ICI", "IGI", " B ", 
+				Character.valueOf('B'), HsbItems.battery_empty, 
+				Character.valueOf('I'), HsbItems.refinedIron, 
+				Character.valueOf('C'), HsbItems.circuit,
+				Character.valueOf('G'), Block.glass 
+			});
+		
+		//Lock Hacker(Charge-aware)
+		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemLockHacker, 1), new Object[] 
+			{
+				"IEI", "LML", "RAR", 
+				Character.valueOf('E'), Item.enderPearl, 
+				Character.valueOf('I'), HsbItems.refinedIron, 
+				Character.valueOf('L'), new ItemStack(Item.dyePowder, 4),
+				Character.valueOf('M'), HsbItems.itemLockMonitor,
+				Character.valueOf('R'), Item.redstone,
+				Character.valueOf('A'), Config.getIC2Item("advancedCircuit")
+			});
+		
+		//Block Placer(Charge-aware)
+		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), new Object[] 
+			{
+				"I I", "ICI", " B ", 
+				Character.valueOf('B'), HsbItems.battery, 
+				Character.valueOf('I'), HsbItems.refinedIron, 
+				Character.valueOf('C'), HsbItems.circuit
+			});
+		
+		//Block Placer(Empty)
+		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), new Object[] 
+			{
+				"I I", "ICI", " B ", 
+				Character.valueOf('B'), HsbItems.battery_empty, 
+				Character.valueOf('I'), HsbItems.refinedIron, 
+				Character.valueOf('C'), HsbItems.circuit
+			});
+		
+		//Tesla Upgrade
+		GameRegistry.addRecipe(new ItemStack(HsbItems.itemUpgradeTesla, 1), new Object[] 
+			{
+				"   ", "CTC", "   ", 
+				Character.valueOf('T'), Config.getIC2Item("teslaCoil"), 
+				Character.valueOf('C'), HsbItems.circuit 
+			});
+		
 	}
 	
     public static int getBlockId(String name, int defaultId)//BlockIDs
@@ -143,16 +205,16 @@ public class Config {
     }
     public static ItemStack getIC2Item(String name)
     {
-    	if(!Config.ECLIPSE)
-    	{
-    		return ic2.api.Items.getItem(name);
-    	} else {
-    		return new ItemStack(Block.dirt, 1);
-    	}
+    	return ic2.api.Items.getItem(name);
     }
     public static void logDebug(String s) {
     	if(DEBUG) {
-    		FMLLog.info(s);
+    		FMLLog.info("[HSB]" + s);
+    	}
+    }
+    public static void logError(String s) {
+    	if(DEBUG) {
+    		FMLLog.severe("[HSB]" + s);
     	}
     }
 

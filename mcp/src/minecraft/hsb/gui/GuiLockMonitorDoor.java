@@ -1,7 +1,5 @@
 package hsb.gui;
 
-import ic2.api.NetworkHelper;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderHelper;

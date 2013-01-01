@@ -12,8 +12,10 @@ public class TileEntityDoorBase extends TileEntityHsbBuilding {
 	public String placer = "";
 	
 	public void onDoorBreak(World world, int x, int y, int z) {
-		upgradePlayer = false;
-		placer = "";
+		world.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0);
+		int port = this.port;
+		world.setBlockTileEntity(xCoord, yCoord, zCoord, new TileEntityHsbBuilding());
+		((TileEntityHsbBuilding)world.getBlockTileEntity(xCoord, yCoord, zCoord)).port = port;
 	}
 	@Override
     public void writeToNBT(NBTTagCompound nbttagcompound)

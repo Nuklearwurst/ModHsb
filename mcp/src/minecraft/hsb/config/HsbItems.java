@@ -21,6 +21,7 @@ public class HsbItems {
 		circuit = Config.getIC2Item("electronicCircuit");
 		refinedIron = Config.getIC2Item("refinedIronIngot");
 		battery_empty = Config.getIC2Item("reBattery");
+		battery = Config.getIC2Item("chargedReBattery");
 	}
 	
 	//List of Items

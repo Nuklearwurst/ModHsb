@@ -3,10 +3,9 @@ package hsb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import ic2.api.NetworkHelper;
-import hsb.api.UpgradeHsb;
 import hsb.config.HsbItems;
 
 public class ItemTeslaUpgrade extends Item
@@ -16,6 +15,7 @@ public class ItemTeslaUpgrade extends Item
 	public ItemTeslaUpgrade(int id) {
 		super(id);
 		this.setCreativeTab(CreativeTabHsb.tabHsb);
+		this.setIconIndex(5);
 	}
 
 	@Override
@@ -77,8 +77,15 @@ public class ItemTeslaUpgrade extends Item
 	public String getUniqueId() {
 		return "tesla";
 	}
-//
-//	@Override
-//	public UpgradeHsb getUpgrade() {
-//		return new UpgradeHsb(this);//	}
+
+	@Override
+	public void onTileSave(NBTTagCompound nbttagcompound,
+			TileEntityLockTerminal te) {}
+
+	@Override
+	public void onTileLoad(NBTTagCompound nbttagcompound,
+			TileEntityLockTerminal te) {}
+
+	@Override
+	public void onGuiOpen(TileEntityLockTerminal te) {}
 }

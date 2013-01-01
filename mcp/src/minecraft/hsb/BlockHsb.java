@@ -1,6 +1,5 @@
 package hsb;
 
-import hsb.api.UpgradeHsb;
 import hsb.config.Config;
 import hsb.gui.GuiHandler;
 import ic2.api.IWrenchable;
@@ -33,7 +32,8 @@ public class BlockHsb extends BlockContainer {
 	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
 	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}, 
 												{1, 1, 1, 17, 1, 1, 16, 16, 16, 17, 16, 16}, 
-												{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}};
+												{2, 2, 2, 2, 2, 2, 18, 18, 18, 18, 18, 18}};
+	public static final int maxDamage = 2;
 	public String textureFile = "";
 	
 	/*
@@ -49,7 +49,7 @@ public class BlockHsb extends BlockContainer {
 		this.setResistance(999F);
 		this.blockIndexInTexture = 0;
 		this.textureFile = CommonProxy.TEXTURE_BLOCKS;
-		this.setCreativeTab(CreativeTabs.tabBlock);
+		this.setCreativeTab(CreativeTabHsb.tabHsb);
 	}
 	
     @Override
@@ -114,7 +114,16 @@ public class BlockHsb extends BlockContainer {
 	@Override
     public int damageDropped(int meta)
     {
-        return meta;
+        switch(meta) {
+        case 0:
+        	return 0;
+        case 1: 
+        	return 1;
+        case 2:
+        	return 2;
+        default: 
+        	return 0;
+        }
     }
 	@SideOnly(Side.CLIENT)
 	@Override
@@ -142,7 +151,7 @@ public class BlockHsb extends BlockContainer {
 	@Override
     public int getBlockTextureFromSideAndMetadata(int side, int meta)
 	{
-		if(meta > 1)
+		if(meta > maxDamage)
 			return 0;
 		int texid = sideAndFacingToSpriteOffset[side][1];
 		int tex = blockTexture[meta][texid];
@@ -191,11 +200,15 @@ public class BlockHsb extends BlockContainer {
         	if(player instanceof EntityPlayer && te!=null)
         		if(((EntityPlayer) player).getCurrentEquippedItem().itemID == this.blockID)
         			((EntityPlayer) player).openGui(ModHsb.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
+        	break;
+        case 2:
+        	if(player instanceof EntityPlayer && te!=null)
+        		if(((EntityPlayer) player).getCurrentEquippedItem().itemID == this.blockID)
+        			((EntityPlayer) player).openGui(ModHsb.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
         }
         
         if (player != null && te instanceof IWrenchable) 
         {
-//        	System.out.println("Facing setting");
             IWrenchable wrenchable = (IWrenchable)te;
             int rotationSegment = MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
             if (player.rotationPitch >= 65) 
@@ -230,18 +243,16 @@ public class BlockHsb extends BlockContainer {
 	    		TileEntityLockTerminal terminal = ((TileEntityHsb)te).getConnectedTerminal();
 	    		if(terminal != null && terminal.getUpgradeId("tesla")!=-1)
 	    		{
-//	    			System.out.println("HsbTerminal TE found!");
 	    			int tesla = terminal.upgradeCount[terminal.getUpgradeId("tesla")];
-//					System.out.println("Tesla found:" + tesla);
 	    			if(tesla > 0 && terminal.upgradeActive[terminal.getUpgradeId("tesla")])
 	    			{
-	    				if(world.isRemote)
-	    					player.sendChatToPlayer("Don't do that!");
+	    				player.sendChatToPlayer("Don't do that!");
 	    				player.attackEntityFrom(DamageSource.magic, tesla);
 	    			}
 	    		}
 	    	}
     	}
     }
+
 
 }

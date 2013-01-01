@@ -1,7 +1,6 @@
 package hsb.gui;
 
-import ic2.api.NetworkHelper;
-
+import ic2.api.network.NetworkHelper;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -13,7 +12,6 @@ import org.lwjgl.opengl.GL11;
 import hsb.ILockUpgrade;
 import hsb.ModHsb;
 import hsb.TileEntityLockTerminal;
-import hsb.api.UpgradeHsb;
 import hsb.config.Config;
 
 public class GuiLockTerminal extends GuiContainer
@@ -58,8 +56,8 @@ public class GuiLockTerminal extends GuiContainer
         this.container = container;
         this.te = te;
         this.entityplayer = entityplayer;
-        xSize = 228;//176 //TODO
-        ySize = 222;//166
+        xSize = 228;
+        ySize = 222;
     }
     public void initGui()
     {
@@ -98,7 +96,6 @@ public class GuiLockTerminal extends GuiContainer
     @Override
     protected void actionPerformed(GuiButton guibutton)
     {
-    	//TODO
         switch (guibutton.id)
         {
             case 0:

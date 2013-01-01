@@ -29,16 +29,15 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * 
  * block for building - done
  * door - (no Upgrades yet!)
- * fence - TODO
+ * fence - TODO add fence
  * block for control - done
  * 	--> Upgrade System
  * 		- 
- * block for interaction - TODO
+ * block for interaction - TODO block to open gui behind
  * some upgrades
  * 	in progress:
  * 		Tesla
  * 
- * some light versions of the fence - TODO
  * 
  * ?? also for interaction
  * ???interaction cabeling/controlling
@@ -60,7 +59,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
  *
  */
 
-@Mod(modid = "HSB", name = "High Security Blocks", version = ModHsb.version, useMetadata = true)//!!TODO
+@Mod(modid = "HSB", name = "High Security Blocks", version = ModHsb.version, useMetadata = true, dependencies = "after:IC2")//!!TODO Versioning Mod 
 @NetworkMod(clientSideRequired = true, versionBounds = "0.1", serverSideRequired=false, 
 channels={Defaults.NET_CHANNEL}, packetHandler = PacketHandler.class)
 public class ModHsb {

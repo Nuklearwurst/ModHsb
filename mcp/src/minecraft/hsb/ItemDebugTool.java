@@ -12,7 +12,7 @@ public class ItemDebugTool extends Item {
 	public ItemDebugTool(int id) {
 		super(id);
 		 this.setCreativeTab(CreativeTabHsb.tabHsb);
-		 this.setIconIndex(1);//TODO
+		 this.setIconIndex(1);//TODO Texture
 	}
 	@Override
 	public String getTextureFile() {

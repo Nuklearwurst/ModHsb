@@ -91,19 +91,13 @@ public class ContainerLockTerminal extends Container {
     public void onCraftGuiClosed(EntityPlayer player)
     {
     	super.onCraftGuiClosed(player);
-//    	this.te.updateUpgrades(player);
     }
 
     @Override
     public boolean canInteractWith(EntityPlayer entityplayer)
     {
-        // TODO Auto-generated method stub
         return this.te.isUseableByPlayer(entityplayer);
     }
-//    public ItemStack transferStackInSlot(int i)
-//    {
-//        return null;
-//    }
     @Override
 	public void addCraftingToCrafters(ICrafting par1ICrafting)
     {

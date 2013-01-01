@@ -14,11 +14,13 @@ public class ItemLockHacker extends Item
 	implements IElectricItem
 {
 
-	private int energyUse = 2;
+	private int energyUse = 300;
 
 	public ItemLockHacker(int id) {
 		super(id);
 		this.setMaxDamage(13);
+		this.setIconIndex(4);
+		this.setCreativeTab(CreativeTabHsb.tabHsb);
 	}
 
 	@Override
@@ -38,19 +40,17 @@ public class ItemLockHacker extends Item
 
 	@Override
 	public int getMaxCharge() {
-		// TODO Auto-generated method stub
-		return 1000;
+		// maxCharge
+		return 10000;
 	}
 
 	@Override
 	public int getTier() {
-		// TODO Auto-generated method stub
 		return 1;
 	}
 
 	@Override
 	public int getTransferLimit() {
-		// TODO Auto-generated method stub
 		return 32;
 	}
 

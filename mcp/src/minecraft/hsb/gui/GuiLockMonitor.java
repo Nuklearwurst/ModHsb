@@ -1,7 +1,5 @@
 package hsb.gui;
 
-import ic2.api.NetworkHelper;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderHelper;
@@ -86,7 +84,7 @@ public class GuiLockMonitor extends GuiScreen {
 	                break;
 	        }
 	    }
-	 //TODO
+	 //works for now
 	    public void updatePort(int number)
 	    {
 	        this.port += number;
