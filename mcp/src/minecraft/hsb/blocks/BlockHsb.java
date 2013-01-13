@@ -1,7 +1,16 @@
-package hsb;
+package hsb.blocks;
 
+import hsb.CommonProxy;
+import hsb.CreativeTabHsb;
+import hsb.ModHsb;
+import hsb.Utils;
 import hsb.config.Config;
 import hsb.gui.GuiHandler;
+import hsb.items.ItemBlockPlacer;
+import hsb.tileentitys.TileEntityDoorBase;
+import hsb.tileentitys.TileEntityHsb;
+import hsb.tileentitys.TileEntityHsbBuilding;
+import hsb.tileentitys.TileEntityLockTerminal;
 import ic2.api.IWrenchable;
 import ic2.api.Items;
 
@@ -11,6 +20,7 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
@@ -19,6 +29,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.Facing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -32,15 +43,17 @@ public class BlockHsb extends BlockContainer {
 	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
 	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}, 
 												{1, 1, 1, 17, 1, 1, 16, 16, 16, 17, 16, 16}, 
-												{2, 2, 2, 2, 2, 2, 18, 18, 18, 18, 18, 18}};
+												{2, 2, 2, 2, 2, 2, 18, 18, 18, 18, 18, 18},
+												{3, 3, 3, 35, 3, 3, 19, 19, 19, 35, 19, 19}};//TODO: Texture for GuiAccessBlock
 	public static final int maxDamage = 2;
 	public String textureFile = "";
 	
 	/*
 	 * Meta data
-	 * 0: normaler Block
+	 * 0: normal Block
 	 * 1: Terminal
 	 * 2: Door Base Block
+	 * 3: gui Access Block
 	 */
 	
 	public BlockHsb(int id) {
@@ -55,6 +68,7 @@ public class BlockHsb extends BlockContainer {
     @Override
     public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int l, float m, float n, float o)
     {
+    	Config.logDebug("" + l);
     	//Sneaking
     	if(entityplayer.isSneaking())
     		return false;
@@ -77,16 +91,32 @@ public class BlockHsb extends BlockContainer {
                 return true;
             case 2:
             	return false;
+            case 3:
+            {
+            	TileEntityHsbBuilding tile = (TileEntityHsbBuilding) world.getBlockTileEntity(i, j, k);
+            	int facing = Facing.faceToSide[tile.getFacing()];
+            	int x = Facing.offsetsXForSide[facing];
+            	int y = Facing.offsetsYForSide[facing];
+            	int z = Facing.offsetsZForSide[facing];
+            	int blockId = world.getBlockId(x, y, z);
+            	int meta = world.getBlockMetadata(x, y, z);
+            	if(Block.blocksList[blockId].onBlockActivated(world, x, y, z, entityplayer, meta, m, n, o)) {
+            		//TODO check if par6 equals meta
+            	} else {
+            		Utils.sendChatToPlayer("Nothing happend", entityplayer, true);
+            	}
+            }
+            	return true;
             default:
                 return false;
         }
     }
 	@Override
-	public TileEntity createNewTileEntity(World var1) {	
+	public TileEntity createNewTileEntity(World world) {	
 		return null;
 	}
 	@Override
-	public TileEntity createNewTileEntity(World var1, int meta) {
+	public TileEntity createNewTileEntity(World world, int meta) {
 		switch(meta)
 		{
 		case 0:

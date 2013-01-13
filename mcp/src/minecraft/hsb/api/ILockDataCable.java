@@ -1,6 +1,6 @@
 package hsb.api;
 
-import hsb.TileEntityLockTerminal;
+import hsb.tileentitys.TileEntityLockTerminal;
 
 public interface ILockDataCable {
 

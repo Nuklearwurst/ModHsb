@@ -9,10 +9,9 @@ import net.minecraft.inventory.Container;
 
 import org.lwjgl.opengl.GL11;
 
-import hsb.ILockUpgrade;
 import hsb.ModHsb;
-import hsb.TileEntityLockTerminal;
 import hsb.config.Config;
+import hsb.tileentitys.TileEntityLockTerminal;
 
 public class GuiLockTerminal extends GuiContainer
 {

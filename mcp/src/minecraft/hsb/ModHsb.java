@@ -9,6 +9,7 @@ import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
 import hsb.network.PacketHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.IWorldGenerator;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Block;
 import cpw.mods.fml.common.Mod.Init;
@@ -28,15 +29,15 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * This Mod Part adds / plans to add:
  * 
  * block for building - done
- * door - (no Upgrades yet!)
+ * door - in work (no Upgrades yet!)
  * fence - TODO add fence
  * block for control - done
- * 	--> Upgrade System
+ * 	--> Upgrade System - done
  * 		- 
  * block for interaction - TODO block to open gui behind
  * some upgrades
  * 	in progress:
- * 		Tesla
+ * 		Tesla TODO: Tesla onEntityColliding
  * 
  * 
  * ?? also for interaction
@@ -47,9 +48,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
  * adminbreaker ?
  * 
  * upgrades
- * 	tesla
- * Added:
- * DebugTool
+ * 	tesla -in work
  * 
  */
 /**
@@ -62,7 +61,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 @Mod(modid = "HSB", name = "High Security Blocks", version = ModHsb.version, useMetadata = true, dependencies = "after:IC2")//!!TODO Versioning Mod 
 @NetworkMod(clientSideRequired = true, versionBounds = "0.1", serverSideRequired=false, 
 channels={Defaults.NET_CHANNEL}, packetHandler = PacketHandler.class)
-public class ModHsb {
+public class ModHsb{
 	static final String version= "0.1";
 	@PreInit
 	void preInit(FMLPreInitializationEvent evt) {
@@ -74,12 +73,13 @@ public class ModHsb {
 		Config.init(evt);
 		proxy.initRendering();
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
+//		GameRegistry.registerWorldGenerator(new WorldGenZwergenfestung());
 	}
 	
 	@PostInit
 	void postInit(FMLPostInitializationEvent evt) {
 		Config.initRecipes();
-		System.out.println("Hsb Version: "+ version + " loaded.");
+		Config.logInfo("Hsb Version: "+ version + " loaded.");
 	}
 	
 	@Instance

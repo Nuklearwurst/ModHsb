@@ -1,16 +1,9 @@
-package hsb;
+package hsb.tileentitys;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -22,8 +15,12 @@ import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 import ic2.api.energy.EnergyNet;
 import ic2.api.energy.event.EnergyTileLoadEvent;
+import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
 import ic2.api.network.NetworkHelper;
+import hsb.ModHsb;
+import hsb.api.IHsbUpgrade;
+import hsb.api.IItemHsbUpgrade;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
@@ -64,9 +61,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public boolean[] upgradeActive;
 	
 	public int extraStorage = 0;
-	public int extraPassLength = 0;//TODO old
+	public int extraPassLength = 0;
 	public double energyUse = 0.25;
 	public int maxInput = 32;
+	public int securityLevel = 0;
 
 	public TileEntityLockTerminal() {
 		super();
@@ -82,6 +80,29 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public boolean acceptsEnergyFrom(TileEntity emitter, Direction direction) {
 		return true;
+	}
+
+	public boolean addToInventory(ItemStack item, int number)
+	{
+		for(int i = 5; i <= 15; i++)
+		{
+			ItemStack slot = this.getStackInSlot(i);
+			if(slot == null)
+			{
+				this.mainInventory[i] = item;
+				return true;
+			}
+			if(slot.itemID == item.itemID && slot.getItemDamage() == item.getItemDamage())
+			{
+				int size = slot.stackSize + number;
+				if(size <= 64)
+				{
+					this.mainInventory[i].stackSize = size;
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -169,7 +190,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	public int getEnergyScaled(int length) {
 		int x = (this.energyStored * length
-					/ (this.extraStorage + this.defaultEnergyStorage));
+					/ (this.extraStorage + TileEntityLockTerminal.defaultEnergyStorage));
 		if(x > length)
 			x = length;
 		return x;
@@ -179,11 +200,15 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public int getInventoryStackLimit() {
 		return 64;
 	}
-
+	
 	@Override
 	public String getInvName() {
 		// Inventory Name
 		return "LockTerminal Inventory";
+	}
+	@Override
+	public int getMaxSafeInput() {
+		return this.maxInput;
 	}
 	
 	@Override
@@ -193,43 +218,14 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	    list.add("buttonNumber");
 	    return list;
 	}
+	
 	public int getSecurityLevel() {
-		return 0;
+		return this.securityLevel;
 	}
-	
-	public ILockUpgrade getUpgrade(String id) {
-		for(int i = 0; i<this.upgrades.size();i++){
-			ILockUpgrade upgrade = (ILockUpgrade) this.upgrades.get(i);
-			if(upgrade.getUniqueId() == id)
-			{
-				return upgrade;
-			}
-		}
-		return null;
-	}
-	
-	public ILockUpgrade getUpgrade(int id) {
-		if(this.upgrades.size() > id)
-		{
-			return (ILockUpgrade) this.upgrades.get(id);
-		} else {
-			return null;
-		}
-	}
-	public int getUpgradeId(ILockUpgrade upgrade)
-	{
-		return this.upgrades.indexOf(upgrade);
-	}
-	public int getUpgradeId(String id)
-	{
-		return this.getUpgradeId(this.getUpgrade(id));
-	}
-
 	@Override
 	public int getSizeInventory() {
 		return 15;
 	}
-
 	@Override
 	public ItemStack getStackInSlot(int slotid) {
 		return this.mainInventory[slotid];
@@ -247,22 +243,39 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		}
 	}
 
-	@Override
-	public int injectEnergy(Direction directionFrom, int amount) {
-		if(amount > this.maxInput)
+	public IHsbUpgrade getUpgrade(int id) {
+		if(this.upgrades.size() > id)
 		{
-			this.worldObj.setBlockAndMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 0, 0);
-			this.worldObj.createExplosion(null, xCoord, yCoord, zCoord, 0.8F, false);
-			return 0;
+			return (IHsbUpgrade) this.upgrades.get(id);
+		} else {
+			return null;
 		}
-		int missing = (this.defaultEnergyStorage + this.extraStorage)
-				- energyStored;
-		if (missing < amount) {
-			energyStored += missing;
-			return amount - missing;
+	}
+
+	public IHsbUpgrade getUpgrade(String id) {
+		for(int i = 0; i<this.upgrades.size();i++){
+			IHsbUpgrade upgrade = (IHsbUpgrade) this.upgrades.get(i);
+			if(upgrade.getUniqueId() == id)
+			{
+				return upgrade;
+			}
 		}
-		energyStored += amount;
-		return 0;
+		return null;
+	}
+
+//	public int getUpgradeId(IHsbUpgrade upgrade)
+//	{
+//		return this.upgrades.indexOf(upgrade);
+//	}
+
+	public int getUpgradeId(String id)
+	{
+		return this.upgrades.indexOf(this.getUpgrade(id));
+	}
+
+	@Override
+	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
+		return new ItemStack(HsbItems.blockHsb, 1, 1);
 	}
 
 	@Override
@@ -271,6 +284,31 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		return 0;
 	}
 
+	@Override
+	protected void initData()
+	{
+		super.initData();
+		this.onInventoryChanged();
+	}
+
+	@Override
+	public int injectEnergy(Direction directionFrom, int amount) {
+		if(amount > this.maxInput)
+		{
+			this.worldObj.setBlockAndMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 0, 0);
+			this.worldObj.createExplosion(null, xCoord, yCoord, zCoord, 0.8F, false);
+			return 0;
+		}
+		int missing = (TileEntityLockTerminal.defaultEnergyStorage + this.extraStorage)
+				- energyStored;
+		if (missing < amount) {
+			energyStored += missing;
+			return amount - missing;
+		}
+		energyStored += amount;
+		return 0;
+	}
+	
 	@Override
 	public void invalidate() {
 		super.validate();
@@ -294,151 +332,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	}
 
 	@Override
-	public void onNetworkEvent(EntityPlayer player, int event) {
-		/*
-		 * case 0: lock case 1: unlock
-		 */
-		switch (event) {
-		case -2:
-			player.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, worldObj, xCoord, yCoord, zCoord);
-			return;
-		case -1:
-			player.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, worldObj, xCoord, yCoord, zCoord);
-			return;
-		case 1:
-			this.emitLockSignal(6, !this.locked);
-			return;
-		}
-		if(event >= -12 && event <= -3)
-		{
-			// -3 - -12
-			int number = event * (-1) - 3;
-			//0 - 9
-			this.onInventoryChanged();
-			ILockUpgrade upgrade = this.getUpgrade(number);
-			if(upgrade != null)
-			{
-
-				upgrade.onButtonClicked(this, player, number);
-				this.updateUpgrades();
-				NetworkHelper.updateTileEntityField(this, "upgradeActive");
-				NetworkHelper.updateTileEntityField(this, "upgradeCount");
-				NetworkHelper.updateTileEntityField(this, "buttonNumber");
-			} else {
-				System.out.println("Upgrade == null!" + number);
-			}
-			return;
-		}
-		super.onNetworkEvent(player, event);
-	}
-	
-	@Override
-	public void onNetworkUpdate(String field) {
-		super.onNetworkUpdate(field);
-	}
-
-	@Override
-	public void openChest() {}
-
-	@Override
-	public void readFromNBT(NBTTagCompound nbttagcompound) {
-		super.readFromNBT(nbttagcompound);
-		//Upgrades
-		for(int i = 0; i<10;i++){
-			String name = "upgradeActive" + i;
-			this.upgradeActive[i]= nbttagcompound.getBoolean(name);
-		}
-		
-		//Items
-        NBTTagList nbtlist = nbttagcompound.getTagList("Items");
-        this.mainInventory = new ItemStack[this.getSizeInventory()];
-
-        for (int i = 0; i < nbtlist.tagCount(); ++i)
-        {
-            NBTTagCompound nbttag = (NBTTagCompound)nbtlist.tagAt(i);
-            byte slot = nbttag.getByte("Slot");
-
-            if (slot >= 0 && slot < this.mainInventory.length)
-            {
-                this.mainInventory[slot] = ItemStack.loadItemStackFromNBT(nbttag);
-            }
-        }
-        
-		this.energyStored = nbttagcompound.getInteger("energyStored");
-		this.blocksInUse = nbttagcompound.getInteger("blocksInUse");
-		onInventoryChanged();
-	}
-
-	@Override
-	public void setFacing(short facing) {
-		if (isAddedToEnergyNet) {
-			EnergyNet.getForWorld(worldObj).removeTileEntity(this);
-		}
-		isAddedToEnergyNet = false;
-		super.setFacing(facing);
-		EnergyNet.getForWorld(worldObj).addTileEntity(this);
-		isAddedToEnergyNet = true;
-	}
-
-	@Override
-	public void setInventorySlotContents(int slot, ItemStack itemstack) {
-		this.mainInventory[slot] = itemstack;
-
-		if (itemstack != null
-				&& itemstack.stackSize > this.getInventoryStackLimit()) {
-			itemstack.stackSize = this.getInventoryStackLimit();
-		}
-
-		this.onInventoryChanged();
-	}
-	
-	public boolean addToInventory(Item item, int number)
-	{
-		for(int i = 5; i <= 15; i++)
-		{
-			ItemStack slot = this.getStackInSlot(i);
-			if(slot == null)
-			{
-				this.mainInventory[i] = new ItemStack(item, number);
-				return true;
-			}
-			if(slot.getItem() == item)
-			{
-				int size = slot.stackSize + number;
-				if(size <= 64)
-				{
-					this.mainInventory[i] = new ItemStack(item, size);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public boolean transferSignal(int side, TileEntityLockTerminal te,
-			boolean value, String pass, int port) {
-		if (this.worldObj.isRemote) {
-			return true;
-		}
-		System.out.println("transfeSignal te Lock Terminal");
-		if (this.locked && !value) {
-			// if a tile is broken
-			if (te == null) {
-				if (port == this.port && pass == this.pass) {
-					this.locked = false;
-					this.needReconnect = true;
-					this.blocksInUse = 0;
-					return true;
-				}
-			}
-			// TODO if a lock signal was send by a terminal
-		}
-		return super.transferSignal(side, te, value, pass, port);
-	}
-	
-	
-	@Override
 	public void onInventoryChanged()
 	{
 		if(worldObj != null /*&& !worldObj.isRemote*/)
@@ -448,6 +341,8 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			this.transformerUpgrades = 0;
 			this.overclockerUpgrades = 0;
 			this.maxInput = 32;
+			this.extraPassLength = 0;
+			this.securityLevel = 0;
 			
 			//Upgrade Data
 			//clearing List for new Data
@@ -488,27 +383,28 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 					this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
 				}
 				
-				//register Upgrades (ILockUpgrade)
-				if(stack.getItem() instanceof ILockUpgrade)
+				//register Upgrades (IHsbUpgrade/IItemHsbUpgrade)
+				if(stack.getItem() instanceof IItemHsbUpgrade)
 				{
-					ILockUpgrade item = (ILockUpgrade) stack.getItem();
-					if(this.upgrades.contains(item))
+					IItemHsbUpgrade item = (IItemHsbUpgrade) stack.getItem();
+					IHsbUpgrade upgrade = item.getUpgrade(stack.getItemDamage());
+					if(this.getUpgrade(upgrade.getUniqueId())!=null)
 					{
 					//updating existing  Upgrade
-						int j = this.upgrades.indexOf(item);
-						this.upgradeCount[j] = this.upgradeCount[j] + stack.stackSize;
-						Config.logDebug("updated: " + stack + "__" + this.upgradeCount[j] + "  " + j + "   isremote: " + worldObj.isRemote + "    buttonNumber: " + buttonNumber[j]);
+						int upgradeId = this.getUpgradeId(upgrade.getUniqueId());
+						this.upgradeCount[upgradeId] = this.upgradeCount[upgradeId] + stack.stackSize;
+						Config.logDebug("updated: " + stack + "__" + this.upgradeCount[upgradeId] + "  " + upgradeId + "   isremote: " + worldObj.isRemote + "    buttonNumber: " + buttonNumber[upgradeId]);
 					} else {
 					//adding new Upgrade
-						this.buttonNumber[index] = item.getButtonName();
-						this.upgrades.add(item);
+						this.buttonNumber[index] = upgrade.getButtonName();
+						this.upgrades.add(upgrade);
 						this.upgradeCount[index] = stack.stackSize;
-						if(oldData.contains(item)){
+						if(oldData.contains(upgrade)){
 							Config.logDebug("Upgrade found!");
-							this.upgradeActive[index] = oldActive[oldData.lastIndexOf(item)];
+							this.upgradeActive[index] = oldActive[oldData.lastIndexOf(upgrade)];
 						} else {
 							Config.logDebug("No prior Upgrade found!");
-							this.upgradeActive[index] = false;
+							this.upgradeActive[index] = upgrade.isEnabledByDefault();
 						}
 						Config.logDebug("added: " + stack + "__" + this.upgradeCount[index] + "  " + index + "   isremote: " + worldObj.isRemote);
 						index++;
@@ -537,20 +433,133 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			}
 			this.updateUpgrades();
 			NetworkHelper.updateTileEntityField(this, "buttonNumber");
-			if(this.energyStored > (this.extraStorage + this.defaultEnergyStorage))
+			if(this.energyStored > (this.extraStorage + TileEntityLockTerminal.defaultEnergyStorage))
 			{
-				this.energyStored = (this.extraStorage + this.defaultEnergyStorage);
+				this.energyStored = (this.extraStorage + TileEntityLockTerminal.defaultEnergyStorage);
 			}
 		}
 		super.onInventoryChanged();
 	}
-	
-	public void updateUpgrades(){
-		for(int i = 0; i<this.upgrades.size(); i++)
+
+	@Override
+	public void onNetworkEvent(EntityPlayer player, int event) {
+		/*
+		 * case 0: lock case 1: unlock
+		 */
+		switch (event) {
+		case -2:
+			player.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, worldObj, xCoord, yCoord, zCoord);
+			return;
+		case -1:
+			player.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL_OPTIONS, worldObj, xCoord, yCoord, zCoord);
+			return;
+		case 1:
+			this.emitLockSignal(6, !this.locked);
+			return;
+		}
+		if(event >= -12 && event <= -3)
 		{
-			((ILockUpgrade) this.upgrades.get(i)).updateUpgrade(this);
+			// -3 - -12
+			int number = event * (-1) - 3;
+			//0 - 9
+			this.onInventoryChanged();
+			IHsbUpgrade upgrade = this.getUpgrade(number);
+			if(upgrade != null)
+			{
+
+				upgrade.onButtonClicked(this, player, number);
+				this.updateUpgrades();
+				NetworkHelper.updateTileEntityField(this, "upgradeActive");
+				NetworkHelper.updateTileEntityField(this, "upgradeCount");
+				NetworkHelper.updateTileEntityField(this, "buttonNumber");
+			} else {
+				System.out.println("Upgrade == null!" + number);
+			}
+			return;
+		}
+		super.onNetworkEvent(player, event);
+	}
+	
+	@Override
+	public void onNetworkUpdate(String field) {
+		super.onNetworkUpdate(field);
+	}
+
+	@Override
+	public void openChest() {}
+	
+	
+	@Override
+	public void readFromNBT(NBTTagCompound nbttagcompound) {
+		super.readFromNBT(nbttagcompound);
+		//Upgrades
+		for(int i = 0; i<10;i++){
+			String name = "upgradeActive" + i;
+			this.upgradeActive[i]= nbttagcompound.getBoolean(name);
 		}
 		
+		//Items
+        NBTTagList nbtlist = nbttagcompound.getTagList("Items");
+        this.mainInventory = new ItemStack[this.getSizeInventory()];
+
+        for (int i = 0; i < nbtlist.tagCount(); ++i)
+        {
+            NBTTagCompound nbttag = (NBTTagCompound)nbtlist.tagAt(i);
+            byte slot = nbttag.getByte("Slot");
+
+            if (slot >= 0 && slot < this.mainInventory.length)
+            {
+                this.mainInventory[slot] = ItemStack.loadItemStackFromNBT(nbttag);
+            }
+        }
+        
+		this.energyStored = nbttagcompound.getInteger("energyStored");
+		this.blocksInUse = nbttagcompound.getInteger("blocksInUse");
+		onInventoryChanged();
+	}
+	
+	@Override
+	public void setFacing(short facing) {
+		if (isAddedToEnergyNet) {
+			MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+		}
+		isAddedToEnergyNet = false;
+		super.setFacing(facing);
+		MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+		isAddedToEnergyNet = true;
+	}
+
+	@Override
+	public void setInventorySlotContents(int slot, ItemStack itemstack) {
+		this.mainInventory[slot] = itemstack;
+
+		if (itemstack != null
+				&& itemstack.stackSize > this.getInventoryStackLimit()) {
+			itemstack.stackSize = this.getInventoryStackLimit();
+		}
+
+		this.onInventoryChanged();
+	}
+	@Override
+	public boolean transferSignal(int side, TileEntityLockTerminal te,
+			boolean value, String pass, int port) {
+		if (this.worldObj.isRemote) {
+			return true;
+		}
+		System.out.println("transfeSignal te Lock Terminal");
+		if (this.locked && !value) {
+			// if a tile is broken
+			if (te == null) {
+				if (port == this.port && pass == this.pass) {
+					this.locked = false;
+					this.needReconnect = true;
+					this.blocksInUse = 0;
+					return true;
+				}
+			}
+			// TODO if a lock signal was send by a terminal
+		}
+		return super.transferSignal(side, te, value, pass, port);
 	}
 
 	@Override
@@ -560,8 +569,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			//add to EnergyNet
 			if (!isAddedToEnergyNet) {
 				this.onInventoryChanged();
-//				Deprecated
-//				EnergyNet.getForWorld(worldObj).addTileEntity(this);
 				MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
 				isAddedToEnergyNet = true;
 			}
@@ -595,11 +602,13 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		}
 		super.updateEntity();
 	}
-	@Override
-	protected void initData()
-	{
-		super.initData();
-		this.onInventoryChanged();
+
+	public void updateUpgrades(){
+		for(int i = 0; i<this.upgrades.size(); i++)
+		{
+			((IHsbUpgrade) this.upgrades.get(i)).updateUpgrade(this);
+		}
+		
 	}
 
 	@Override
@@ -646,16 +655,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		nbttagcompound.setInteger("energyStored", this.energyStored);
 		
 		nbttagcompound.setInteger("blocksInUse", this.blocksInUse);
-	}
-
-	@Override
-	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
-		return new ItemStack(HsbItems.blockHsb, 1, 1);
-	}
-
-	@Override
-	public int getMaxSafeInput() {
-		return this.maxInput;
 	}
 
 }

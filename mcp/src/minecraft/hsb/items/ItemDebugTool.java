@@ -1,11 +1,15 @@
-package hsb;
+package hsb.items;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import hsb.CommonProxy;
+import hsb.CreativeTabHsb;
 import hsb.config.HsbItems;
+import hsb.tileentitys.TileEntityHsb;
+import hsb.tileentitys.TileEntityLockTerminal;
 
 public class ItemDebugTool extends Item {
 
@@ -44,7 +48,7 @@ public class ItemDebugTool extends Item {
     			{
     				active = active + ";" + ter.upgradeActive[i];
     			}
-    			player.sendChatToPlayer("upgrade list: " + upgrades + " \nupgradeCount: " + count + " \nactive: " + active + "\ninit: " + ter.init + " \nIC2 upgrades (maxInput, transformer, extraenergy, energy, overclock) : " + ter.maxInput + ", " + ter.transformerUpgrades + ", " + ter.extraStorage + ", " + ter.storageUpgrades + ", " + ter.overclockerUpgrades);
+    			player.sendChatToPlayer("upgrade list: " + upgrades + " \nupgradeCount: " + count + " \nactive: " + active + " \nIC2 upgrades (maxInput, transformer, extraenergy, energy, overclock) : " + ter.maxInput + ", " + ter.transformerUpgrades + ", " + ter.extraStorage + ", " + ter.storageUpgrades + ", " + ter.overclockerUpgrades);
     		}else{
     			player.sendChatToPlayer("Port: " + String.valueOf(((TileEntityHsb)te).port) + " Pass: |" + ((TileEntityHsb)te).pass + "|\nFacing: " + String.valueOf(((TileEntityHsb) te).getFacing()) + " Textur der Side " + String.valueOf(side) + " ist: " + String.valueOf(HsbItems.blockHsb.getBlockTexture(world, x, y, z, side)) + "\nLocked: " + ((TileEntityHsb) te).locked);
     		}

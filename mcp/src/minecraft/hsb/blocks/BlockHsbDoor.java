@@ -1,8 +1,13 @@
-package hsb;
+package hsb.blocks;
 
+import hsb.CommonProxy;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
+import hsb.tileentitys.TileEntityDoorBase;
+import hsb.tileentitys.TileEntityHsb;
+import hsb.tileentitys.TileEntityHsbBuilding;
+
 import java.util.List;
 import java.util.Random;
 
@@ -62,6 +67,7 @@ public class BlockHsbDoor extends BlockDoor {
 			{
 				world.setBlockMetadataWithNotify(te.xCoord, te.yCoord, te.zCoord, 0);
 				world.setBlockTileEntity(te.xCoord, te.yCoord, te.zCoord, new TileEntityHsbBuilding());
+				world.markBlockForUpdate(te.xCoord, te.yCoord, te.zCoord);
 			} else {
 				FMLLog.severe("Error during removal of Door Block, see BlockHsbDoor l. 66");
 			}

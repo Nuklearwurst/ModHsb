@@ -4,7 +4,7 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import hsb.ItemDebugTool;
+import hsb.items.ItemDebugTool;
 
 public class HsbItems {
 	
@@ -37,7 +37,7 @@ public class HsbItems {
 	
 	public static Item itemHsbDoor;
 	
-	public static Item itemUpgradeTesla;
+	public static Item itemHsbUpgrade;
 	
 	//Not in use!
 //	public static Item itemBlockBuilding;

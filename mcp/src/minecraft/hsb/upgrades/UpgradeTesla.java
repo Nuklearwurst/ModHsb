@@ -1,46 +1,18 @@
-package hsb;
+package hsb.upgrades;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import hsb.api.IHsbUpgrade;
 import hsb.config.HsbItems;
+import hsb.tileentitys.TileEntityLockTerminal;
 
-public class ItemTeslaUpgrade extends Item
-	implements ILockUpgrade
-{
-
-	public ItemTeslaUpgrade(int id) {
-		super(id);
-		this.setCreativeTab(CreativeTabHsb.tabHsb);
-		this.setIconIndex(5);
-	}
-
-	@Override
-	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
-	{
-		TileEntity te = world.getBlockTileEntity(x, y, z); 
-		if(te instanceof TileEntityLockTerminal && (!((TileEntityLockTerminal) te).locked))
-		{
-			((TileEntityLockTerminal)te).addToInventory(HsbItems.itemUpgradeTesla, 1);
-			//TODO sound
-			System.out.println("Tesla upgraded!");
-			itemstack.stackSize--;
-			return true;
-		}
-		return false;
-
-	}
-	@Override
-	public String getTextureFile() {
-		return CommonProxy.TEXTURE_ITEMS;
-		
-	}
+public class UpgradeTesla implements IHsbUpgrade{
+	
 	@Override
 	public void updateUpgrade(TileEntityLockTerminal te) {
-		int index = te.getUpgradeId(this);
+		int index = te.getUpgradeId(this.getUniqueId());
 		if(te.upgradeCount[index] > 32)
 			te.upgradeCount[index]  = 32;
 		if(te.upgradeActive[index])
@@ -51,20 +23,20 @@ public class ItemTeslaUpgrade extends Item
 	@Override
 	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player, int button) {
 
-		boolean active = te.upgradeActive[te.getUpgradeId(this)];
+		boolean active = te.upgradeActive[te.getUpgradeId(this.getUniqueId())];
 		if(active)
 		{
 			if(!te.worldObj.isRemote)
 			{
 				player.sendChatToPlayer("Tesla Upgrade disabled!");
 			}
-			te.upgradeActive[te.getUpgradeId(this)] = false;
+			te.upgradeActive[te.getUpgradeId(this.getUniqueId())] = false;
 		} else {
 			if(!te.worldObj.isRemote)
 			{
 				player.sendChatToPlayer("Tesla Upgrade enabled!");
 			}
-			te.upgradeActive[te.getUpgradeId(this)] = true;
+			te.upgradeActive[te.getUpgradeId(this.getUniqueId())] = true;
 		}
 		
 	}
@@ -88,4 +60,15 @@ public class ItemTeslaUpgrade extends Item
 
 	@Override
 	public void onGuiOpen(TileEntityLockTerminal te) {}
+
+	@Override
+	public ItemStack getItem() {
+		return new ItemStack(HsbItems.itemHsbUpgrade, 1, 0);
+	}
+
+	@Override
+	public boolean isEnabledByDefault() {
+		return false;
+	}
+
 }

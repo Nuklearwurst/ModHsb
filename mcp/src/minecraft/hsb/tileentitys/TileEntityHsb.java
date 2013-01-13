@@ -1,4 +1,4 @@
-package hsb;
+package hsb.tileentitys;
 
 import ic2.api.IWrenchable;
 import ic2.api.network.INetworkClientTileEntityEventListener;

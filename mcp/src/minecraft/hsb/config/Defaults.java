@@ -12,8 +12,19 @@ public class Defaults {
 	public static final int ITEM_LOCK_MONITOR = 21003;
 	public static final int ITEM_LOCK_HACKER = 21004;
 	
-	public static final int ITEM_UPGRADE_TESLA = 21005;
+	public static final int ITEM_UPGRADE_TESLA = 21005;//OLD
+	public static final int ITEM_HSB_UPGRADE = 21006;
+
 	
+	//energyUse
+	public static final double ENERGY_HSB_BLOCK = 0.1;
+	public static final double ENERGY_HSB_TESLA = 0.03;
+	
+	public static final int ENERGY_BLOCK_PLACER = 10;
+	
+	public static final int ENERGY_PORT_MONITOR = 100;
+	public static final int ENERGY_PORT_HACKER = 1000;
+
 	public static final String NET_CHANNEL="Hsb";
 
 }

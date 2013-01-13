@@ -1,4 +1,4 @@
-package hsb;
+package hsb.tileentitys;
 
 import java.util.List;
 

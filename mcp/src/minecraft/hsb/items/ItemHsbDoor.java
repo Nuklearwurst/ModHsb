@@ -1,4 +1,4 @@
-package hsb;
+package hsb.items;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -7,7 +7,10 @@ import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import hsb.CommonProxy;
+import hsb.CreativeTabHsb;
 import hsb.config.HsbItems;
+import hsb.tileentitys.TileEntityHsbBuilding;
 
 public class ItemHsbDoor extends ItemDoor{
 

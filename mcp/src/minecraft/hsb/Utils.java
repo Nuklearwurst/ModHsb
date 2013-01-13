@@ -1,5 +1,6 @@
 package hsb;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 
 public class Utils {
@@ -17,6 +18,15 @@ public class Utils {
 			}
 		}
 		return false;	
+	}
+	public static void sendChatToPlayer(String s, EntityPlayer player, boolean isRemote)
+	{
+		if(player.worldObj.isRemote && isRemote) {
+			player.sendChatToPlayer(s);
+		}
+		if(!player.worldObj.isRemote && !isRemote) {
+			player.sendChatToPlayer(s);
+		}
 	}
 	
 

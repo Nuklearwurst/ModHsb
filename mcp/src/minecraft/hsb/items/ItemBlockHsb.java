@@ -1,4 +1,4 @@
-package hsb;
+package hsb.items;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -43,6 +43,9 @@ public class ItemBlockHsb extends ItemBlock {
     		
     	case 2:
     		return "hsbDoorBase";
+    		
+    	case 3:
+    		return "hsbGuiAccess";
     	}
     	return null;
     }

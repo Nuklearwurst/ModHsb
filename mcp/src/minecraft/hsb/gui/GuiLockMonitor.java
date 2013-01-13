@@ -16,9 +16,9 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.NetworkRegistry;
 
 import hsb.ModHsb;
-import hsb.TileEntityHsb;
 import hsb.config.Config;
 import hsb.network.PacketItemUpdate;
+import hsb.tileentitys.TileEntityHsb;
 
 public class GuiLockMonitor extends GuiScreen {
 

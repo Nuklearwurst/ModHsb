@@ -1,5 +1,7 @@
 package hsb;
 
+import hsb.tileentitys.TileEntityLockTerminal;
+
 import java.util.Iterator;
 import java.util.logging.Level;
 

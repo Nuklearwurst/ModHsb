@@ -1,4 +1,4 @@
-package hsb;
+package hsb.tileentitys;
 
 import java.util.List;
 import java.util.Vector;
@@ -16,6 +16,7 @@ public class TileEntityDoorBase extends TileEntityHsbBuilding {
 		int port = this.port;
 		world.setBlockTileEntity(xCoord, yCoord, zCoord, new TileEntityHsbBuilding());
 		((TileEntityHsbBuilding)world.getBlockTileEntity(xCoord, yCoord, zCoord)).port = port;
+		world.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	@Override
     public void writeToNBT(NBTTagCompound nbttagcompound)

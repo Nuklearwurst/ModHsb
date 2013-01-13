@@ -1,6 +1,6 @@
 package hsb.network;
 
-import hsb.TileEntityLockTerminal;
+import hsb.tileentitys.TileEntityLockTerminal;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

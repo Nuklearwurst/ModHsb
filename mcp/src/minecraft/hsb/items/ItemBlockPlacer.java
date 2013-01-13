@@ -1,4 +1,4 @@
-package hsb;
+package hsb.items;
 
 import java.util.Iterator;
 import java.util.List;
@@ -16,9 +16,16 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import hsb.CommonProxy;
+import hsb.CreativeTabHsb;
+import hsb.ModHsb;
+import hsb.Utils;
+import hsb.blocks.BlockHsbDoor;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
+import hsb.tileentitys.TileEntityDoorBase;
+import hsb.tileentitys.TileEntityHsb;
 import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
 /**

@@ -7,6 +7,7 @@
 /patches/*
 
 ## Mod Code
+/srcBackup/
 /mcp/*
 !/mcp/src/
 /mcp/src/minecraft/*

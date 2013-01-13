@@ -4,7 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import hsb.ContainerLockTerminal;
 import hsb.ContainerLockTerminalOptions;
-import hsb.TileEntityLockTerminal;
+import hsb.tileentitys.TileEntityLockTerminal;
 import cpw.mods.fml.common.network.IGuiHandler;
 
 public class GuiHandler 

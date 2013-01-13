@@ -1,6 +1,8 @@
 package hsb;
 
+import hsb.api.IItemHsbUpgrade;
 import hsb.config.Config;
+import hsb.tileentitys.TileEntityLockTerminal;
 import ic2.api.IElectricItem;
 
 import java.util.Iterator;
@@ -30,6 +32,7 @@ public class ContainerLockTerminal extends Container {
     private int lastEnergyStored = 0;
     private boolean lastLocked = false;
     private int lastExtraStorage = 0;
+    private int lastPassLength = 0;
 //    private ContainerLockTerminalOptions c;
     private boolean isTerminal = false;
     
@@ -115,6 +118,9 @@ public class ContainerLockTerminal extends Container {
 	        par1ICrafting.sendProgressBarUpdate(this, 1, lockInt);
 	        par1ICrafting.sendProgressBarUpdate(this, 2, this.te.extraStorage);
         }
+        else {
+        	par1ICrafting.sendProgressBarUpdate(this, 3, this.te.extraPassLength);
+        }
     }
 
     /**
@@ -150,12 +156,19 @@ public class ContainerLockTerminal extends Container {
 	            if (this.lastExtraStorage != this.te.extraStorage)
 	            {
 	            	var2.sendProgressBarUpdate(this, 2, this.te.extraStorage);
-	            }
+	            } else {
+		        	if(this.lastPassLength != this.te.extraPassLength)
+		        	{
+		        		var2.sendProgressBarUpdate(this, 3, this.te.extraPassLength);
+		        	}
+		        }
 	        }
 	        
 	        this.lastEnergyStored = this.te.energyStored;
 	        this.lastLocked = this.te.locked;
 	        this.lastExtraStorage = this.te.extraStorage;
+	        
+	        this.lastPassLength = this.te.extraPassLength;
         }
     }
 
@@ -183,6 +196,11 @@ public class ContainerLockTerminal extends Container {
 	        {
 	        	this.te.extraStorage = value;
 	        }
+    	} else {
+    		if( id == 3)
+    		{
+    			this.te.extraPassLength = value;
+    		}
     	}
     }
     
@@ -236,7 +254,7 @@ public class ContainerLockTerminal extends Container {
 	        	}
             } else {
             //lockUpgrades (Options)
-	            if(item instanceof ILockUpgrade)
+	            if(item instanceof IItemHsbUpgrade)
 	            {
 		            //to player
 		            if(id >= 0 && id < 10)
