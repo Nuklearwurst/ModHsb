@@ -21,12 +21,13 @@ import ic2.api.network.NetworkHelper;
 import hsb.ModHsb;
 import hsb.api.IHsbUpgrade;
 import hsb.api.IItemHsbUpgrade;
+import hsb.api.ILockTerminal;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
 
 public class TileEntityLockTerminal extends TileEntityHsb implements
-		IEnergySink, IInventory {
+		IEnergySink, IInventory, ILockTerminal {
 
 	//TODO clean Up
 	//upgradeCount reset!!!!
@@ -668,6 +669,24 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		nbttagcompound.setInteger("energyStored", this.energyStored);
 		
 		nbttagcompound.setInteger("blocksInUse", this.blocksInUse);
+	}
+
+	@Override
+	public int getPort() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getPassword() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getCamoBlockId() {
+		
+		return this.renderAs;
 	}
 
 }

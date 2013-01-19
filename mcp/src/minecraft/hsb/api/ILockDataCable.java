@@ -20,4 +20,5 @@ public interface ILockDataCable {
 	 */
 	boolean connectsTo(int side);
 
+
 }

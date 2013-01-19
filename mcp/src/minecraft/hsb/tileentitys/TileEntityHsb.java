@@ -57,6 +57,7 @@ public abstract class TileEntityHsb extends TileEntity
 	
 	@Override
 	public boolean connectsTo(int side) {return true;}
+
 	
 	@Override
 	public short getFacing() {
