@@ -18,15 +18,18 @@ public class HsbBlockRenderer implements ISimpleBlockRenderingHandler {
 		{
 			TileEntity te = world.getBlockTileEntity(x, y, z);
 		
-			if(te instanceof TileEntityHsb && ((TileEntityHsb) te).renderAs != -1) {
+			if(te instanceof TileEntityHsb && ((TileEntityHsb) te).getConnectedTerminal().getCamoBlockId() != -1) {
 				//Render Camo-block
-				int blockId = ((TileEntityHsb) te).renderAs;
+				int blockId = ((TileEntityHsb) te).getConnectedTerminal().getCamoBlockId();
 				Block camoBlock = Block.blocksList[blockId];
 				if(camoBlock != null)
 				{
-					ForgeHooksClient.bindTexture(camoBlock.getTextureFile(), 1);
-					renderer.renderBlockByRenderType(camoBlock, x, y, z);
-					return true;
+					if(camoBlock.getTextureFile()!=null)
+					{
+						ForgeHooksClient.bindTexture(camoBlock.getTextureFile(), 1);
+						renderer.renderBlockByRenderType(camoBlock, x, y, z);
+						return true;
+					}
 				}
 			}
 
@@ -42,7 +45,7 @@ public class HsbBlockRenderer implements ISimpleBlockRenderingHandler {
 
 	@Override
 	public boolean shouldRender3DInInventory() {
-		return false;
+		return true;
 	}
 
 	@Override
