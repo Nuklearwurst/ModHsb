@@ -13,6 +13,7 @@ import hsb.items.ItemLockMonitor;
 import hsb.tileentitys.TileEntityDoorBase;
 import hsb.tileentitys.TileEntityHsb;
 import hsb.tileentitys.TileEntityHsbBuilding;
+import hsb.tileentitys.TileEntityHsbGuiAccess;
 import hsb.tileentitys.TileEntityLockTerminal;
 import ic2.api.Ic2Recipes;
 
@@ -145,6 +146,7 @@ public class Config {
 		GameRegistry.registerTileEntity(TileEntityHsbBuilding.class, "TileEntityHsbBuilding");
 		GameRegistry.registerTileEntity(TileEntityLockTerminal.class, "TileEntityLockTerminal");
 		GameRegistry.registerTileEntity(TileEntityDoorBase.class, "TileEntityDoorBase");
+		GameRegistry.registerTileEntity(TileEntityHsbGuiAccess.class, "TileEntityHsbGuiAccess");
 		
 		//add Block Ids
 		ItemBlockPlacer.setBlockId(HsbItems.blockHsb.blockID);

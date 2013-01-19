@@ -34,6 +34,8 @@ public class GuiLockTerminalOptions extends GuiContainer
     private int yPos;
     private Container container;
     private int port;
+    
+    private int lastPassLength = 0;
 
 
     public GuiLockTerminalOptions(TileEntityLockTerminal te, Container container, EntityPlayer entityplayer)
@@ -45,6 +47,7 @@ public class GuiLockTerminalOptions extends GuiContainer
         xSize = 228;
         ySize = 222;
         port = te.port;
+        lastPassLength = te.extraPassLength;
     }
     public void initGui()
     {
@@ -153,6 +156,16 @@ public class GuiLockTerminalOptions extends GuiContainer
     	super.updateScreen();
 //        updateCounter++;
         this.textField.updateCursorCounter();
+        if(te.extraPassLength != lastPassLength)
+        {
+        	this.textField.setMaxStringLength(te.extraPassLength +te.defaultPassLength);
+        	lastPassLength = te.extraPassLength;
+        	String text = this.textField.getText();
+        	if(text.length() > this.textField.getMaxStringLength())
+        	{
+        		this.textField.setText("error");
+        	}
+        }
     }
 	@Override
     public void onGuiClosed()

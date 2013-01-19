@@ -8,4 +8,9 @@ public class CommonProxy {
 	
 	void initRendering() {}
 
+	public void initSpecialRenderer() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

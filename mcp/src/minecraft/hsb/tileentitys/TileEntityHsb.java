@@ -35,6 +35,8 @@ public abstract class TileEntityHsb extends TileEntity
 	public int yTer = 0;
 	public int zTer = 0;
 	
+	public int renderAs = -1;
+	
 	public TileEntityHsb() {
 		super();
 		facing = 1;
@@ -68,6 +70,7 @@ public abstract class TileEntityHsb extends TileEntity
 	    list.add("port");
 	    list.add("pass");
 	    list.add("locked");
+	    list.add("renderAs");
 	    
 	    return list;
 	}
@@ -140,23 +143,25 @@ public abstract class TileEntityHsb extends TileEntity
 			return true;
 		if(this.removed)
 		{
-			System.out.println("this is removed!");
+			Config.logDebug("this is removed!");
 			return false;
 		}
-//		System.out.println("transferSignal te Building");
 		//check if Lock is the same, or if port is not the same
 		if (value == this.locked || port != this.port) {
-			System.out.println("transfer failed! this: " + this.locked + " lock: " + value + " this.port: " + this.port + " port: " + port);
+			Config.logDebug("transfer failed! this: " + this.locked + " lock: " + value + " this.port: " + this.port + " port: " + port);
 			return false;
 		}
 		
 		//Unlocking
 		if(!value)
 		{
-			if(!this.pass.equals(pass))
+			if( (!(this.getConnectedTerminal() == null)) && (!this.getConnectedTerminal().removed) )
 			{
-				System.out.println("transfer failed 2 ! |" + this.pass + "|" + pass + "|");
-				return false;
+				if(!this.pass.equals(pass))
+				{
+					Config.logDebug("transfer failed:false password ! |" + this.pass + "|" + pass + "|");
+					return false;
+				}
 			}
 			
 		}
@@ -170,16 +175,13 @@ public abstract class TileEntityHsb extends TileEntity
 			this.pass = pass;
 		}
 		//setting new properties
-		System.out.println("transfer in progress: side: " + side + " te: " + te + " value: " + value + " pass: " + pass + " port: " + port);
+		Config.logDebug("transfer in progress: side: " + side + " te: " + te + " value: " + value + " pass: " + pass + " port: " + port);
 		this.locked = value;
 		
 		//continue sending the signal
 		this.transferSignal_do(te, value, pass, port, side);
 		//updating
-		if(!Config.ECLIPSE)
-		{
-			NetworkHelper.updateTileEntityField(this, "locked");
-		}
+		NetworkHelper.updateTileEntityField(this, "locked");
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		return true;		
 	}
@@ -198,7 +200,7 @@ public abstract class TileEntityHsb extends TileEntity
 		{
 			if(i == ignoreSide)
 			{
-				System.out.println("ignored Side: " + i);
+				Config.logDebug("ignored Side: " + i);
 				continue;
 			}
 			TileEntity tile = this.worldObj.getBlockTileEntity(xCoord+Facing.offsetsXForSide[i], yCoord+Facing.offsetsYForSide[i], zCoord+Facing.offsetsZForSide[i]);
@@ -224,19 +226,6 @@ public abstract class TileEntityHsb extends TileEntity
         super.updateEntity();
     }
 	
-	@Override
-	public void validate() {
-		super.validate();
-//        if (!init )
-//        {
-//        	if ((!isInvalid()) && (this.worldObj != null)) {
-//        		initData();
-//            }
-//            else
-//            	System.out.println("[Hsb] " + this + " (" + this.xCoord + "," + this.yCoord + "," + this.zCoord + ") was not added, isInvalid=" + isInvalid() + ", worldObj=" + this.worldObj);
-//        }
-	}
-	
     @Override
     public void writeToNBT(NBTTagCompound nbttagcompound)
     {
@@ -255,7 +244,7 @@ public abstract class TileEntityHsb extends TileEntity
 		event = event - 2;
 		if(event > 99 || event < 0)
 		{
-			System.out.println("Unexpected event!! " + event);
+			Config.logError("Unexpected event!! " + event);
 			return;
 		}
 		this.port = event;

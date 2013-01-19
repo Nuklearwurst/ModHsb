@@ -313,7 +313,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public void invalidate() {
 		super.validate();
 		if (!worldObj.isRemote && isAddedToEnergyNet) {
-			EnergyNet.getForWorld(worldObj).removeTileEntity(this);
+			MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
 			isAddedToEnergyNet = false;
 		}
 	}
@@ -492,6 +492,13 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public void readFromNBT(NBTTagCompound nbttagcompound) {
 		super.readFromNBT(nbttagcompound);
+		
+		//Read UpgradeData
+		for(int i = 0; i<this.upgrades.size(); i++)
+		{
+			((IHsbUpgrade) this.upgrades.get(i)).onTileLoad(nbttagcompound, this);
+		}
+		
 		//Upgrades
 		for(int i = 0; i<10;i++){
 			String name = "upgradeActive" + i;
@@ -630,8 +637,14 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public void writeToNBT(NBTTagCompound nbttagcompound) {
 		super.writeToNBT(nbttagcompound);
+		
+		//Save UpgradeData
+		for(int i = 0; i<this.upgrades.size(); i++)
+		{
+			((IHsbUpgrade) this.upgrades.get(i)).onTileSave(nbttagcompound, this);
+		}
+		
 		//UpgradeActive
-		//TODO save Upgrade Data
 		for(int i = 0; i<10;i++){
 			String name = "upgradeActive" + i;
 			nbttagcompound.setBoolean(name, this.upgradeActive[i]);

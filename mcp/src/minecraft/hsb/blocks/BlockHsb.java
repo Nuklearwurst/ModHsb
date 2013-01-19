@@ -1,5 +1,6 @@
 package hsb.blocks;
 
+import hsb.ClientProxy;
 import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
 import hsb.ModHsb;
@@ -10,6 +11,7 @@ import hsb.items.ItemBlockPlacer;
 import hsb.tileentitys.TileEntityDoorBase;
 import hsb.tileentitys.TileEntityHsb;
 import hsb.tileentitys.TileEntityHsbBuilding;
+import hsb.tileentitys.TileEntityHsbGuiAccess;
 import hsb.tileentitys.TileEntityLockTerminal;
 import ic2.api.IWrenchable;
 import ic2.api.Items;
@@ -38,13 +40,11 @@ import net.minecraftforge.common.ForgeDirection;
  * This is the Class for the unbreakable Blocks
  */
 public class BlockHsb extends BlockContainer {
-
-	//TODO maybe use Facing.java instead of sideAndFacingToSpriteOffset to get the texture
 	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
 	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}, 
 												{1, 1, 1, 17, 1, 1, 16, 16, 16, 17, 16, 16}, 
 												{2, 2, 2, 2, 2, 2, 18, 18, 18, 18, 18, 18},
-												{3, 3, 3, 35, 3, 3, 19, 19, 19, 35, 19, 19}};//TODO: Texture for GuiAccessBlock
+												{3, 3, 36, 35, 3, 3, 19, 19, 19, 35, 19, 19}};//TODO: Texture for GuiAccessBlock
 	public static final int maxDamage = 2;
 	public String textureFile = "";
 	
@@ -66,9 +66,8 @@ public class BlockHsb extends BlockContainer {
 	}
 	
     @Override
-    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int l, float m, float n, float o)
+    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int side, float m, float n, float o)
     {
-    	Config.logDebug("" + l);
     	//Sneaking
     	if(entityplayer.isSneaking())
     		return false;
@@ -95,13 +94,17 @@ public class BlockHsb extends BlockContainer {
             {
             	TileEntityHsbBuilding tile = (TileEntityHsbBuilding) world.getBlockTileEntity(i, j, k);
             	int facing = Facing.faceToSide[tile.getFacing()];
-            	int x = Facing.offsetsXForSide[facing];
-            	int y = Facing.offsetsYForSide[facing];
-            	int z = Facing.offsetsZForSide[facing];
+            	int x = Facing.offsetsXForSide[facing] + i;
+            	int y = Facing.offsetsYForSide[facing] + j;
+            	int z = Facing.offsetsZForSide[facing] + k;
             	int blockId = world.getBlockId(x, y, z);
             	int meta = world.getBlockMetadata(x, y, z);
-            	if(Block.blocksList[blockId].onBlockActivated(world, x, y, z, entityplayer, meta, m, n, o)) {
-            		//TODO check if par6 equals meta
+            	Config.logDebug("Meta: " + meta + " side: " + side + " Block: " + Block.blocksList[blockId] + " Pos: " + x + ", " + y + ", " + z);
+            	if(Block.blocksList[blockId] == null || (blockId == this.blockID && meta == 3))
+            	{
+            		return false;
+            	}
+            	if(Block.blocksList[blockId].onBlockActivated(world, x, y, z, entityplayer, Facing.faceToSide[tile.facing], m, n, o)) {
             	} else {
             		Utils.sendChatToPlayer("Nothing happend", entityplayer, true);
             	}
@@ -126,7 +129,7 @@ public class BlockHsb extends BlockContainer {
 		case 2: 
 			return new TileEntityDoorBase();
 		default:
-			return null;
+			return new TileEntityHsbGuiAccess();
 		}
 	}
     
@@ -150,7 +153,9 @@ public class BlockHsb extends BlockContainer {
         case 1: 
         	return 1;
         case 2:
-        	return 2;
+        	return 0;
+        case 3:
+        	return 3;
         default: 
         	return 0;
         }
@@ -188,6 +193,13 @@ public class BlockHsb extends BlockContainer {
 	    return tex;
 
     }
+	
+    @Override
+    public int getRenderType()
+    {
+        return ClientProxy.HSBRENDERER_ID;
+    }
+    
     @Override
     public boolean canSilkHarvest()
     {
@@ -200,6 +212,7 @@ public class BlockHsb extends BlockContainer {
         itemList.add(new ItemStack(id, 1, 0));
         itemList.add(new ItemStack(id, 1, 1));
         itemList.add(new ItemStack(id, 1, 2));
+        itemList.add(new ItemStack(id, 1, 3));
     }
     @Override
     public void onBlockAdded(World world, int x, int y, int z) {
