@@ -11,6 +11,8 @@ import hsb.api.IItemHsbUpgrade;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.tileentitys.TileEntityLockTerminal;
+import hsb.upgrades.UpgradeCamoflage;
+import hsb.upgrades.UpgradeDummy;
 import hsb.upgrades.UpgradePassword;
 import hsb.upgrades.UpgradeSecurity;
 import hsb.upgrades.UpgradeTesla;
@@ -39,8 +41,8 @@ import net.minecraftforge.event.entity.player.BonemealEvent;
 
 public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 
-	public static final String[] upgradeNames = new String[] {"Tesla", "Password", "Security"};
-    public static final int[] texture = new int[] {5, 6, 7};//TODO textures
+	public static final String[] upgradeNames = new String[] {"Tesla", "Password", "Security", "Camoflage"};
+    public static final int[] texture = new int[] {5, 6, 7, 8};//TODO textures
 
     public ItemHsbUpgrade(int id)
     {
@@ -122,8 +124,10 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 		//Security Level Upgrade
 		case 2:
 			return new UpgradeSecurity();
+		case 3:
+			return new UpgradeCamoflage();
 		default:
-			return null;
+			return new UpgradeDummy();
 		}
 	}
 	

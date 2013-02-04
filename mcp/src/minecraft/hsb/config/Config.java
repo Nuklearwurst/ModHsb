@@ -139,7 +139,7 @@ public class Config {
 		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 0), "Tesla Upgrade");
 		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 1), "Password Upgrade");
 		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 2), "Security Level Upgrade");
-		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 3), "Unknown Upgrade");
+		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 3), "Camoflage Upgrade");
 		
 		//register TileEntitys
 		GameRegistry.registerTileEntity(TileEntityHsb.class, "TileEntityHsb");

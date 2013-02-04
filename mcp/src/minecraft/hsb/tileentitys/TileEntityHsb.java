@@ -35,7 +35,6 @@ public abstract class TileEntityHsb extends TileEntity
 	public int yTer = 0;
 	public int zTer = 0;
 	
-	public int renderAs = -1;
 	
 	public TileEntityHsb() {
 		super();
@@ -71,7 +70,6 @@ public abstract class TileEntityHsb extends TileEntity
 	    list.add("port");
 	    list.add("pass");
 	    list.add("locked");
-	    list.add("renderAs");
 	    
 	    return list;
 	}

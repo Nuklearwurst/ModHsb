@@ -73,6 +73,7 @@ public class ModHsb{
 		Config.init(evt);
 		proxy.initRendering();
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
+		proxy.initSpecialRenderer();
 //		GameRegistry.registerWorldGenerator(new WorldGenZwergenfestung());
 	}
 	

@@ -1,5 +1,7 @@
 package hsb.api;
 
+import net.minecraft.block.Block;
+
 /**
  * TODO change Terminal to Interface
  * @author Jonas
@@ -14,5 +16,8 @@ public interface ILockTerminal extends ILockTile{
 	 * @return Block id of the Camoflage upgrade, or -1 if tere is none
 	 */
 	int getCamoBlockId();
+
+	int getCamoMeta();
+
 
 }

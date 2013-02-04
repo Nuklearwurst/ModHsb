@@ -180,6 +180,11 @@ public class BlockHsb extends BlockContainer {
         	texid = texid + 6;
         }
         int tex = blockTexture[meta][texid];
+        
+        if(((TileEntityHsb)te).getConnectedTerminal()!= null && ((TileEntityHsb)te).getConnectedTerminal().getCamoBlockId()!=-1)
+        {
+        	return Block.blocksList[((TileEntityHsb)te).getConnectedTerminal().getCamoBlockId()].getBlockTextureFromSideAndMetadata(side, ((TileEntityHsb)te).getConnectedTerminal().getCamoBlockId());
+        }
         return tex;
 
     }
@@ -296,6 +301,14 @@ public class BlockHsb extends BlockContainer {
 	    	}
     	}
     }
+    
+    
+    //custom renderer
+//    @SideOnly(Side.CLIENT)
+//	@Override
+//	public int getRenderBlockPass() {
+//		return 0;
+//	}
 
 
 }

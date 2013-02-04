@@ -2,6 +2,8 @@ package hsb.tileentitys;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -57,6 +59,11 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	private List upgrades;
 	//used to sync buttons
 	public String buttonNumber[] = {"", "", "", "", "", "", "", "", "", ""};
+	
+	//Camo
+
+	public int camoId = -1;
+	public int camoMeta = -1;
 	
 	public int[] upgradeCount;
 	public boolean[] upgradeActive;
@@ -217,6 +224,8 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		List list = super.getNetworkedFields();
 	    list.add("upgradeActive");
 	    list.add("buttonNumber");
+	    list.add("camoId");
+	    list.add("camoMeta");
 	    return list;
 	}
 	
@@ -234,7 +243,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	@Override
 	public ItemStack getStackInSlotOnClosing(int slot) {
-
 		if (this.mainInventory[slot] != null) {
 			ItemStack stack = this.mainInventory[slot];
 			this.mainInventory[slot] = null;
@@ -345,6 +353,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			this.extraPassLength = 0;
 			this.securityLevel = 0;
 			
+			//Camo
+			this.camoMeta = -1;
+			this.camoId = -1;
+			
 			//Upgrade Data
 			//clearing List for new Data
 			List oldData = upgrades;
@@ -448,6 +460,16 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		 * case 0: lock case 1: unlock
 		 */
 		switch (event) {
+		case -20:
+			{
+				int id = this.getUpgradeId("Camoflage");
+				if(id != -1)
+				{
+					this.upgradeActive[id] = ! this.upgradeActive[id];
+					NetworkHelper.updateTileEntityField(this, "upgradeActive");
+					return;
+				}
+			}
 		case -2:
 			player.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, worldObj, xCoord, yCoord, zCoord);
 			return;
@@ -473,6 +495,9 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				NetworkHelper.updateTileEntityField(this, "upgradeActive");
 				NetworkHelper.updateTileEntityField(this, "upgradeCount");
 				NetworkHelper.updateTileEntityField(this, "buttonNumber");
+				NetworkHelper.updateTileEntityField(this, "camoId");
+				NetworkHelper.updateTileEntityField(this, "camoMeta");
+
 			} else {
 				System.out.println("Upgrade == null!" + number);
 			}
@@ -683,10 +708,17 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		return null;
 	}
 
+	
+	@Override
+	public int getCamoMeta() {
+		
+		return this.camoMeta;
+	}
+
 	@Override
 	public int getCamoBlockId() {
-		
-		return this.renderAs;
+		return this.camoId;
 	}
+
 
 }

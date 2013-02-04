@@ -2,6 +2,7 @@ package hsb.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import hsb.ContainerCamoUpgrade;
 import hsb.ContainerLockTerminal;
 import hsb.ContainerLockTerminalOptions;
 import hsb.tileentitys.TileEntityLockTerminal;
@@ -15,6 +16,7 @@ public class GuiHandler
 	public static final int GUI_LOCKTERMINAL = 2;
 	public static final int GUI_BLOCKBUILDING = 3;
 	public static final int GUI_LOCKTERMINAL_OPTIONS = 4;
+	public static final int GUI_UPGRADE_CAMOFLAGE = 5;
 
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world,
@@ -27,6 +29,8 @@ public class GuiHandler
 			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, true);
 		case GUI_LOCKTERMINAL_OPTIONS :
 			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, false);
+		case GUI_UPGRADE_CAMOFLAGE:
+			return new ContainerCamoUpgrade((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
 		default:
 			return null;
 		}
@@ -53,6 +57,8 @@ public class GuiHandler
 		}
 		case GUI_BLOCKBUILDING:
 			return new GuiBlockPlacer(world.getBlockTileEntity(x, y, z), x, y, z, world, player);
+		case GUI_UPGRADE_CAMOFLAGE:
+			return new GuiCamoUpgrade((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), new ContainerCamoUpgrade((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player), player);
 		default:
 			return null;
 				
