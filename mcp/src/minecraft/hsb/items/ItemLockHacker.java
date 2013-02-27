@@ -31,12 +31,12 @@ public class ItemLockHacker extends Item
 
 	@Override
 	public int getChargedItemId() {
-		return HsbItems.itemLockHacker.shiftedIndex;
+		return HsbItems.itemLockHacker.itemID;
 	}
 
 	@Override
 	public int getEmptyItemId() {
-		return HsbItems.itemLockHacker.shiftedIndex;
+		return HsbItems.itemLockHacker.itemID;
 	}
 
 	@Override

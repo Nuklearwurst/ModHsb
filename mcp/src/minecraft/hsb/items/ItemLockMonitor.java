@@ -30,12 +30,12 @@ public class ItemLockMonitor extends Item
 
 	@Override
 	public int getChargedItemId() {
-		return HsbItems.itemLockMonitor.shiftedIndex;
+		return HsbItems.itemLockMonitor.itemID;
 	}
 
 	@Override
 	public int getEmptyItemId() {
-		return HsbItems.itemLockMonitor.shiftedIndex;
+		return HsbItems.itemLockMonitor.itemID;
 	}
 
 	@Override

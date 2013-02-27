@@ -78,7 +78,7 @@ public class BlockHsbDoor extends BlockDoor {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int l, float m, float n, float o)
     {
-    	if(entityplayer != null && entityplayer.getCurrentEquippedItem()!=null && entityplayer.getCurrentEquippedItem().itemID == HsbItems.itemBlockPlacer.shiftedIndex)
+    	if(entityplayer != null && entityplayer.getCurrentEquippedItem()!=null && entityplayer.getCurrentEquippedItem().itemID == HsbItems.itemBlockPlacer.itemID)
     	{
     		return false;
     	}
@@ -142,7 +142,7 @@ public class BlockHsbDoor extends BlockDoor {
 	@Override
     public int idDropped(int meta, Random random, int j)
     {
-        return HsbItems.itemHsbDoor.shiftedIndex;
+        return HsbItems.itemHsbDoor.itemID;
     }
 	
 	@SideOnly(Side.CLIENT)
@@ -223,7 +223,7 @@ public class BlockHsbDoor extends BlockDoor {
      */
     public int idPicked(World par1World, int par2, int par3, int par4)
     {
-        return hsb.config.HsbItems.itemHsbDoor.shiftedIndex;
+        return hsb.config.HsbItems.itemHsbDoor.itemID;
     }
 
 }

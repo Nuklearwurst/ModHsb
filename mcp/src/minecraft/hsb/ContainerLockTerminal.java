@@ -127,9 +127,9 @@ public class ContainerLockTerminal extends Container {
      * Updates crafting matrix; called from onCraftMatrixChanged. Args: none
      */
     @Override
-	public void updateCraftingResults()
+	public void detectAndSendChanges()
     {
-        super.updateCraftingResults();
+        super.detectAndSendChanges();
         if(this.isTerminal) 
         {
 	        Iterator var1 = this.crafters.iterator();

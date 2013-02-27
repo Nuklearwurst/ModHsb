@@ -239,13 +239,13 @@ public class ItemBlockPlacer extends Item
 	    @Override
 		public int getChargedItemId()
 	    {
-	        return HsbItems.itemBlockPlacer.shiftedIndex;
+	        return HsbItems.itemBlockPlacer.itemID;
 	    }
 	    @Override
 		public int getEmptyItemId()
 	    {
 //	        return HsbItems.itemBlockPlacerEmpty.shiftedIndex;
-	        return HsbItems.itemBlockPlacer.shiftedIndex;	    	
+	        return HsbItems.itemBlockPlacer.itemID;	    	
 	    }
 	    @Override
 		public int getMaxCharge()
