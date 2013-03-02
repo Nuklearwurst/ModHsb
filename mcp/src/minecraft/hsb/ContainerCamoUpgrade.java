@@ -1,14 +1,8 @@
 package hsb;
 
-import hsb.api.IItemHsbUpgrade;
 import hsb.config.Config;
 import hsb.tileentitys.TileEntityLockTerminal;
 import hsb.upgrades.UpgradeCamoflage;
-import ic2.api.IElectricItem;
-
-import java.util.Iterator;
-import java.util.logging.Level;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -18,13 +12,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
-import cpw.mods.fml.common.FMLLog;
-
 public class ContainerCamoUpgrade extends Container {
 
 	public TileEntityLockTerminal te;
     IInventory invPlayer;
-    private int numRows;
     int xPos;
     int yPos;
     UpgradeCamoflage upgrade;
@@ -39,7 +30,6 @@ public class ContainerCamoUpgrade extends Container {
         this.invPlayer = entityplayer.inventory;
         this.te = te;
         this.upgrade = (UpgradeCamoflage) te.getUpgrade("Camoflage");
-        int index = 0;
         int reihe;
         int spalte;
         //Block Inventory

@@ -4,7 +4,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import hsb.ContainerCamoUpgrade;
 import hsb.ContainerLockTerminal;
-import hsb.ContainerLockTerminalOptions;
 import hsb.tileentitys.TileEntityLockTerminal;
 import cpw.mods.fml.common.network.IGuiHandler;
 

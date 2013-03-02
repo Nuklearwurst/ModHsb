@@ -1,8 +1,6 @@
 package hsb;
 
 import java.util.Random;
-import java.io.PrintStream;
-
 import cpw.mods.fml.common.IWorldGenerator;
 
 import net.minecraft.block.Block;

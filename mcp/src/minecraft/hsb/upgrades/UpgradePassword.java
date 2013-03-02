@@ -20,7 +20,7 @@ public class UpgradePassword implements IHsbUpgrade {
 	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player,
 			int button) {
 		if(!te.worldObj.isRemote){
-			player.sendChatToPlayer("Current password length: " + (te.defaultPassLength + te.extraPassLength));
+			player.sendChatToPlayer("Current password length: " + (TileEntityLockTerminal.defaultPassLength + te.extraPassLength));
 		}
 
 	}

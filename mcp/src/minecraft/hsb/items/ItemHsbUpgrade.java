@@ -9,35 +9,18 @@ import hsb.CreativeTabHsb;
 import hsb.api.IHsbUpgrade;
 import hsb.api.IItemHsbUpgrade;
 import hsb.config.Config;
-import hsb.config.HsbItems;
 import hsb.tileentitys.TileEntityLockTerminal;
 import hsb.upgrades.UpgradeCamoflage;
 import hsb.upgrades.UpgradeDummy;
 import hsb.upgrades.UpgradePassword;
 import hsb.upgrades.UpgradeSecurity;
 import hsb.upgrades.UpgradeTesla;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockCloth;
-import net.minecraft.block.BlockCrops;
-import net.minecraft.block.BlockDirectional;
-import net.minecraft.block.BlockLog;
-import net.minecraft.block.BlockMushroom;
-import net.minecraft.block.BlockSapling;
-import net.minecraft.block.BlockStem;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.passive.EntitySheep;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.Event.Result;
-import net.minecraftforge.event.entity.player.BonemealEvent;
 
 public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 
@@ -96,7 +79,8 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 		return false;
     }
 
-    @SideOnly(Side.CLIENT)
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@SideOnly(Side.CLIENT)
 
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)

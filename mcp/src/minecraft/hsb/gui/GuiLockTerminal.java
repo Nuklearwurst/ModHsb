@@ -9,8 +9,6 @@ import net.minecraft.inventory.Container;
 
 import org.lwjgl.opengl.GL11;
 
-import hsb.ModHsb;
-import hsb.config.Config;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class GuiLockTerminal extends GuiContainer
@@ -19,14 +17,11 @@ public class GuiLockTerminal extends GuiContainer
     protected int ySize;
     protected String name = "HSB Lock";
     protected TileEntityLockTerminal te;
-    private String lock;
-    private EntityPlayer entityplayer;
-    private int updateCounter;
     private int xPos;
     private int yPos;
     private int maxButtons = 10;
     private final int buttonIdStart = 3;
-    private Container container;
+    
     
     //energy bar
     //x1: 9 x2: 136
@@ -52,13 +47,12 @@ public class GuiLockTerminal extends GuiContainer
     public GuiLockTerminal(TileEntityLockTerminal te, Container container, EntityPlayer entityplayer)
     {
         super(container);
-        this.container = container;
         this.te = te;
-        this.entityplayer = entityplayer;
         xSize = 228;
         ySize = 222;
     }
-    public void initGui()
+    @SuppressWarnings("unchecked")
+	public void initGui()
     {
         super.initGui();
         xPos = width / 2 - xSize / 2;
@@ -102,7 +96,7 @@ public class GuiLockTerminal extends GuiContainer
                 this.mc.setIngameFocus();
                 break;
             case 1:
-                GuiButton button = (GuiButton)controlList.get(1);
+			controlList.get(1);
                 NetworkHelper.initiateClientTileEntityEvent(te, 1);
                 break;
             case 2: 
@@ -143,7 +137,7 @@ public class GuiLockTerminal extends GuiContainer
     public void drawScreen(int par1, int par2, float par3)
     {
     	super.drawScreen(par1, par2, par3);
-        String energyBar=te.energyStored + "EU/" + (te.defaultEnergyStorage + te.extraStorage) + "EU";
+        String energyBar=te.energyStored + "EU/" + (TileEntityLockTerminal.defaultEnergyStorage + te.extraStorage) + "EU";
         this.drawString(this.fontRenderer, energyBar, xPos + 105 - this.fontRenderer.getStringWidth(energyBar) / 2, yPos + 118, 10526880);
         ((GuiButton)controlList.get(1)).displayString = getLock(te.locked);
         

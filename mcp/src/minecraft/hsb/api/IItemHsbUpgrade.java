@@ -1,9 +1,5 @@
 package hsb.api;
 
-import hsb.tileentitys.TileEntityLockTerminal;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-
 /**
  * has to be implemented by every Item that is an upgrade
  * @author Jonas

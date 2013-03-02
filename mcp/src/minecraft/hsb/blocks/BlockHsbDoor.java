@@ -3,12 +3,10 @@ package hsb.blocks;
 import hsb.CommonProxy;
 import hsb.config.Config;
 import hsb.config.HsbItems;
-import hsb.gui.GuiHandler;
 import hsb.tileentitys.TileEntityDoorBase;
 import hsb.tileentitys.TileEntityHsb;
 import hsb.tileentitys.TileEntityHsbBuilding;
 
-import java.util.List;
 import java.util.Random;
 
 import cpw.mods.fml.common.FMLLog;
@@ -22,7 +20,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
 
 
 public class BlockHsbDoor extends BlockDoor {

@@ -44,11 +44,11 @@ public class HsbBlockRenderer implements ISimpleBlockRenderingHandler {
 					renderer.renderStandardBlock(block, x, y, z);
 				} else {
 					//render normal Block
-					ForgeHooksClient.bindTexture(ModHsb.proxy.TEXTURE_BLOCKS, 0);
+					ForgeHooksClient.bindTexture(CommonProxy.TEXTURE_BLOCKS, 0);
 					renderer.renderStandardBlock(block, x, y, z);
 				}
 			} else {
-				ForgeHooksClient.bindTexture(ModHsb.proxy.TEXTURE_BLOCKS, 0);
+				ForgeHooksClient.bindTexture(CommonProxy.TEXTURE_BLOCKS, 0);
 				renderer.renderStandardBlock(block, x, y, z);
 			}
 		}
@@ -71,7 +71,6 @@ public class HsbBlockRenderer implements ISimpleBlockRenderingHandler {
 			RenderBlocks renderer) {
 		Tessellator tes = Tessellator.instance;
 		
-        int var10;
         block.setBlockBoundsForItemRender();
         GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
         

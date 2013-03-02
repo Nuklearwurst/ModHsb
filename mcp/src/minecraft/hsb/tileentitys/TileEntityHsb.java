@@ -6,7 +6,6 @@ import ic2.api.network.INetworkDataProvider;
 import ic2.api.network.INetworkUpdateListener;
 import ic2.api.network.NetworkHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -16,7 +15,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Facing;
 import net.minecraft.world.World;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import hsb.api.ILockDataCable;
 import hsb.config.Config;
 
@@ -65,7 +63,7 @@ public abstract class TileEntityHsb extends TileEntity
 	
 	@Override
 	public List<String> getNetworkedFields() {
-		List list = new Vector(4);
+		List<String> list = new Vector<String>(4);
 	    list.add("facing");
 	    list.add("port");
 	    list.add("pass");

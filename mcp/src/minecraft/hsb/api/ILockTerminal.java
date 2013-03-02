@@ -1,7 +1,5 @@
 package hsb.api;
 
-import net.minecraft.block.Block;
-
 /**
  * TODO change Terminal to Interface
  * @author Jonas

@@ -1,20 +1,15 @@
 package hsb.items;
 
-import java.util.Iterator;
 import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
@@ -198,8 +193,8 @@ public class ItemBlockPlacer extends Item
 			        {
 			            return false;
 			        }
-		            Block blockPlace = Block.blocksList[this.blockID];
-			        if (world.canPlaceEntityOnSide(this.blockID, x, y, z, false, side, null))
+		            Block blockPlace = Block.blocksList[ItemBlockPlacer.blockID];
+			        if (world.canPlaceEntityOnSide(ItemBlockPlacer.blockID, x, y, z, false, side, null))
 		            {
 			            if (placeBlockAt(itemstack, entityplayer, world, x, y, z, side, par8, par9, par10))
 			            {
@@ -289,20 +284,20 @@ public class ItemBlockPlacer extends Item
 		    			return false;
 		    		}
 	    		}
-				if(!Utils.removeFromInventory(this.blockID, 0, player.inventory))
+				if(!Utils.removeFromInventory(ItemBlockPlacer.blockID, 0, player.inventory))
 				{
 					return false;
 				}
 	    	}
-			if (!world.setBlockAndMetadataWithNotify(x, y, z, this.blockID, 0))
+			if (!world.setBlockAndMetadataWithNotify(x, y, z, ItemBlockPlacer.blockID, 0))
 			{
 				   Config.logDebug("placing failed!");
 			       return false;
 			}
 			
-			if (world.getBlockId(x, y, z) == this.blockID)
+			if (world.getBlockId(x, y, z) == ItemBlockPlacer.blockID)
 			{
-			    Block.blocksList[this.blockID].onBlockPlacedBy(world, x, y, z, player);
+			    Block.blocksList[ItemBlockPlacer.blockID].onBlockPlacedBy(world, x, y, z, player);
 			    NBTTagCompound tag = stack.getTagCompound();
 			    if(tag!=null)
 			    {
@@ -319,7 +314,8 @@ public class ItemBlockPlacer extends Item
 	        return true;
 	    }
 	    
-	    @SideOnly(Side.CLIENT)
+	    @SuppressWarnings({ "rawtypes", "unchecked" })
+		@SideOnly(Side.CLIENT)
 	    @Override
 
 	    /**

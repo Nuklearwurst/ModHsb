@@ -4,10 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import cpw.mods.fml.common.WorldAccessContainer;
-
-import net.minecraft.client.Minecraft;
-
 public abstract class PacketPosition extends PacketHsb{
 	
 	public int x;

@@ -1,6 +1,5 @@
 package hsb.config;
 
-import hsb.ModHsb;
 import hsb.blocks.BlockHsb;
 import hsb.blocks.BlockHsbDoor;
 import hsb.items.ItemBlockHsb;

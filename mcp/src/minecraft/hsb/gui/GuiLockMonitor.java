@@ -11,14 +11,7 @@ import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.network.NetworkRegistry;
-
-import hsb.ModHsb;
 import hsb.config.Config;
-import hsb.network.PacketItemUpdate;
-import hsb.tileentitys.TileEntityHsb;
 
 public class GuiLockMonitor extends GuiScreen {
 
@@ -30,22 +23,12 @@ public class GuiLockMonitor extends GuiScreen {
     protected int port = 0;
     int xPos;
     int yPos;
-    private World world;
-    private int x;
-    private int y;
-    private int z;
-    private EntityPlayer player;
-    
-	public GuiLockMonitor(Object placer, int x, int y, int z, World world, EntityPlayer player) {
+    public GuiLockMonitor(Object placer, int x, int y, int z, World world, EntityPlayer player) {
 		xSize=176;
 		ySize=105;
-        this.world = world;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.player = player;
         nbttag = itemstack.getTagCompound();
 	}
+	@SuppressWarnings("unchecked")
 	@Override
     public void initGui() {
         xPos = width / 2 - xSize / 2;
@@ -101,15 +84,11 @@ public class GuiLockMonitor extends GuiScreen {
 	    }
 	    public void updateScreen()
 	    {
-	        updateCounter++;
 	    }
 	    public void onGuiClosed()
 	    {
 	        super.onGuiClosed();
 	    }
-	    private void updateNBTTag() {
-	    }
-	    
 	    public void drawScreen(int i, int j, float f)
 	    {
 	        drawDefaultBackground();
@@ -155,6 +134,5 @@ public class GuiLockMonitor extends GuiScreen {
 	        drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
 	        drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
 	    }
-	    private int updateCounter;
 	}
 

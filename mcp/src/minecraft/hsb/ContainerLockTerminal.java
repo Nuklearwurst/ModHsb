@@ -25,8 +25,6 @@ public class ContainerLockTerminal extends Container {
 	TileEntityLockTerminal te;
     IInventory inventory;
     IInventory invPlayer;
-    private int numRows;
-    private int inventorySize;
     int xPos;
     int yPos;
     private int lastEnergyStored = 0;
@@ -48,7 +46,7 @@ public class ContainerLockTerminal extends Container {
         this.invPlayer = entityplayer.inventory;
         this.te = te;
         this.inventory = te;
-        inventorySize = inventory.getSizeInventory();
+        inventory.getSizeInventory();
 //        int index = 0;
         int reihe;
         int spalte;
@@ -126,7 +124,8 @@ public class ContainerLockTerminal extends Container {
     /**
      * Updates crafting matrix; called from onCraftMatrixChanged. Args: none
      */
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
 	public void detectAndSendChanges()
     {
         super.detectAndSendChanges();

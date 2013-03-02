@@ -4,7 +4,6 @@ import ic2.api.IElectricItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import hsb.config.Config;
 
 public class SlotCharge extends Slot{
 

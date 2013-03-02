@@ -12,11 +12,6 @@ import net.minecraft.inventory.Container;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import hsb.ContainerLockTerminal;
-import hsb.ContainerLockTerminalOptions;
-import hsb.ModHsb;
-import hsb.config.Config;
-import hsb.network.PacketItemUpdate;
 import hsb.network.PacketTerminalUpdate;
 import hsb.tileentitys.TileEntityLockTerminal;
 
@@ -27,12 +22,9 @@ public class GuiLockTerminalOptions extends GuiContainer
     protected int ySize;
     protected String name = "HSB Lock Options";
     protected TileEntityLockTerminal te;
-    private String lock;
     private EntityPlayer entityplayer;
-    private int updateCounter;
     private int xPos;
     private int yPos;
-    private Container container;
     private int port;
     
     private int lastPassLength = 0;
@@ -41,7 +33,6 @@ public class GuiLockTerminalOptions extends GuiContainer
     public GuiLockTerminalOptions(TileEntityLockTerminal te, Container container, EntityPlayer entityplayer)
     {
         super(container);
-        this.container = container;
         this.te = te;
         this.entityplayer = entityplayer;
         xSize = 228;
@@ -49,7 +40,8 @@ public class GuiLockTerminalOptions extends GuiContainer
         port = te.port;
         lastPassLength = te.extraPassLength;
     }
-    public void initGui()
+    @SuppressWarnings("unchecked")
+	public void initGui()
     {
         super.initGui();
         xPos = width / 2 - xSize / 2;
@@ -64,7 +56,7 @@ public class GuiLockTerminalOptions extends GuiContainer
         this.controlList.add(new GuiButton(5, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));
         
         this.textField = new GuiTextField(this.fontRenderer,  xPos + xSize / 2 - 70, yPos + 90, 140, 20);
-        this.textField.setMaxStringLength(te.defaultPassLength + te.extraPassLength);
+        this.textField.setMaxStringLength(TileEntityLockTerminal.defaultPassLength + te.extraPassLength);
         this.textField.setFocused(false);
         this.textField.setText(te.pass);
         
@@ -113,12 +105,12 @@ public class GuiLockTerminalOptions extends GuiContainer
 
         if (this.port < 0)
         {
-            this.port = te.maxPort + this.port;
+            this.port = TileEntityLockTerminal.maxPort + this.port;
         }
 
-        if (this.port >= te.maxPort)
+        if (this.port >= TileEntityLockTerminal.maxPort)
         {
-            this.port -= te.maxPort;
+            this.port -= TileEntityLockTerminal.maxPort;
         }
     }
 
@@ -158,7 +150,7 @@ public class GuiLockTerminalOptions extends GuiContainer
         this.textField.updateCursorCounter();
         if(te.extraPassLength != lastPassLength)
         {
-        	this.textField.setMaxStringLength(te.extraPassLength +te.defaultPassLength);
+        	this.textField.setMaxStringLength(te.extraPassLength +TileEntityLockTerminal.defaultPassLength);
         	lastPassLength = te.extraPassLength;
         	String text = this.textField.getText();
         	if(text.length() > this.textField.getMaxStringLength())

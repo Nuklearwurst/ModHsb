@@ -13,11 +13,6 @@ import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.network.NetworkRegistry;
-
-import hsb.ModHsb;
 import hsb.config.Config;
 import hsb.network.PacketItemUpdate;
 import hsb.tileentitys.TileEntityHsb;
@@ -34,10 +29,6 @@ public class GuiBlockPlacer extends GuiScreen {
     protected String name;
     int xPos;
     int yPos;
-    private World world;
-    private int x;
-    private int y;
-    private int z;
     private EntityPlayer player;
     
     /*
@@ -62,10 +53,6 @@ public class GuiBlockPlacer extends GuiScreen {
 		} else {
 
 		}
-        this.world = world;
-        this.x = x;
-        this.y = y;
-        this.z = z;
         this.player = player;
         if(item)
         {
@@ -83,6 +70,7 @@ public class GuiBlockPlacer extends GuiScreen {
         	name = "Set Port:";
         }
 	}
+	@SuppressWarnings("unchecked")
 	@Override
     public void initGui() {
         xPos = width / 2 - xSize / 2;
@@ -149,7 +137,6 @@ public class GuiBlockPlacer extends GuiScreen {
 	    }
 	    public void updateScreen()
 	    {
-	        updateCounter++;
 	    }
 	    public void onGuiClosed()
 	    {
@@ -235,6 +222,5 @@ public class GuiBlockPlacer extends GuiScreen {
 	        drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
 	        drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
 	    }
-	    private int updateCounter;
 	}
 

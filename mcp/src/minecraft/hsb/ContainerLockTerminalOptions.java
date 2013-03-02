@@ -2,7 +2,6 @@ package hsb;
 
 import hsb.tileentitys.TileEntityLockTerminal;
 
-import java.util.Iterator;
 import java.util.logging.Level;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,8 +16,6 @@ public class ContainerLockTerminalOptions extends Container {
 	public TileEntityLockTerminal te;
     IInventory inventory;
     IInventory invPlayer;
-    private int numRows;
-    private int inventorySize;
     int xPos;
     int yPos;
     
@@ -33,8 +30,7 @@ public class ContainerLockTerminalOptions extends Container {
         this.invPlayer = entityplayer.inventory;
         this.te = te;
         this.inventory = te;
-        inventorySize = inventory.getSizeInventory();
-        int index = 0;
+        inventory.getSizeInventory();
         int reihe;
         int spalte;
         //Block Inventory

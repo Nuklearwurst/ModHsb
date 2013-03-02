@@ -1,23 +1,14 @@
 package hsb.gui;
 
 import ic2.api.network.NetworkHelper;
-import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import hsb.ContainerLockTerminal;
-import hsb.ContainerLockTerminalOptions;
-import hsb.ModHsb;
-import hsb.config.Config;
-import hsb.network.PacketItemUpdate;
-import hsb.network.PacketTerminalUpdate;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class GuiCamoUpgrade extends GuiContainer
@@ -25,19 +16,14 @@ public class GuiCamoUpgrade extends GuiContainer
 	protected int xSize;
     protected int ySize;
     protected String name = "HSB Lock Options";
-    private EntityPlayer entityplayer;
-    private int updateCounter;
     private int xPos;
     private int yPos;
-    private Container container;
     TileEntityLockTerminal te;
     private boolean active;
 
     public GuiCamoUpgrade(TileEntityLockTerminal te, Container container, EntityPlayer entityplayer)
     {
         super(container);
-        this.container = container;
-        this.entityplayer = entityplayer;
         xSize = 228;
         ySize = 222;
         this.te = te;
@@ -50,7 +36,8 @@ public class GuiCamoUpgrade extends GuiContainer
             this.mc.setIngameFocus();
         }
     }
-    public void initGui()
+    @SuppressWarnings("unchecked")
+	public void initGui()
     {
         super.initGui();
         xPos = width / 2 - xSize / 2;

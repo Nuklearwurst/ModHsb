@@ -3,7 +3,6 @@ package hsb.tileentitys;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -15,7 +14,6 @@ import net.minecraftforge.common.MinecraftForge;
 import ic2.api.Direction;
 import ic2.api.ElectricItem;
 import ic2.api.IElectricItem;
-import ic2.api.energy.EnergyNet;
 import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
@@ -56,7 +54,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public int overclockerUpgrades = 0;
 	//other
 	//private
-	private List upgrades;
+	private List<IHsbUpgrade> upgrades;
 	//used to sync buttons
 	public String buttonNumber[] = {"", "", "", "", "", "", "", "", "", ""};
 	
@@ -78,7 +76,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		super();
 		upgradeCount = new int[10];
 		upgradeActive = new boolean[10];
-		upgrades = new ArrayList();
+		upgrades = new ArrayList<IHsbUpgrade>();
 		blocksInUse = 0;
 		maxInput = 32;
 		energyUse = 0.25;
@@ -221,7 +219,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	
 	@Override
 	public List<String> getNetworkedFields() {
-		List list = super.getNetworkedFields();
+		List<String> list = super.getNetworkedFields();
 	    list.add("upgradeActive");
 	    list.add("buttonNumber");
 	    list.add("camoId");
@@ -359,7 +357,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			
 			//Upgrade Data
 			//clearing List for new Data
-			List oldData = upgrades;
+			List<IHsbUpgrade> oldData = upgrades;
 			boolean oldActive[] = this.upgradeActive;
 			this.upgrades.clear();
 			//variable to track index of Upgrade Arrays
