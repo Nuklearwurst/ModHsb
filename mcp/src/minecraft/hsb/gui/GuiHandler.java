@@ -2,8 +2,8 @@ package hsb.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import hsb.ContainerCamoUpgrade;
-import hsb.ContainerLockTerminal;
+import hsb.container.ContainerCamoUpgrade;
+import hsb.container.ContainerLockTerminal;
 import hsb.tileentitys.TileEntityLockTerminal;
 import cpw.mods.fml.common.network.IGuiHandler;
 

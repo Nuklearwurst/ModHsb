@@ -1,6 +1,7 @@
 package hsb.upgrades;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemBlock;
@@ -11,6 +12,7 @@ import hsb.api.IHsbUpgrade;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
+import hsb.network.PacketUpgradeCamo;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
@@ -42,6 +44,9 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 			player.sendChatToPlayer("WorldObj == null!!");
 			return;
 		}
+		
+		PacketUpgradeCamo packet = new PacketUpgradeCamo();
+		((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packet.getPacket()); 
 		player.openGui(ModHsb.instance, GuiHandler.GUI_UPGRADE_CAMOFLAGE, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
 		
 	}

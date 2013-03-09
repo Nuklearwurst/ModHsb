@@ -1,5 +1,8 @@
-package hsb;
+package hsb.container;
 
+import hsb.SlotCharge;
+import hsb.SlotLockTerminal;
+import hsb.SlotMachineUpgrade;
 import hsb.api.IItemHsbUpgrade;
 import hsb.config.Config;
 import hsb.tileentitys.TileEntityLockTerminal;

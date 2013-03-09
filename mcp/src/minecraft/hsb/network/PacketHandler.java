@@ -51,6 +51,14 @@ public class PacketHandler
 				tilePacket.onPacketData(data, player);
 				break;
 			}
+			case PacketIds.TILE_UPGRADECAMO:
+			{
+				//From Server to Client
+				//TODO create packet
+				PacketUpgradeCamo packetCamo = new PacketUpgradeCamo();
+				packetCamo.onPacketData(data, player);
+				break;
+			}
 				
 				
 			}

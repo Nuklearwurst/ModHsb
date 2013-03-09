@@ -1,4 +1,4 @@
-package hsb;
+package hsb.container;
 
 import hsb.config.Config;
 import hsb.tileentitys.TileEntityLockTerminal;

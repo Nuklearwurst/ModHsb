@@ -1,5 +1,6 @@
-package hsb;
+package hsb.container;
 
+import hsb.SlotLockTerminal;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 import java.util.logging.Level;

@@ -61,4 +61,7 @@ public interface IHsbUpgrade {
 	 * @return is the Upgrade enabled when installed?
 	 */
 	public boolean isEnabledByDefault();
+	
+	//TODO inventory syncing
+	//TODO maybe new network code
 }

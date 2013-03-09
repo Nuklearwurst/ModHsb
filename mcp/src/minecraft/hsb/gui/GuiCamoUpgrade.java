@@ -20,6 +20,7 @@ public class GuiCamoUpgrade extends GuiContainer
     private int yPos;
     TileEntityLockTerminal te;
     private boolean active;
+    //TODO ability to sync inventory and upgrades
 
     public GuiCamoUpgrade(TileEntityLockTerminal te, Container container, EntityPlayer entityplayer)
     {
@@ -27,14 +28,14 @@ public class GuiCamoUpgrade extends GuiContainer
         xSize = 228;
         ySize = 222;
         this.te = te;
-        int id = te.getUpgradeId("Camoflague");
-        if(id != -1)
-        {
-        	active = te.upgradeActive[id];
-        } else {
-            this.mc.displayGuiScreen((GuiScreen)null);
-            this.mc.setIngameFocus();
-        }
+//        int id = te.getUpgradeId("Camoflague");
+//        if(id != -1)
+//        {
+//        	active = te.upgradeActive[id];
+//        } else {
+//            this.mc.displayGuiScreen((GuiScreen)null);
+//            this.mc.setIngameFocus();
+//        }
     }
     @SuppressWarnings("unchecked")
 	public void initGui()
@@ -44,7 +45,7 @@ public class GuiCamoUpgrade extends GuiContainer
         yPos = height / 2 - ySize / 2;
         this.controlList.clear();
         
-        this.controlList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, active ? "Deactivate" : "Activate"));
+        this.controlList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, "Activate"));//TODO button text
         
         this.controlList.add(new GuiButton(2, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));       
         this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
