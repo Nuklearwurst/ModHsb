@@ -13,6 +13,7 @@
 /mcp/src/minecraft/*
 !/mcp/src/minecraft/hsb/
 !/mcp/src/minecraft/mcmod.info
+/Releases/*
 
 
 *.bat
