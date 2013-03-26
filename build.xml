@@ -3,6 +3,8 @@
 
 	<property file="build.properties" />
 
+    
+    
 	<target name="clean">
 		<delete file="${dir.development}\mcp\src\minecraft\mcmod.info" />
 		<delete dir="${dir.development}\mcp\src\minecraft\hsb" />

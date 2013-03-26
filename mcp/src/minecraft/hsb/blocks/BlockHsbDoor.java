@@ -198,7 +198,7 @@ public class BlockHsbDoor extends BlockDoor {
 			TileEntity te = world.getBlockTileEntity(x, y, z);
 			if(te instanceof TileEntityHsbBuilding && player instanceof EntityPlayer)
 			{
-				int port = ((TileEntityHsbBuilding) te).port;
+				int port = ((TileEntityHsbBuilding) te).getPort();
 				world.setBlockMetadataWithNotify(te.xCoord, te.yCoord, te.zCoord, 2);
 				world.setBlockTileEntity(x, y, z, new TileEntityDoorBase());
 				te = world.getBlockTileEntity(x, y, z);
@@ -206,7 +206,7 @@ public class BlockHsbDoor extends BlockDoor {
 				{
 					((TileEntityDoorBase) te).upgradePlayer = true;
 					((TileEntityDoorBase) te).placer = ((EntityPlayer)player).username;
-					((TileEntityDoorBase) te).port = port;
+					((TileEntityDoorBase) te).setPort(port);
 				} else {
 					FMLLog.severe("Hsb: error when placing Door!");
 				}

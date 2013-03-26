@@ -1,4 +1,4 @@
-package hsb.network;
+package hsb.network.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;

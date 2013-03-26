@@ -4,7 +4,8 @@ import ic2.api.IWrenchable;
 import ic2.api.network.INetworkClientTileEntityEventListener;
 import ic2.api.network.INetworkDataProvider;
 import ic2.api.network.INetworkUpdateListener;
-import ic2.api.network.NetworkHelper;
+import hsb.LockManager;
+import hsb.network.NetworkManager;
 
 import java.util.List;
 import java.util.Vector;
@@ -15,20 +16,27 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Facing;
 import net.minecraft.world.World;
 
-import hsb.api.ILockDataCable;
+import hsb.api.lock.ILockReceiver;
+import hsb.api.lock.ILockTerminal;
+import hsb.api.lock.ILockable;
 import hsb.config.Config;
 
 public abstract class TileEntityHsb extends TileEntity
-	implements IWrenchable, ILockDataCable,  INetworkDataProvider, INetworkUpdateListener, INetworkClientTileEntityEventListener
+	implements IWrenchable, INetworkDataProvider, INetworkUpdateListener, INetworkClientTileEntityEventListener, ILockable
 {
 	public short facing = 1;
 	protected short prevFacing;
+	
 	protected boolean init = false;
+	
 	public  boolean locked = false;
 	public  boolean prevLocked = false;
-	public int port = 0;
-	public String pass;
-	public boolean removed = false;
+	
+	private int port = 0;
+	private String pass;
+
+	private boolean removed = false;
+	//Terminal coordinates
 	public int xTer = 0;
 	public int yTer = 0;
 	public int zTer = 0;
@@ -45,10 +53,10 @@ public abstract class TileEntityHsb extends TileEntity
 
 	}
 	
-	public TileEntityLockTerminal getConnectedTerminal() {
+	public ILockTerminal getConnectedTerminal() {
 		TileEntity te = this.worldObj.getBlockTileEntity(xTer, yTer, zTer);
-		if(te instanceof TileEntityLockTerminal)
-			return (TileEntityLockTerminal) te;
+		if(te instanceof ILockTerminal)
+			return (ILockTerminal) te;
 		return null;
 	}
 	
@@ -77,7 +85,7 @@ public abstract class TileEntityHsb extends TileEntity
         onInventoryChanged();
 		if(worldObj.isRemote)
         {
-    		NetworkHelper.requestInitialData(this);
+    		NetworkManager.requestInitialData(this);
         }
         init = true;
     }
@@ -118,26 +126,34 @@ public abstract class TileEntityHsb extends TileEntity
         this.facing = facing;
         if (prevFacing != facing && !Config.ECLIPSE)
         {
-            NetworkHelper.updateTileEntityField(this, "facing");
+            NetworkManager.updateTileEntityField(this, "facing");
         }
         this.prevFacing = facing;
 
 	}
 	
 	public void onRemove(World world, int x, int y, int z, int par5, int par6) {
+		//only on server
 		if(this.worldObj.isRemote)
 		{
 			return;
 		}
+		//unlocking
 		this.locked = false;
+		//set removed mark
 		this.removed = true;
-		this.transferSignal_do(null, false, this.pass, this.port, 6);
+		//this.transferSignal_do(null, false, this.pass, this.port, 6);
+		
+		//transfersignal (from this, no terminal, unlocking, pass, port, all sides)
+		LockManager.tranferSignal(this, null, false, pass, port, 6);
 	}
 
 	@Override
-	public boolean transferSignal(int side, TileEntityLockTerminal te, boolean value, String pass, int port) {
+	public boolean receiveSignal(int side, ILockTerminal te, boolean value, String pass, int port) {
+		//only simulated on server
 		if(this.worldObj.isRemote)
 			return true;
+		//checks if the tile is going to be destroyed
 		if(this.removed)
 		{
 			Config.logDebug("this is removed!");
@@ -152,8 +168,10 @@ public abstract class TileEntityHsb extends TileEntity
 		//Unlocking
 		if(!value)
 		{
-			if( (!(this.getConnectedTerminal() == null)) && (!this.getConnectedTerminal().removed) )
+			//checks if the connected terminal is valid (if not unlocking will succeed)
+			if( (this.getConnectedTerminal() != null) && (!this.getConnectedTerminal().isDestroyed()) )
 			{
+				//checks if the password is right
 				if(!this.pass.equals(pass))
 				{
 					Config.logDebug("transfer failed:false password ! |" + this.pass + "|" + pass + "|");
@@ -165,53 +183,60 @@ public abstract class TileEntityHsb extends TileEntity
 		//locking
 		if(value)
 		{
-			this.xTer = te.xCoord;
-			this.yTer = te.yCoord;
-			this.zTer = te.zCoord;
-			te.blocksInUse++;
+			//setting terminal coordinates
+			this.xTer = te.getTileEntity().xCoord;
+			this.yTer = te.getTileEntity().yCoord;
+			this.zTer = te.getTileEntity().zCoord;
+			//adding block to the terminal
+			te.addBlockToTileEntity(this);
+			//setting password
 			this.pass = pass;
 		}
 		//setting new properties
 		Config.logDebug("transfer in progress: side: " + side + " te: " + te + " value: " + value + " pass: " + pass + " port: " + port);
 		this.locked = value;
 		
+		//TODO rewrite
 		//continue sending the signal
-		this.transferSignal_do(te, value, pass, port, side);
+		//this.transferSignal_do(te, value, pass, port, side);
+		LockManager.tranferSignal(this, getConnectedTerminal(), value, pass, port, side);
+		
 		//updating
-		NetworkHelper.updateTileEntityField(this, "locked");
+		NetworkManager.updateTileEntityField(this, "locked");
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		return true;		
 	}
-	/**
-	 * transfers a locksignal to all blocks, but the side specified
-	 * 
-	 * @param te the TileEntity the Signal is from, null if it is broken
-	 * @param lock wether to lock or unlock
-	 * @param pass password
-	 * @param port port
-	 * @param ignoreSide Side no signal shoudd be send to
-	 * @return succes
-	 */
-	protected boolean transferSignal_do(TileEntityLockTerminal te, boolean lock, String pass, int port, int ignoreSide) {
-		for(int i = 0; i<6; i++)
-		{
-			if(i == ignoreSide)
-			{
-				Config.logDebug("ignored Side: " + i);
-				continue;
-			}
-			TileEntity tile = this.worldObj.getBlockTileEntity(xCoord+Facing.offsetsXForSide[i], yCoord+Facing.offsetsYForSide[i], zCoord+Facing.offsetsZForSide[i]);
-			if(tile != null && tile instanceof ILockDataCable)
-			{
-				((ILockDataCable) tile).transferSignal(Facing.faceToSide[i], te, lock, pass, port);
-			}
-		}
-		return true;
-	}
+//	/**
+//	 * transfers a locksignal to all blocks, but the side specified
+//	 * 
+//	 * @param te the TileEntity the Signal is from, null if it is broken
+//	 * @param lock wether to lock or unlock
+//	 * @param pass password
+//	 * @param port port
+//	 * @param ignoreSide Side no signal shoudd be send to
+//	 * @return succes
+//	 */
+//	protected boolean transferSignal_do(ILockTerminal te, boolean lock, String pass, int port, int ignoreSide) {
+//		for(int i = 0; i<6; i++)
+//		{
+//			if(i == ignoreSide)
+//			{
+//				Config.logDebug("ignored Side: " + i);
+//				continue;
+//			}
+//			TileEntity tile = this.worldObj.getBlockTileEntity(xCoord+Facing.offsetsXForSide[i], yCoord+Facing.offsetsYForSide[i], zCoord+Facing.offsetsZForSide[i]);
+//			if(tile != null && tile instanceof ILockReceiver)
+//			{
+//				((ILockReceiver) tile).receiveSignal(Facing.faceToSide[i], te, lock, pass, port);
+//			}
+//		}
+//		return true;
+//	}
 
 	@Override
     public void updateEntity()
     {
+        super.updateEntity();
 		if (!init)
         {
             initData();
@@ -220,7 +245,7 @@ public abstract class TileEntityHsb extends TileEntity
         }  
 
 
-        super.updateEntity();
+
     }
 	
     @Override
@@ -245,5 +270,30 @@ public abstract class TileEntityHsb extends TileEntity
 			return;
 		}
 		this.port = event;
+	}
+	
+	@Override
+	public int getPort() {
+		return port;
+	}
+
+	@Override
+	public String getPass() {
+		return pass;
+	}
+	
+	@Override
+	public boolean isDestroyed() {
+		return removed;
+	}
+	
+	@Override
+	public void setPort(int port) {
+		this.port = port;
+	}
+	
+	@Override 
+	public void setPass(String pass) {
+		this.pass = pass;
 	}
 }

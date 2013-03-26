@@ -7,5 +7,6 @@ public class PacketIds {
 	public static final int TILE_FIELD_UPDATE = 2; //Client --> Server
 	public static final int TILE_TERMINAL_UPDATE = 3; //Client --> Server
 	public static final int TILE_UPGRADECAMO = 4; //Server --> Client
+	public static final int TILE_UPGRADEINV_UPDATE = 5; //Server --> Client
 
 }

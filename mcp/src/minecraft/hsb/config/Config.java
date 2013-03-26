@@ -25,7 +25,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.Property;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -33,10 +35,14 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 public class Config {
 	
 	public static Configuration config;
+	
 	public static boolean DEBUG = false;
 	public static boolean ECLIPSE = false;
+	
 	public static int maxPort = 99;
 	
+	//IC2
+	public static boolean ic2Available = true;
 	//energy
 	public static double energyHsbBlock = 0;
 	public static double energyUpgradeTesla = 0;
@@ -51,12 +57,18 @@ public class Config {
 		try {
 			
 			config.load();
-			//Properties
+		//Properties
+			//Debug Mode
 			Property debugMode = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false);
 			debugMode.comment="Debug Mode";
 			DEBUG = Boolean.parseBoolean(debugMode.value);
 			
-			//energy
+			//Use IC2 (true recommend)
+			Property propIC2 = config.get(Configuration.CATEGORY_GENERAL, "useIC2", true);
+			propIC2.comment = "Use IC2 if installed";
+			ic2Available = Boolean.parseBoolean(propIC2.value);
+			
+		//energyuse
 			//Building Block
 			Property propEnergyHsbBlock = config.get(Configuration.CATEGORY_GENERAL, "energyHsbBlock", Defaults.ENERGY_HSB_BLOCK);
 			propEnergyHsbBlock.comment="Energyuse per one locked Block";
@@ -77,45 +89,41 @@ public class Config {
 			propEnergyPortMonitor.comment="EnergyUse for Port Monitor";
 			energyHsbMonitor = Integer.parseInt(propEnergyPortMonitor.value);
 			
-			//Port Hackker
+			//Port Hacker
 			Property propEnergyPortHacker = config.get(Configuration.CATEGORY_GENERAL, "energyPortHacker", Defaults.ENERGY_PORT_HACKER);
 			propEnergyPortHacker.comment="EnergyUse for Port Hacker";
 			energyHsbHacker = Integer.parseInt(propEnergyPortHacker.value);
-			
-			//Plugins TODO Plugins
-			
-			//Blocks, Items
+						
+		//Items
+			//DebugTool
 			HsbItems.itemDebugTool = new ItemDebugTool(Config.getItemId("Debug Tool", Defaults.ITEM_DEBUG)).setItemName("Debug Tool");
 			LanguageRegistry.addName(HsbItems.itemDebugTool, "Debug Tool");
 			
+			//BlockPlacer
 			HsbItems.itemBlockPlacer = new ItemBlockPlacer(Config.getItemId("itemBlockPlacer", Defaults.ITEM_BLOCKPLACER)).setItemName("Block MultiTool");
 			LanguageRegistry.addName(HsbItems.itemBlockPlacer, "Block Placer");
 			
-//			Items.itemBlockPlacerEmpty = new ItemBlockPlacer(Config.getItemId("itemBlockPlacerEmpty", Defaults.ITEM_BLOCKPLACEREMPTY)).setItemName("Block MultiTool");
-			
+			//LockMonitor
 			HsbItems.itemLockMonitor = new ItemLockMonitor(Config.getItemId("itemLockMonitor", Defaults.ITEM_LOCK_MONITOR)).setItemName("LockMonitor");
 			LanguageRegistry.addName(HsbItems.itemLockMonitor, "Lock Monitor");
 			
-//			Items.itemLockMonitorEmpty = new ItemLockMonitor(Config.getItemId("itemLockMonitorEmpty", Defaults.ITEM_LOCK_MONITOR_EMPTY)).setItemName("LockMonitor");
-			
+			//LockHacker
 			HsbItems.itemLockHacker = new ItemLockHacker(Config.getItemId("itemLockHacker", Defaults.ITEM_LOCK_HACKER)).setItemName("Lock Hacker");
 			LanguageRegistry.addName(HsbItems.itemLockHacker, "Lock Port Hacker");
 			
-//			Items.itemLockHackerEmpty = new ItemLockHacker(Config.getItemId("itemLockHackerEmpty", Defaults.ITEM_LOCK_HACKER_EMPTY)).setItemName("Lock Hacker");
-			
-			HsbItems.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setBlockName("Hsb Building Block");
-			
-			HsbItems.blockHsbDoor = new BlockHsbDoor(Config.getBlockId("blockHsbDoor", Defaults.BLOCK_HSB_DOOR));
-			
+			//Item Hsb Door
 			HsbItems.itemHsbDoor = new ItemHsbDoor(Config.getItemId("itemHsbDoor", Defaults.ITEM_HSB_DOOR)).setItemName("LockDoor");
 			LanguageRegistry.addName(HsbItems.itemHsbDoor, "HSB Door");
-	
 			
+			//Upgrades
 			HsbItems.itemHsbUpgrade = new ItemHsbUpgrade(Config.getItemId("itemHsbUpgrade", Defaults.ITEM_HSB_UPGRADE));
-			//OLD
-//			HsbItems.itemUpgradeTesla = new ItemTeslaUpgrade(Config.getItemId("itemUpgradeTesla", Defaults.ITEM_UPGRADE_TESLA)).setItemName("Item Tesla Upgrade");
-//			LanguageRegistry.addName(HsbItems.itemUpgradeTesla, "Tesla Upgrade");
-					
+			
+		//Blocks
+			//BlockHsb (unbreakable)
+			HsbItems.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setBlockName("Hsb Building Block");
+			
+			//BlockHsbDoor
+			HsbItems.blockHsbDoor = new BlockHsbDoor(Config.getBlockId("blockHsbDoor", Defaults.BLOCK_HSB_DOOR));
 		//catching Errors	
 		} catch(Exception e) {
 			FMLLog.log(Level.SEVERE, e, "Hsb Core has had a problem loading it's configuration file");
@@ -127,60 +135,63 @@ public class Config {
 	
 	public static void init(FMLInitializationEvent evt)
 	{
-		//register Blocks
+	//register Blocks
 		GameRegistry.registerBlock(HsbItems.blockHsb, ItemBlockHsb.class, "blockHsb");
 		
+	// Adding names for Blocks
+		//BlockHsb
 		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 0), "Hsb Building Block");
 		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 1), "Hsb Lock Terminal");
 		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 2), "Hsb Door Base");
 		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb, 1, 3), "Hsb Gui Access");
 		
+	//Adding names for Items
+		//Item Upgrade
 		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 0), "Tesla Upgrade");
 		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 1), "Password Upgrade");
 		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 2), "Security Level Upgrade");
 		LanguageRegistry.addName(new ItemStack(HsbItems.itemHsbUpgrade, 1, 3), "Camoflage Upgrade");
 		
-		//register TileEntitys
+	//register TileEntitys
 		GameRegistry.registerTileEntity(TileEntityHsb.class, "TileEntityHsb");
 		GameRegistry.registerTileEntity(TileEntityHsbBuilding.class, "TileEntityHsbBuilding");
 		GameRegistry.registerTileEntity(TileEntityLockTerminal.class, "TileEntityLockTerminal");
 		GameRegistry.registerTileEntity(TileEntityDoorBase.class, "TileEntityDoorBase");
 		GameRegistry.registerTileEntity(TileEntityHsbGuiAccess.class, "TileEntityHsbGuiAccess");
 		
-		//add Block Ids
+	//add Block Ids
 		ItemBlockPlacer.setBlockId(HsbItems.blockHsb.blockID);
-		
-		//Adding names...
-//		LanguageRegistry.addName(HsbItems.itemDebugTool, "Debug Tool");
-//		LanguageRegistry.addName(HsbItems.itemBlockPlacer, "Block Placer");
-//		LanguageRegistry.addName(HsbItems.itemBlockPlacerEmpty, "Block Placer");
-//		LanguageRegistry.addName(HsbItems.itemLockMonitor, "Lock Monitor");
-//		LanguageRegistry.addName(HsbItems.itemLockMonitorEmpty, "Lock Monitor");
-//		LanguageRegistry.addName(HsbItems.itemLockHacker, "Lock Port Hacker");
-//		LanguageRegistry.addName(HsbItems.itemLockHackerEmpty, "Lock Port Hacker");
-//		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb.blockID, 1, 0), "Hsb Building Block");
-//		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb.blockID, 1, 1), "Hsb Lock Terminal");
-//		LanguageRegistry.addName(new ItemStack(HsbItems.blockHsb.blockID, 1, 2), "Hsb Door Base");
-//		LanguageRegistry.addName(HsbItems.itemUpgradeTesla, "Tesla Upgrade");
 	}
 	
+	public static void postInit(FMLPostInitializationEvent evt) {
+		if(Config.checkIC2Installed()) {
+			Config.logInfo("IC2 found!!");
+		} else {
+			Config.logError("IC2 not found, this mod may not work without IC2!!!\n Please check if you installed IC2 (correctly).");
+		}
+		
+	}
+	
+	//TODO: check if ic2 is installed (eg. different crafting recipes)
 	public static void initRecipes() {
 		//Adding recipes
 		HsbItems.initIC2();
 		//Recipes
+		//Standard Recipes
 		
+		//IC2 Recipes
 		//Shapeless:
 		//Building Block
-		Ic2Recipes.addShapelessCraftingRecipe(new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.reinforcedStone, new ItemStack(Item.redstone,1));
+		addShapelessCraftingRecipe(new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.reinforcedStone, new ItemStack(Item.redstone,1));
 		//Terminal
-		Ic2Recipes.addShapelessCraftingRecipe(new ItemStack(HsbItems.blockHsb, 1, 1), new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.circuit);
+		addShapelessCraftingRecipe(new ItemStack(HsbItems.blockHsb, 1, 1), new ItemStack(HsbItems.blockHsb, 1, 0), HsbItems.circuit);
 		//HsbDoor
-		Ic2Recipes.addShapelessCraftingRecipe(new ItemStack(HsbItems.itemHsbDoor, 1, 0), Config.getIC2Item("reinforcedDoor"), Item.redstone);
+		addShapelessCraftingRecipe(new ItemStack(HsbItems.itemHsbDoor, 1, 0), Config.getIC2Item("reinforcedDoor"), Item.redstone);
 		
 		//Shaped:
 		
 		//Lock Monitor(Charge-aware)
-		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemLockMonitor, 1), new Object[] 
+		addCraftingRecipe(new ItemStack(HsbItems.itemLockMonitor, 1), new Object[] 
 			{
 				"ICI", "IGI", " B ", 
 				Character.valueOf('B'), HsbItems.battery, 
@@ -190,7 +201,7 @@ public class Config {
 			});
 		
 		//Lock Monitor(Empty)
-		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemLockMonitor, 1), new Object[] 
+		addCraftingRecipe(new ItemStack(HsbItems.itemLockMonitor, 1), new Object[] 
 			{
 				"ICI", "IGI", " B ", 
 				Character.valueOf('B'), HsbItems.battery_empty, 
@@ -200,7 +211,7 @@ public class Config {
 			});
 		
 		//Lock Hacker(Charge-aware)
-		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemLockHacker, 1), new Object[] 
+		addCraftingRecipe(new ItemStack(HsbItems.itemLockHacker, 1), new Object[] 
 			{
 				"IEI", "LML", "RAR", 
 				Character.valueOf('E'), Item.enderPearl, 
@@ -212,7 +223,7 @@ public class Config {
 			});
 		
 		//Block Placer(Charge-aware)
-		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), new Object[] 
+		addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), new Object[] 
 			{
 				"I I", "ICI", " B ", 
 				Character.valueOf('B'), HsbItems.battery, 
@@ -221,7 +232,7 @@ public class Config {
 			});
 		
 		//Block Placer(Empty)
-		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), new Object[] 
+		addCraftingRecipe(new ItemStack(HsbItems.itemBlockPlacer, 1), new Object[] 
 			{
 				"I I", "ICI", " B ", 
 				Character.valueOf('B'), HsbItems.battery_empty, 
@@ -230,7 +241,7 @@ public class Config {
 			});
 		
 		//Tesla Upgrade
-		Ic2Recipes.addCraftingRecipe(new ItemStack(HsbItems.itemHsbUpgrade, 1, 0), new Object[] 
+		addCraftingRecipe(new ItemStack(HsbItems.itemHsbUpgrade, 1, 0), new Object[] 
 			{
 				"   ", "CTC", "   ", 
 				Character.valueOf('T'), Config.getIC2Item("teslaCoil"), 
@@ -238,6 +249,32 @@ public class Config {
 			});
 		
 	}
+	
+	/**
+	 * shaped recipe
+	 * @param result
+	 * @param args
+	 */
+	private static void addCraftingRecipe(ItemStack result, Object... args) {
+		if(Config.ic2Available) {
+			Ic2Recipes.addCraftingRecipe(result, args);
+		} else {
+//			GameRegistry.addRecipe(result, args);
+		}
+	}
+	/**
+	 * shapeless recipe
+	 * @param result
+	 * @param args
+	 */
+	private static void addShapelessCraftingRecipe(ItemStack result, Object... args) {
+		if(Config.ic2Available) {
+			Ic2Recipes.addShapelessCraftingRecipe(result, args);
+		} else {
+//			GameRegistry.addShapelessRecipe(result, args);
+		}
+	}
+
 	
     public static int getBlockId(String name, int defaultId)//BlockIDs
     {
@@ -251,6 +288,13 @@ public class Config {
     {
     	return ic2.api.Items.getItem(name);
     }
+    public static int getIC2ItemId(String name) {
+    	ItemStack i = getIC2Item(name);
+    	if(i != null) {
+    		return i.itemID;
+    	}
+    	return -1;
+    }
     public static void logDebug(String s) {
     	if(DEBUG) {
     		FMLLog.info("[HSB]" + s);
@@ -262,6 +306,10 @@ public class Config {
     
     public static void logInfo(String s) {
 		FMLLog.info("[HSB]" + s);
+    }
+    
+    private static boolean checkIC2Installed() {
+    	return Config.ic2Available = Loader.isModLoaded("IC2");
     }
 
 }

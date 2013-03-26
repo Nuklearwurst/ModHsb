@@ -1,4 +1,4 @@
-package hsb.api;
+package hsb.api.upgrade;
 
 /**
  * has to be implemented by every Item that is an upgrade

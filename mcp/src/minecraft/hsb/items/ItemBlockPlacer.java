@@ -108,11 +108,13 @@ public class ItemBlockPlacer extends Item
 			    	TileEntity te = world.getBlockTileEntity(x, y, z);
 			    	if(te instanceof TileEntityHsb)
 			    	{
-			    		if(((TileEntityHsb) te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsb) te).locked)
+			    		//check for port and lock
+			    		if(((TileEntityHsb) te).getPort() != itemstack.getTagCompound().getInteger("port") || ((TileEntityHsb) te).locked)
 			    		{
 			    			return true;
 			    		}
 			    		Config.logDebug("Removing Block at: " + x + ", " + y + ", " + z);
+			    		//removing block
 			    		if(world.setBlockAndMetadataWithNotify(x, y, z, 0, 0))
 			    			HsbItems.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 			    		return true;
@@ -121,7 +123,7 @@ public class ItemBlockPlacer extends Item
 			    		te = ((BlockHsbDoor)HsbItems.blockHsbDoor).getTileEntity(world, x, y, z);
 			    		if(te != null && te instanceof TileEntityDoorBase)
 			    		{
-			    			if(((TileEntityDoorBase)te).port != itemstack.getTagCompound().getInteger("port") || ((TileEntityDoorBase) te).locked)
+			    			if(((TileEntityDoorBase)te).getPort() != itemstack.getTagCompound().getInteger("port") || ((TileEntityDoorBase) te).locked)
 			    			{
 			    				return true;
 			    			}
@@ -302,7 +304,7 @@ public class ItemBlockPlacer extends Item
 			    if(tag!=null)
 			    {
 			 	   TileEntityHsb te = ((TileEntityHsb)world.getBlockTileEntity(x, y, z));
-			 	   te.port=tag.getInteger("port");
+			 	   te.setPort(tag.getInteger("port"));
 			    }
 			}
 	

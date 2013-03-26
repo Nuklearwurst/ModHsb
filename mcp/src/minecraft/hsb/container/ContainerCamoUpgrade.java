@@ -15,6 +15,7 @@ import net.minecraft.item.ItemStack;
 public class ContainerCamoUpgrade extends Container {
 
 	public TileEntityLockTerminal te;
+	IInventory invUpgrade;
     IInventory invPlayer;
     int xPos;
     int yPos;
@@ -30,10 +31,16 @@ public class ContainerCamoUpgrade extends Container {
         this.invPlayer = entityplayer.inventory;
         this.te = te;
         this.upgrade = (UpgradeCamoflage) te.getUpgrade("Camoflage");
+        this.invUpgrade = this.upgrade;
         int reihe;
         int spalte;
         //Block Inventory
-        this.addSlotToContainer(new Slot(upgrade, 0, 34, 25));
+        if(invUpgrade!=null)
+        {
+        	this.addSlotToContainer(new Slot(invUpgrade, 0, 34, 25));
+        } else {
+        	Config.logError("InvUpgrade == null!! : ContainerCamoUpgrade l.: 42");
+        }
         
 
         // Player Inventory

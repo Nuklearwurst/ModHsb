@@ -1,5 +1,6 @@
 package hsb.tileentitys;
 
+import hsb.config.HsbItems;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
@@ -23,7 +24,9 @@ public class TileEntityHsbBuilding extends TileEntityHsb
 
 	@Override
 	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
-		return null;
+		return new ItemStack(HsbItems.blockHsb, 1, 0);
 	}
+
+
 
 }

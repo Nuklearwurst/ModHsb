@@ -1,8 +1,9 @@
-package hsb.api;
+package hsb.api.upgrade;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import hsb.network.packet.PacketHsb;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 /**
@@ -64,4 +65,5 @@ public interface IHsbUpgrade {
 	
 	//TODO inventory syncing
 	//TODO maybe new network code
+	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te);
 }

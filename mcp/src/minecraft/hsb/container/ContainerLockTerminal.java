@@ -3,7 +3,7 @@ package hsb.container;
 import hsb.SlotCharge;
 import hsb.SlotLockTerminal;
 import hsb.SlotMachineUpgrade;
-import hsb.api.IItemHsbUpgrade;
+import hsb.api.upgrade.IItemHsbUpgrade;
 import hsb.config.Config;
 import hsb.tileentitys.TileEntityLockTerminal;
 import ic2.api.IElectricItem;
@@ -49,26 +49,25 @@ public class ContainerLockTerminal extends Container {
         this.invPlayer = entityplayer.inventory;
         this.te = te;
         this.inventory = te;
-        inventory.getSizeInventory();
-//        int index = 0;
+//        inventory.getSizeInventory();
         int reihe;
         int spalte;
         if(this.isTerminal)
         {
 	        //Block Inventory
 	        //upgrade IC2
-	        this.addSlotToContainer(new SlotMachineUpgrade(te, 0, 6 -26, 51 -28));
-	        this.addSlotToContainer(new SlotMachineUpgrade(te, 1, 6 -26, 69 -28));
-	        this.addSlotToContainer(new SlotMachineUpgrade(te, 2, 6 -26, 87 -28));
-	        this.addSlotToContainer(new SlotMachineUpgrade(te, 3, 6 -26, 105 -28));
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 0, 6, 51));// x -26 : y - 28 (OLD, fixed)
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 1, 6, 69));
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 2, 6, 87));
+	        this.addSlotToContainer(new SlotMachineUpgrade(te, 3, 6, 105));
 	        //charge
-	        this.addSlotToContainer(new SlotCharge(te, 4, 34 -26, 114 -28));
+	        this.addSlotToContainer(new SlotCharge(te, 4, 34, 114));
 	        //4
         } else {
             //Block Inventory
             for (reihe = 0; reihe < 10; ++reihe)
             {
-                this.addSlotToContainer(new SlotLockTerminal(inventory, reihe + 5, 25 -26 + reihe * 18, 10 - 28));
+                this.addSlotToContainer(new SlotLockTerminal(inventory, reihe + 5, 25 + reihe * 18, 10));
             }
             //14
         }
@@ -78,7 +77,7 @@ public class ContainerLockTerminal extends Container {
         {
             for (spalte = 0; spalte < 9; ++spalte)
             {
-                this.addSlotToContainer(new Slot(invPlayer, spalte + reihe * 9 + 9, 8 + spalte * 18, 140 - 28 + reihe * 18));
+                this.addSlotToContainer(new Slot(invPlayer, spalte + reihe * 9 + 9, 34 + spalte * 18, 140 + reihe * 18)); //x: 8 || y: 140
             }
         }
         //41
@@ -86,7 +85,7 @@ public class ContainerLockTerminal extends Container {
         //Hotbar
         for (reihe = 0; reihe < 9; ++reihe)
         {
-            this.addSlotToContainer(new Slot(invPlayer, reihe, 8 + reihe * 18, 198 - 28));
+            this.addSlotToContainer(new Slot(invPlayer, reihe, 34 + reihe * 18, 198));
         }
         //50
         

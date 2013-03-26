@@ -2,13 +2,18 @@ package hsb.tileentitys;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+
+import cpw.mods.fml.common.FMLLog;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 import ic2.api.Direction;
@@ -17,14 +22,17 @@ import ic2.api.IElectricItem;
 import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
-import ic2.api.network.NetworkHelper;
+import hsb.network.NetworkManager;
+import hsb.LockManager;
 import hsb.ModHsb;
-import hsb.api.IHsbUpgrade;
-import hsb.api.IItemHsbUpgrade;
-import hsb.api.ILockTerminal;
+import hsb.api.lock.ILockTerminal;
+import hsb.api.lock.ILockable;
+import hsb.api.upgrade.IHsbUpgrade;
+import hsb.api.upgrade.IItemHsbUpgrade;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
+import hsb.network.packet.PacketUpgradeCamo;
 
 public class TileEntityLockTerminal extends TileEntityHsb implements
 		IEnergySink, IInventory, ILockTerminal {
@@ -56,7 +64,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	//private
 	private List<IHsbUpgrade> upgrades;
 	//used to sync buttons
-	public String buttonNumber[] = {"", "", "", "", "", "", "", "", "", ""};
+//	public String buttonNumber[] = {"", "", "", "", "", "", "", "", "", ""};
 	
 	//Camo
 
@@ -90,7 +98,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 	public boolean addToInventory(ItemStack item, int number)
 	{
-		for(int i = 5; i <= 15; i++)
+		for(int i = 5; i < this.getSizeInventory(); i++)
 		{
 			ItemStack slot = this.getStackInSlot(i);
 			if(slot == null)
@@ -176,11 +184,13 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				this.blocksInUse = 0;
 			}
 			System.out.println("emitting: side: " + side + " lock: " + lock
-					+ " pass: " + pass + " port: " + port);
+					+ " pass: " + getPass() + " port: " + getPort());
 			this.locked = lock;
 			this.blocksInUse++;
-			if (this.transferSignal_do(this, lock, pass, port, side)) {
-
+			//if (this.transferSignal_do(this, lock, pass, port, side)) {
+			
+			//transfersignal
+			if(LockManager.tranferSignal(this, this, lock, getPass(), getPort(), side)) {
 				this.xTer = this.xCoord;
 				this.yTer = this.yCoord;
 				this.zTer = this.zCoord;
@@ -190,7 +200,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			}
 		}
 		if (!Config.ECLIPSE)
-			NetworkHelper.updateTileEntityField(this, "locked");
+			NetworkManager.updateTileEntityField(this, "locked");
 		return true;
 	}
 
@@ -221,7 +231,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public List<String> getNetworkedFields() {
 		List<String> list = super.getNetworkedFields();
 	    list.add("upgradeActive");
-	    list.add("buttonNumber");
+//	    list.add("buttonNumber");
 	    list.add("camoId");
 	    list.add("camoMeta");
 	    return list;
@@ -267,6 +277,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				return upgrade;
 			}
 		}
+		Config.logDebug("No Upgrade found with id: " + id);
 		return null;
 	}
 
@@ -363,10 +374,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			//variable to track index of Upgrade Arrays
 			int index = 0;
 			
-			for(int i = 0; i<this.buttonNumber.length ; i++)
-			{
-				this.buttonNumber[i] = "";
-			}
+//			for(int i = 0; i<this.buttonNumber.length ; i++)
+//			{
+//				this.buttonNumber[i] = "";
+//			}
 			
 			
 			this.energyUse = 0.25;
@@ -378,20 +389,22 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				{
 					continue;
 				}
+				//check for ic2 installation
+				if(Config.ic2Available) {
+					if(stack.isItemEqual(Config.getIC2Item("transformerUpgrade")))
+					{
+						this.transformerUpgrades = this.transformerUpgrades + stack.stackSize;
+					}
+						
+					if(stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")))
+					{
+						this.storageUpgrades = this.storageUpgrades + stack.stackSize;
+					}
 				
-				if(stack.isItemEqual(Config.getIC2Item("transformerUpgrade")))
-				{
-					this.transformerUpgrades = this.transformerUpgrades + stack.stackSize;
-				}
-					
-				if(stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")))
-				{
-					this.storageUpgrades = this.storageUpgrades + stack.stackSize;
-				}
-			
-				if(stack.isItemEqual(Config.getIC2Item("overclockerUpgrade")))
-				{
-					this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
+					if(stack.isItemEqual(Config.getIC2Item("overclockerUpgrade")))
+					{
+						this.overclockerUpgrades = this.overclockerUpgrades + stack.stackSize;
+					}
 				}
 				
 				//register Upgrades (IHsbUpgrade/IItemHsbUpgrade)
@@ -404,10 +417,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 					//updating existing  Upgrade
 						int upgradeId = this.getUpgradeId(upgrade.getUniqueId());
 						this.upgradeCount[upgradeId] = this.upgradeCount[upgradeId] + stack.stackSize;
-						Config.logDebug("updated: " + stack + "__" + this.upgradeCount[upgradeId] + "  " + upgradeId + "   isremote: " + worldObj.isRemote + "    buttonNumber: " + buttonNumber[upgradeId]);
+						Config.logDebug("updated: " + upgrade + "__" + this.upgradeCount[upgradeId] + "  " + upgradeId + "   isremote: " + worldObj.isRemote/* + "    buttonNumber: " + buttonNumber[upgradeId]*/);
 					} else {
 					//adding new Upgrade
-						this.buttonNumber[index] = upgrade.getButtonName();
+//						this.buttonNumber[index] = upgrade.getButtonName();
 						this.upgrades.add(upgrade);
 						this.upgradeCount[index] = stack.stackSize;
 						if(oldData.contains(upgrade)){
@@ -417,7 +430,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 							Config.logDebug("No prior Upgrade found!");
 							this.upgradeActive[index] = upgrade.isEnabledByDefault();
 						}
-						Config.logDebug("added: " + stack + "__" + this.upgradeCount[index] + "  " + index + "   isremote: " + worldObj.isRemote);
+						Config.logDebug("added: " + upgrade + "_|_" + this.upgradeCount[index] + "  " + index + "   isremote: " + worldObj.isRemote);
 						index++;
 					}
 				}
@@ -443,7 +456,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				this.maxInput = 2048;
 			}
 			this.updateUpgrades();
-			NetworkHelper.updateTileEntityField(this, "buttonNumber");
+//			NetworkManager.updateTileEntityField(this, "buttonNumber");
 			if(this.energyStored > (this.extraStorage + TileEntityLockTerminal.defaultEnergyStorage))
 			{
 				this.energyStored = (this.extraStorage + TileEntityLockTerminal.defaultEnergyStorage);
@@ -464,8 +477,11 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				if(id != -1)
 				{
 					this.upgradeActive[id] = ! this.upgradeActive[id];
-					NetworkHelper.updateTileEntityField(this, "upgradeActive");
+					NetworkManager.updateTileEntityField(this, "upgradeActive");
+					Config.logDebug("Camo Upgrade Activated!");
 					return;
+				} else {
+					Config.logError("Camo Upgrade Not found but got event!");
 				}
 			}
 		case -2:
@@ -490,11 +506,11 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 				upgrade.onButtonClicked(this, player, number);
 				this.updateUpgrades();
-				NetworkHelper.updateTileEntityField(this, "upgradeActive");
-				NetworkHelper.updateTileEntityField(this, "upgradeCount");
-				NetworkHelper.updateTileEntityField(this, "buttonNumber");
-				NetworkHelper.updateTileEntityField(this, "camoId");
-				NetworkHelper.updateTileEntityField(this, "camoMeta");
+				NetworkManager.updateTileEntityField(this, "upgradeActive");
+				NetworkManager.updateTileEntityField(this, "upgradeCount");
+//				NetworkManager.updateTileEntityField(this, "buttonNumber");
+				NetworkManager.updateTileEntityField(this, "camoId");
+				NetworkManager.updateTileEntityField(this, "camoMeta");
 
 			} else {
 				System.out.println("Upgrade == null!" + number);
@@ -509,6 +525,10 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		super.onNetworkUpdate(field);
 	}
 
+	@Override 
+	public void onRemove(World world, int x, int y, int z, int par5, int par6) {
+		super.onRemove(world, x, y, z, par5, par6);
+	}
 	@Override
 	public void openChest() {}
 	
@@ -572,7 +592,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		this.onInventoryChanged();
 	}
 	@Override
-	public boolean transferSignal(int side, TileEntityLockTerminal te,
+	public boolean receiveSignal(int side, ILockTerminal te,
 			boolean value, String pass, int port) {
 		if (this.worldObj.isRemote) {
 			return true;
@@ -581,7 +601,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		if (this.locked && !value) {
 			// if a tile is broken
 			if (te == null) {
-				if (port == this.port && pass == this.pass) {
+				if (port == this.getPort() && pass == this.getPass()) {
 					this.locked = false;
 					this.needReconnect = true;
 					this.blocksInUse = 0;
@@ -590,7 +610,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			}
 			// TODO if a lock signal was send by a terminal
 		}
-		return super.transferSignal(side, te, value, pass, port);
+		return super.receiveSignal(side, te, value, pass, port);
 	}
 
 	@Override
@@ -694,17 +714,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		nbttagcompound.setInteger("blocksInUse", this.blocksInUse);
 	}
 
-	@Override
-	public int getPort() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
-	@Override
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	
 	@Override
@@ -716,6 +726,54 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	@Override
 	public int getCamoBlockId() {
 		return this.camoId;
+	}
+	
+	public void handleUpgradePacket(PacketUpgradeCamo packet, int itemId, int meta, int upgradeId) 
+	{
+		IHsbUpgrade upgrade = null;
+		try {
+			upgrade = ((IItemHsbUpgrade)Item.itemsList[itemId]).getUpgrade(meta);
+		}
+		catch(Exception e) {
+			FMLLog.log(Level.SEVERE, e, "Hsb received an invalid Packet");
+		}
+		
+		if ( this.upgrades.get(upgradeId) == null )
+		{
+			this.upgrades.add(upgradeId, upgrade);
+		}
+		this.upgradeActive[upgradeId] = packet.active;
+		upgrades.get(upgradeId).handlePacket(packet, this);
+	}
+	
+	public void setInventory(ItemStack[] stack) {
+		this.mainInventory = stack;
+		this.onInventoryChanged();
+	}
+	
+	public String getUpgradeButtonText(int id) {
+		IHsbUpgrade upgrade = this.getUpgrade(id);
+		return upgrade== null ? "" : upgrade.getButtonName();
+	}
+
+	@Override
+	public TileEntity getTileEntity() {
+		return this;
+	}
+
+	@Override
+	public void addBlockToTileEntity(ILockable te) {
+		this.blocksInUse++;
+	}
+
+	@Override
+	public int getTesla() {
+		if(this.getUpgradeId("Tesla") != -1) {
+			if(this.upgradeActive[this.getUpgradeId("Tesla")]) {
+				return this.upgradeCount[this.getUpgradeId("Tesla")];
+			}
+		}
+		return 0;
 	}
 
 

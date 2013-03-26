@@ -1,6 +1,5 @@
 package hsb.gui;
 
-import ic2.api.network.NetworkHelper;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -9,12 +8,13 @@ import net.minecraft.inventory.Container;
 
 import org.lwjgl.opengl.GL11;
 
+import hsb.ModHsb;
+import hsb.config.Config;
+import hsb.network.NetworkManager;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class GuiCamoUpgrade extends GuiContainer
 {
-	protected int xSize;
-    protected int ySize;
     protected String name = "HSB Lock Options";
     private int xPos;
     private int yPos;
@@ -28,14 +28,14 @@ public class GuiCamoUpgrade extends GuiContainer
         xSize = 228;
         ySize = 222;
         this.te = te;
-//        int id = te.getUpgradeId("Camoflague");
-//        if(id != -1)
-//        {
-//        	active = te.upgradeActive[id];
-//        } else {
-//            this.mc.displayGuiScreen((GuiScreen)null);
-//            this.mc.setIngameFocus();
-//        }
+        int id = te.getUpgradeId("Camoflage");
+        if(id != -1)
+        {
+        	active = te.upgradeActive[id];
+        } else {
+            Config.logError("UpgradeNotFound!!");
+            entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+        }
     }
     @SuppressWarnings("unchecked")
 	public void initGui()
@@ -62,10 +62,10 @@ public class GuiCamoUpgrade extends GuiContainer
                 this.mc.setIngameFocus();
                 break;
             case 1:
-            	NetworkHelper.initiateClientTileEntityEvent(te, -20);
+            	NetworkManager.initiateClientTileEntityEvent(te, -20);
             	break;
             case 2:
-            	NetworkHelper.initiateClientTileEntityEvent(te, -2);
+            	NetworkManager.initiateClientTileEntityEvent(te, -2);
             	break;
         }
         super.actionPerformed(guibutton);

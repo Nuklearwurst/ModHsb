@@ -1,6 +1,6 @@
 package hsb.gui;
 
-import ic2.api.network.NetworkHelper;
+import hsb.network.NetworkManager;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -12,14 +12,12 @@ import net.minecraft.inventory.Container;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import hsb.network.PacketTerminalUpdate;
+import hsb.network.packet.PacketTerminalUpdate;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class GuiLockTerminalOptions extends GuiContainer
 {
     private GuiTextField textField;
-	protected int xSize;
-    protected int ySize;
     protected String name = "HSB Lock Options";
     protected TileEntityLockTerminal te;
     private EntityPlayer entityplayer;
@@ -37,7 +35,7 @@ public class GuiLockTerminalOptions extends GuiContainer
         this.entityplayer = entityplayer;
         xSize = 228;
         ySize = 222;
-        port = te.port;
+        port = te.getPort();
         lastPassLength = te.extraPassLength;
     }
     @SuppressWarnings("unchecked")
@@ -58,7 +56,7 @@ public class GuiLockTerminalOptions extends GuiContainer
         this.textField = new GuiTextField(this.fontRenderer,  xPos + xSize / 2 - 70, yPos + 90, 140, 20);
         this.textField.setMaxStringLength(TileEntityLockTerminal.defaultPassLength + te.extraPassLength);
         this.textField.setFocused(false);
-        this.textField.setText(te.pass);
+        this.textField.setText(te.getPass());
         
         
 
@@ -93,7 +91,7 @@ public class GuiLockTerminalOptions extends GuiContainer
                 this.updatePort(+10);
                 break;
             case 5:
-            	NetworkHelper.initiateClientTileEntityEvent(te, -2);
+            	NetworkManager.initiateClientTileEntityEvent(te, -2);
             	break;
         }
         super.actionPerformed(guibutton);
@@ -163,8 +161,8 @@ public class GuiLockTerminalOptions extends GuiContainer
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
-        te.pass = textField.getText();
-        te.port = this.port;
+        te.setPass(textField.getText());
+        te.setPort(this.port);
     	PacketTerminalUpdate packet = new PacketTerminalUpdate(te, textField.getText(), this.port);
     	((EntityClientPlayerMP)entityplayer).sendQueue.addToSendQueue(packet.getPacket());  
         super.onGuiClosed();

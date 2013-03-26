@@ -1,5 +1,6 @@
-package hsb.network;
+package hsb.network.packet;
 
+import hsb.network.PacketIds;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 import java.io.DataInputStream;
@@ -38,8 +39,8 @@ public class PacketTerminalUpdate extends PacketPosition{
 		te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
 		if (te != null && te instanceof TileEntityLockTerminal)
 		{
-			((TileEntityLockTerminal)te).pass = pass;
-			((TileEntityLockTerminal)te).port = port;
+			((TileEntityLockTerminal)te).setPass(pass);
+			((TileEntityLockTerminal)te).setPort(port);
 			te.onInventoryChanged();
 		}
 		

@@ -1,6 +1,6 @@
 package hsb.gui;
 
-import ic2.api.network.NetworkHelper;
+import hsb.network.NetworkManager;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -13,8 +13,6 @@ import hsb.tileentitys.TileEntityLockTerminal;
 
 public class GuiLockTerminal extends GuiContainer
 {
-	protected int xSize;
-    protected int ySize;
     protected String name = "HSB Lock";
     protected TileEntityLockTerminal te;
     private int xPos;
@@ -78,10 +76,11 @@ public class GuiLockTerminal extends GuiContainer
         		bPosY = 23; // one time bPosY + 20
         	}
         	bPosX= (i % 5) * buttonSize + 4;
-        	String button = te.buttonNumber[i];
+        	String button = te.getUpgradeButtonText(i);
+        	//String button = te.buttonNumber[i];
         	if(button != null && button != "" && button.length() > 0)
         	{
-        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, te.buttonNumber[i]));
+        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, te.getUpgrade(i).getButtonName()/*te.buttonNumber[i]*/));
         	}
         }
     }
@@ -97,10 +96,10 @@ public class GuiLockTerminal extends GuiContainer
                 break;
             case 1:
 			controlList.get(1);
-                NetworkHelper.initiateClientTileEntityEvent(te, 1);
+                NetworkManager.initiateClientTileEntityEvent(te, 1);
                 break;
             case 2: 
-            	NetworkHelper.initiateClientTileEntityEvent(te, -1);
+            	NetworkManager.initiateClientTileEntityEvent(te, -1);
             	break;
         }
         //button 0 - 9 (3 - 12)
@@ -108,7 +107,7 @@ public class GuiLockTerminal extends GuiContainer
         {
     		//button : 0 - 9
     		//events: -3 - -12
-    		NetworkHelper.initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
+    		NetworkManager.initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
         }
         super.actionPerformed(guibutton);
     }

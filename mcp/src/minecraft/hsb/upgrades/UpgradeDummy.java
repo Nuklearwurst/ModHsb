@@ -3,8 +3,9 @@ package hsb.upgrades;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import hsb.api.IHsbUpgrade;
+import hsb.api.upgrade.IHsbUpgrade;
 import hsb.config.HsbItems;
+import hsb.network.packet.PacketHsb;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class UpgradeDummy implements IHsbUpgrade {
@@ -55,5 +56,8 @@ public class UpgradeDummy implements IHsbUpgrade {
 	public boolean isEnabledByDefault() {
 		return true;
 	}
+	
+	@Override
+	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {}
 
 }

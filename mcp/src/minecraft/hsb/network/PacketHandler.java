@@ -1,6 +1,11 @@
 package hsb.network;
 
 
+import hsb.network.packet.PacketItemUpdate;
+import hsb.network.packet.PacketTerminalInvUpdate;
+import hsb.network.packet.PacketTerminalUpdate;
+import hsb.network.packet.PacketUpgradeCamo;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
@@ -57,6 +62,16 @@ public class PacketHandler
 				//TODO create packet
 				PacketUpgradeCamo packetCamo = new PacketUpgradeCamo();
 				packetCamo.onPacketData(data, player);
+				break;
+			}
+			case PacketIds.TILE_UPGRADEINV_UPDATE:
+			{
+				//From Server to Client
+				//TODO create packet
+				System.out.println("Hsb: PacketHandler: PacketId == TERMINALINV_UPDATE!");
+
+				PacketTerminalInvUpdate packetInv = new PacketTerminalInvUpdate();
+				packetInv.onPacketData(data, player);
 				break;
 			}
 				

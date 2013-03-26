@@ -1,6 +1,6 @@
 package hsb.gui;
 
-import ic2.api.network.NetworkHelper;
+import hsb.network.NetworkManager;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -14,7 +14,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import hsb.config.Config;
-import hsb.network.PacketItemUpdate;
+import hsb.network.packet.PacketItemUpdate;
 import hsb.tileentitys.TileEntityHsb;
 
 public class GuiBlockPlacer extends GuiScreen {
@@ -144,8 +144,8 @@ public class GuiBlockPlacer extends GuiScreen {
 	    	{
 	    		updateNBTTag();
 	    	} else {
-	    		te.port = this.port;
-	    		NetworkHelper.initiateClientTileEntityEvent(te, port);
+	    		te.setPort(this.port);
+	    		NetworkManager.initiateClientTileEntityEvent(te, port);
 	    	}
 	        super.onGuiClosed();
 	    }

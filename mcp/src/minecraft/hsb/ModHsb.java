@@ -70,6 +70,9 @@ public class ModHsb{
 	
 	@PostInit
 	void postInit(FMLPostInitializationEvent evt) {
+		
+		//check for ic2 and register recipes
+		Config.postInit(evt);
 		Config.initRecipes();
 		Config.logInfo("Hsb Version: "+ version + " loaded.");
 	}

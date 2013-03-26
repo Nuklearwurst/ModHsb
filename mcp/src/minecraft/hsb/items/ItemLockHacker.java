@@ -70,7 +70,7 @@ public class ItemLockHacker extends Item
 					if(ElectricItem.canUse(itemstack, energyUse))
 					{
 						ElectricItem.use(itemstack, energyUse, entityplayer);
-						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).getPort());
 					} else {
 						entityplayer.sendChatToPlayer("Not enough energy for operation!");
 					}
@@ -79,7 +79,7 @@ public class ItemLockHacker extends Item
 					if(ElectricItem.canUse(itemstack, Config.energyHsbMonitor))
 					{
 						ElectricItem.use(itemstack, Config.energyHsbMonitor, entityplayer);
-						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).getPort());
 					} else {
 						entityplayer.sendChatToPlayer("Not enough energy for operation!");
 					}

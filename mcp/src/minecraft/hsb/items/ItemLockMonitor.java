@@ -70,7 +70,7 @@ public class ItemLockMonitor extends Item
 					if(ElectricItem.canUse(itemstack, Config.energyHsbMonitor))
 					{
 						ElectricItem.use(itemstack, Config.energyHsbMonitor, entityplayer);
-						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).port);
+						entityplayer.sendChatToPlayer("The Port is: " + ((TileEntityHsb) te).getPort());
 					} else {
 						entityplayer.sendChatToPlayer("Not enough energy for operation!");
 					}

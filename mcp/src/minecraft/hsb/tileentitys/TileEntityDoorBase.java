@@ -11,9 +11,9 @@ public class TileEntityDoorBase extends TileEntityHsbBuilding {
 	
 	public void onDoorBreak(World world, int x, int y, int z) {
 		world.setBlockMetadataWithNotify(xCoord, yCoord, zCoord, 0);
-		int port = this.port;
+		int port = this.getPort();
 		world.setBlockTileEntity(xCoord, yCoord, zCoord, new TileEntityHsbBuilding());
-		((TileEntityHsbBuilding)world.getBlockTileEntity(xCoord, yCoord, zCoord)).port = port;
+		((TileEntityHsbBuilding)world.getBlockTileEntity(xCoord, yCoord, zCoord)).setPort(port);
 		world.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	@Override

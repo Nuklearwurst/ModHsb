@@ -1,6 +1,6 @@
 package hsb;
 
-import hsb.api.IItemHsbUpgrade;
+import hsb.api.upgrade.IItemHsbUpgrade;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;

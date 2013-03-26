@@ -1,18 +1,20 @@
 package hsb.upgrades;
 
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import net.minecraft.block.Block;
-import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import hsb.ModHsb;
-import hsb.api.IHsbUpgrade;
+import hsb.api.upgrade.IHsbUpgrade;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
-import hsb.network.PacketUpgradeCamo;
+import hsb.network.packet.PacketHsb;
+import hsb.network.packet.PacketUpgradeCamo;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
@@ -44,9 +46,10 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 			player.sendChatToPlayer("WorldObj == null!!");
 			return;
 		}
-		
+		//Can't cast??
 		PacketUpgradeCamo packet = new PacketUpgradeCamo();
-		((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packet.getPacket()); 
+		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)player);
+//		((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packet.getPacket()); 
 		player.openGui(ModHsb.instance, GuiHandler.GUI_UPGRADE_CAMOFLAGE, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
 		
 	}
@@ -63,7 +66,7 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 
 	@Override
 	public String getUniqueId() {
-		return "Camoflague";
+		return "Camoflage";
 	}
 
 	@Override
@@ -74,24 +77,26 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
         {
             NBTTagCompound nbttag = new NBTTagCompound();
             this.itemSlot.writeToNBT(nbttag);
-            nbttagcompound.setTag("Items", nbttag);
-        }		
+            nbttagcompound.setTag("camoInv", nbttag);
+        } else {
+        	Config.logDebug("itemslot empty!");
+        }
 	}
 
 	@Override
 	public void onTileLoad(NBTTagCompound nbttagcompound,
 			TileEntityLockTerminal te) {
 		//Items
-		NBTTagCompound nbttag = (NBTTagCompound) nbttagcompound.getTag("Items");
-		if(nbttag != null)
-			this.itemSlot = ItemStack.loadItemStackFromNBT(nbttag);		
+		NBTTagCompound nbttag = (NBTTagCompound) nbttagcompound.getTag("camoInv");
+		if(nbttag != null) {
+			this.itemSlot = ItemStack.loadItemStackFromNBT(nbttag);
+		} else {
+			Config.logDebug("nbttag not found!");
+		}
 	}
 
 	@Override
-	public void onGuiOpen(TileEntityLockTerminal te) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void onGuiOpen(TileEntityLockTerminal te) {}
 
 	@Override
 	public boolean isEnabledByDefault() {
@@ -181,7 +186,9 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 	}
 
 	@Override
-	public void onInventoryChanged() {}
+	public void onInventoryChanged() {
+		
+	}
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer player) {
@@ -193,5 +200,14 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 
 	@Override
 	public void closeChest() {}
+
+	@Override
+	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {
+		PacketUpgradeCamo p = (PacketUpgradeCamo) packet;
+		te.camoId = p.camoBlockId;
+		te.camoMeta = p.camoMeta;
+		
+		
+	}
 
 }

@@ -5,9 +5,12 @@ import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
 import hsb.ModHsb;
 import hsb.Utils;
+import hsb.api.lock.ILockTerminal;
+import hsb.api.lock.ILockable;
 import hsb.config.Config;
 import hsb.gui.GuiHandler;
 import hsb.items.ItemBlockPlacer;
+import hsb.network.packet.PacketTerminalInvUpdate;
 import hsb.tileentitys.TileEntityDoorBase;
 import hsb.tileentitys.TileEntityHsb;
 import hsb.tileentitys.TileEntityHsbBuilding;
@@ -19,6 +22,8 @@ import ic2.api.Items;
 import java.util.List;
 import java.util.Random;
 
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -73,7 +78,7 @@ public class BlockHsb extends BlockContainer {
     	//Items
     	if(entityplayer.getCurrentEquippedItem()!=null) {
     		if(!Config.ECLIPSE)
-    			if(entityplayer.getCurrentEquippedItem().itemID == Items.getItem("wrench").itemID || entityplayer.getCurrentEquippedItem().itemID == Items.getItem("electricWrench").itemID)
+    			if(entityplayer.getCurrentEquippedItem().itemID == Config.getIC2ItemId("wrench") || entityplayer.getCurrentEquippedItem().itemID == Config.getIC2ItemId("electricWrench"))
     				return false;
     		if(entityplayer.getCurrentEquippedItem().getItem() instanceof ItemBlockPlacer)
     			return false;
@@ -83,10 +88,17 @@ public class BlockHsb extends BlockContainer {
             case 0:
             	return false;
             case 1:
+            {
             	//TODO add pass protected Gui (Upgrades)
-            	world.getBlockTileEntity(i, j, k).onInventoryChanged();
-                entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
+            	TileEntityLockTerminal te = (TileEntityLockTerminal) world.getBlockTileEntity(i, j, k);
+            	te.onInventoryChanged();
+            	if(!world.isRemote) {
+            		PacketTerminalInvUpdate packet = new PacketTerminalInvUpdate(te);
+            		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)entityplayer);
+            		entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
+            	}
                 return true;
+            }
             case 2:
             	return false;
             case 3:
@@ -151,13 +163,12 @@ public class BlockHsb extends BlockContainer {
         	return 0;
         case 1: 
         	return 1;
-        case 2:
+		case 2:
         	return 0;
         case 3:
         	return 3;
-        default: 
-        	return 0;
         }
+        return 0;
     }
 	@SideOnly(Side.CLIENT)
 	@Override
@@ -287,11 +298,11 @@ public class BlockHsb extends BlockContainer {
 	    	TileEntity te = world.getBlockTileEntity(x, y, z);
 	    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
 	    	{
-	    		TileEntityLockTerminal terminal = ((TileEntityHsb)te).getConnectedTerminal();
-	    		if(terminal != null && terminal.getUpgradeId("tesla")!=-1)
+	    		ILockTerminal terminal = ((ILockable)te).getConnectedTerminal();
+	    		if(terminal != null)
 	    		{
-	    			int tesla = terminal.upgradeCount[terminal.getUpgradeId("tesla")];
-	    			if(tesla > 0 && terminal.upgradeActive[terminal.getUpgradeId("tesla")])
+	    			int tesla = terminal.getTesla();
+	    			if(tesla > 0)
 	    			{
 	    				player.sendChatToPlayer("Don't do that!");
 	    				player.attackEntityFrom(DamageSource.magic, tesla);
