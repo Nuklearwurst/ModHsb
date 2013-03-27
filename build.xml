@@ -14,7 +14,7 @@
 
 	<target name="build">
 		<copy todir="${dir.development}\mcp\src\minecraft">
-			<fileset dir="${dir.development}\source\ModHsb\mcp\src\minecraft" />
+			<fileset dir="${dir.development}\source\ModHsb\common" />
             <fileset dir="${dir.development}\api\IC2_api" />
 		</copy>
 		<replace dir="${dir.development}\mcp\src\minecraft" token="@VERSION@" value="${release.mod.version}" />
@@ -62,7 +62,7 @@
 		<jar destfile="${dir.share}\${release.minecraft.version}\${release.mod.version}\hsb-universal-${release.mod.version}.jar">
 			<fileset dir="${dir.development}\mcp\src\common\"	includes="mcmod.info" />
 			<fileset dir="${dir.development}\mcp\reobf\minecraft" />
-			<fileset dir="${dir.development}\source\Hsb_Ressources" />
+			<fileset dir="${dir.development}\source\ModHsb\resources" />
 		</jar>
 
 		<!-- Clean up the MCP source now that we are done -->
@@ -77,11 +77,11 @@
 		<antcall target="reobfuscate" />
 
 		<!-- Build the jar -->
-		<mkdir dir="${dir.release}\${release.minecraft.version}\${release.mod.version}" />
-		<jar destfile="${dir.release}\${release.minecraft.version}\${release.mod.version}\hsb-universal-${release.mod.version}.jar">
+		<mkdir dir="${dir.release}\${release.minecraft.version}\ModHsb" />
+		<jar destfile="${dir.release}\${release.minecraft.version}\ModHsb\hsb-universal-${release.mod.version}.jar">
 			<fileset dir="${dir.development}\mcp\src\minecraft\" includes="mcmod.info" />
 			<fileset dir="${dir.development}\mcp\reobf\minecraft" />
-			<fileset dir="${dir.development}\source\Hsb_Ressources" />
+			<fileset dir="${dir.development}\source\ModHsb\resources" />
 		</jar>
 
 		<!-- Clean up the MCP source now that we are done -->
