@@ -91,7 +91,7 @@ public class GuiLockTerminalOptions extends GuiContainer
                 this.updatePort(+10);
                 break;
             case 5:
-            	NetworkManager.initiateClientTileEntityEvent(te, -2);
+            	NetworkManager.getInstance().initiateClientTileEntityEvent(te, -2);
             	break;
         }
         super.actionPerformed(guibutton);

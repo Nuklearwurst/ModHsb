@@ -204,10 +204,11 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 	@Override
 	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {
 		PacketUpgradeCamo p = (PacketUpgradeCamo) packet;
-		te.camoId = p.camoBlockId;
-		te.camoMeta = p.camoMeta;
+		this.itemSlot = p.inv;
+		this.updateUpgrade(te);
 		
 		
 	}
+	
 
 }

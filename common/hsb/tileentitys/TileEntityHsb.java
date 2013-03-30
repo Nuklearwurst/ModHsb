@@ -85,7 +85,7 @@ public abstract class TileEntityHsb extends TileEntity
         onInventoryChanged();
 		if(worldObj.isRemote)
         {
-    		NetworkManager.requestInitialData(this);
+    		NetworkManager.getInstance().requestInitialData(this);
         }
         init = true;
     }
@@ -126,7 +126,7 @@ public abstract class TileEntityHsb extends TileEntity
         this.facing = facing;
         if (prevFacing != facing && !Config.ECLIPSE)
         {
-            NetworkManager.updateTileEntityField(this, "facing");
+            NetworkManager.getInstance().updateTileEntityField(this, "facing");
         }
         this.prevFacing = facing;
 
@@ -202,7 +202,7 @@ public abstract class TileEntityHsb extends TileEntity
 		LockManager.tranferSignal(this, getConnectedTerminal(), value, pass, port, side);
 		
 		//updating
-		NetworkManager.updateTileEntityField(this, "locked");
+		NetworkManager.getInstance().updateTileEntityField(this, "locked");
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 		return true;		
 	}

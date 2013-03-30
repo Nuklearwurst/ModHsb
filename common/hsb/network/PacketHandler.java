@@ -1,9 +1,13 @@
 package hsb.network;
 
 
+import hsb.config.Config;
+import hsb.network.packet.PacketClientTileEvent;
 import hsb.network.packet.PacketItemUpdate;
+import hsb.network.packet.PacketRequestData;
 import hsb.network.packet.PacketTerminalInvUpdate;
 import hsb.network.packet.PacketTerminalUpdate;
+import hsb.network.packet.PacketTileFieldUpdate;
 import hsb.network.packet.PacketUpgradeCamo;
 
 import java.io.ByteArrayInputStream;
@@ -42,7 +46,7 @@ public class PacketHandler
 			
 			case PacketIds.ITEM_NBTTAG_UPDATE:
 			{
-				System.out.println("Hsb: PacketHandler: PacketId == ITEM_UPDATE!");
+				Config.logDebug("Hsb: PacketHandler: PacketId == ITEM_UPDATE!");
 				PacketItemUpdate itemPacket  = new PacketItemUpdate();
 				itemPacket.onPacketData(data, player);
 				break;
@@ -51,15 +55,14 @@ public class PacketHandler
 			
 			case PacketIds.TILE_TERMINAL_UPDATE:
 			{
-				System.out.println("Hsb: PacketHandler: PacketId == TERMINAL_UPDATE!");
+				Config.logDebug("Hsb: PacketHandler: PacketId == TERMINAL_UPDATE!");
 				PacketTerminalUpdate tilePacket = new PacketTerminalUpdate();
 				tilePacket.onPacketData(data, player);
 				break;
 			}
 			case PacketIds.TILE_UPGRADECAMO:
 			{
-				//From Server to Client
-				//TODO create packet
+				//Both directions
 				PacketUpgradeCamo packetCamo = new PacketUpgradeCamo();
 				packetCamo.onPacketData(data, player);
 				break;
@@ -68,11 +71,42 @@ public class PacketHandler
 			{
 				//From Server to Client
 				//TODO create packet
-				System.out.println("Hsb: PacketHandler: PacketId == TERMINALINV_UPDATE!");
+				Config.logDebug("Hsb: PacketHandler: PacketId == TERMINALINV_UPDATE!");
 
 				PacketTerminalInvUpdate packetInv = new PacketTerminalInvUpdate();
 				packetInv.onPacketData(data, player);
 				break;
+			}
+			case PacketIds.TILE_CLIENT_EVENT:
+			{
+				//Client --> Server
+				Config.logDebug("Hsb: PacketHandler: PacketId == TILE_CLIENT_EVENT!");
+				
+				PacketClientTileEvent packetEv = new PacketClientTileEvent();
+				packetEv.onPacketData(data, player);
+				break;
+			}
+			case PacketIds.TILE_FIELD_UPDATE:
+			{
+				//Server --> Client
+				Config.logDebug("Hsb: PacketHandler: PacketId == TILE_FIELD_UPDATE!");
+				
+				PacketTileFieldUpdate packetFU = new PacketTileFieldUpdate();
+				packetFU.onPacketData(data, player);
+				break;
+			}
+			case PacketIds.TILE_DATA_REQUEST:
+			{
+				//Client --> Server
+				Config.logDebug("Hsb: PacketHandler: PacketId == TILE_DATA_REQUEST!");
+				
+				PacketRequestData packetD = new PacketRequestData();
+				packetD.onPacketData(data, player);
+				break;
+			}
+			default: 
+			{
+				Config.logError("Invalid Packet!");
 			}
 				
 				

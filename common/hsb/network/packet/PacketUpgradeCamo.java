@@ -11,6 +11,7 @@ import java.io.IOException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 
 import cpw.mods.fml.common.network.Player;
@@ -19,21 +20,17 @@ public class PacketUpgradeCamo extends PacketPosition{
 
 	TileEntity te;
 	
-	public int upgradeId=-1;
+	public ItemStack inv; 
 	
-	public int camoBlockId=-1;
-	public int camoMeta=-1;
-	public boolean active=false;
+	public boolean active;
 	
 	
 
-	public PacketUpgradeCamo(TileEntity te, int upgradeId, int blockId, int blockMeta, boolean active) {
+	public PacketUpgradeCamo(TileEntity te, ItemStack stack, boolean active) {
 		super(te.xCoord, te.yCoord, te.zCoord);
-		this.te = te;
-		this.upgradeId = upgradeId;
-		this.camoBlockId = blockId;
-		this.camoMeta = blockMeta;
+		this.inv = stack;
 		this.active = active;
+
 	}
 	
 	public PacketUpgradeCamo() {}
@@ -46,19 +43,16 @@ public class PacketUpgradeCamo extends PacketPosition{
 	@Override
 	public void readData(DataInputStream data) throws IOException {
 		super.readData(data);
-		upgradeId = data.readInt();
-		camoBlockId = data.readInt();
-		camoMeta = data.readInt();
+		inv = Packet.readItemStack(data);
 		active = data.readBoolean();
+		
 		
 	}
 
 	@Override
 	public void writeData(DataOutputStream data) throws IOException {
 		super.writeData(data);
-		data.writeInt(upgradeId);
-		data.writeInt(camoBlockId);
-		data.writeInt(camoMeta);
+		Packet.writeItemStack(inv, data);
 		data.writeBoolean(active);
 		//new ItemStack(1,1).writeToNBT(new NBTTagCompound()).w
 	}
@@ -74,6 +68,7 @@ public class PacketUpgradeCamo extends PacketPosition{
 			 * Packt//Item Id// Meta // upgradeId
 			 */
 			((TileEntityLockTerminal)te).handleUpgradePacket(this, HsbItems.itemHsbUpgrade.itemID, 3, x);
+//			((TileEntityLockTerminal) te).getUpgrade("Camo").handlePacket(this, (TileEntityLockTerminal) te);
 			te.onInventoryChanged();
 		}
 	}

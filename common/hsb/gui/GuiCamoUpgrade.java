@@ -62,10 +62,10 @@ public class GuiCamoUpgrade extends GuiContainer
                 this.mc.setIngameFocus();
                 break;
             case 1:
-            	NetworkManager.initiateClientTileEntityEvent(te, -20);
+            	NetworkManager.getInstance().initiateClientTileEntityEvent(te, -20);
             	break;
             case 2:
-            	NetworkManager.initiateClientTileEntityEvent(te, -2);
+            	NetworkManager.getInstance().initiateClientTileEntityEvent(te, -2);
             	break;
         }
         super.actionPerformed(guibutton);

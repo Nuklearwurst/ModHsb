@@ -11,6 +11,7 @@ import java.util.logging.Level;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.tileentity.TileEntity;
 
 import cpw.mods.fml.common.FMLLog;
@@ -48,46 +49,19 @@ public class PacketTerminalInvUpdate extends PacketPosition{
 	@Override
 	public void readData(DataInputStream data) throws IOException {
 		super.readData(data);
-		//TODO
-		int itemId = 0;
-		int itemMeta = 0;
-		int itemCount = 0;
 		//size of inventory  = 15
 		for(int i = 0;i<15;i++) {
-			itemId = data.readInt();
-			itemMeta = data.readInt();
-			itemCount = data.readShort();
-			if(itemId == 0 && itemMeta == 0 && itemCount == 0)
-			{
-				inv[i] = null;
-			} else {
-				inv[i] = new ItemStack(itemId, itemCount, itemMeta);
-			}
-		}
-//		for(int i = 0; i < 10;i++) {
-//			active[i] = data.readBoolean();
-//		}
-		
+			this.inv[i] = Packet.readItemStack(data);
+		}		
 	}
 
 	@Override
 	public void writeData(DataOutputStream data) throws IOException {
 		super.writeData(data);
-		for(int i = 0;i<15;i++) {
-			if(inv[i] != null)
-			{
-				data.writeInt(inv[i].itemID);
-				data.writeInt(inv[i].getItemDamage());
-				data.writeShort(inv[i].stackSize);
-			} else {
-				data.writeInt(0);
-				data.writeInt(0);
-				data.writeShort(0);
-			}
+
+		for(int i = 0;i<te.getSizeInventory();i++) {
+			Packet.writeItemStack(inv[i], data);
 		}
-//		for(int i = 0; i < 10;i++) {
-//			data.writeBoolean(active[i]);
-//		}
 	}
 	@Override
 	public void onPacketData(DataInputStream data, Player player)

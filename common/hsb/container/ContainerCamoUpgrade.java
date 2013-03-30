@@ -48,14 +48,14 @@ public class ContainerCamoUpgrade extends Container {
         {
             for (spalte = 0; spalte < 9; ++spalte)
             {
-                this.addSlotToContainer(new Slot(invPlayer, spalte + reihe * 9 + 9, 8 + spalte * 18, 140 - 28 + reihe * 18));
+                this.addSlotToContainer(new Slot(invPlayer, spalte + reihe * 9 + 9, 34 + spalte * 18, 140  + reihe * 18));
             }
         }
 
         //Hotbar
         for (spalte = 0; spalte < 9; ++spalte)
         {
-            this.addSlotToContainer(new Slot(invPlayer, spalte, 8 + spalte * 18, 198 - 28));
+            this.addSlotToContainer(new Slot(invPlayer, spalte, 34 + spalte * 18, 198 ));
         }
         
     }

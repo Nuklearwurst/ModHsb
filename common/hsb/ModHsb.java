@@ -3,6 +3,7 @@ package hsb;
 import hsb.config.Config;
 import hsb.config.Defaults;
 import hsb.gui.GuiHandler;
+import hsb.network.NetworkManager;
 import hsb.network.PacketHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
@@ -82,5 +83,8 @@ public class ModHsb{
 	
 	@SidedProxy(clientSide = "hsb.ClientProxy", serverSide = "hsb.CommonProxy") //TODO Bukkit
 	public static CommonProxy proxy;
+	
+	@SidedProxy(clientSide = "hsb.network.NetworkManagerClient", serverSide = "hsb.network.NetworkManager") //TODO Bukkit
+	public static NetworkManager network_manager;
 
 }

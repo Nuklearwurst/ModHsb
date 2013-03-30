@@ -96,10 +96,10 @@ public class GuiLockTerminal extends GuiContainer
                 break;
             case 1:
 			controlList.get(1);
-                NetworkManager.initiateClientTileEntityEvent(te, 1);
+                NetworkManager.getInstance().initiateClientTileEntityEvent(te, 1);
                 break;
             case 2: 
-            	NetworkManager.initiateClientTileEntityEvent(te, -1);
+            	NetworkManager.getInstance().initiateClientTileEntityEvent(te, -1);
             	break;
         }
         //button 0 - 9 (3 - 12)
@@ -107,7 +107,7 @@ public class GuiLockTerminal extends GuiContainer
         {
     		//button : 0 - 9
     		//events: -3 - -12
-    		NetworkManager.initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
+    		NetworkManager.getInstance().initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
         }
         super.actionPerformed(guibutton);
     }

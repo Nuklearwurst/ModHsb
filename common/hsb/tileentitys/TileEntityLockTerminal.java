@@ -200,7 +200,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 			}
 		}
 		if (!Config.ECLIPSE)
-			NetworkManager.updateTileEntityField(this, "locked");
+			NetworkManager.getInstance().updateTileEntityField(this, "locked");
 		return true;
 	}
 
@@ -477,7 +477,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				if(id != -1)
 				{
 					this.upgradeActive[id] = ! this.upgradeActive[id];
-					NetworkManager.updateTileEntityField(this, "upgradeActive");
+					NetworkManager.getInstance().updateTileEntityField(this, "upgradeActive");
 					Config.logDebug("Camo Upgrade Activated!");
 					return;
 				} else {
@@ -506,11 +506,11 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 
 				upgrade.onButtonClicked(this, player, number);
 				this.updateUpgrades();
-				NetworkManager.updateTileEntityField(this, "upgradeActive");
-				NetworkManager.updateTileEntityField(this, "upgradeCount");
-//				NetworkManager.updateTileEntityField(this, "buttonNumber");
-				NetworkManager.updateTileEntityField(this, "camoId");
-				NetworkManager.updateTileEntityField(this, "camoMeta");
+				NetworkManager.getInstance().updateTileEntityField(this, "upgradeActive");
+				NetworkManager.getInstance().updateTileEntityField(this, "upgradeCount");
+//				NetworkManager.getInstance().updateTileEntityField(this, "buttonNumber");
+				NetworkManager.getInstance().updateTileEntityField(this, "camoId");
+				NetworkManager.getInstance().updateTileEntityField(this, "camoMeta");
 
 			} else {
 				System.out.println("Upgrade == null!" + number);

@@ -145,7 +145,7 @@ public class GuiBlockPlacer extends GuiScreen {
 	    		updateNBTTag();
 	    	} else {
 	    		te.setPort(this.port);
-	    		NetworkManager.initiateClientTileEntityEvent(te, port);
+	    		NetworkManager.getInstance().initiateClientTileEntityEvent(te, port);
 	    	}
 	        super.onGuiClosed();
 	    }
