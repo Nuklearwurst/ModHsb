@@ -4,6 +4,7 @@ import hsb.blocks.BlockHsb;
 import hsb.blocks.BlockHsbDoor;
 import hsb.items.ItemBlockHsb;
 import hsb.items.ItemBlockPlacer;
+import hsb.items.ItemCreativePower;
 import hsb.items.ItemDebugTool;
 import hsb.items.ItemHsbDoor;
 import hsb.items.ItemHsbUpgrade;
@@ -37,6 +38,8 @@ public class Config {
 	public static Configuration config;
 	
 	public static boolean DEBUG = false;
+	
+	@Deprecated
 	public static boolean ECLIPSE = false;
 	
 	public static int maxPort = 99;
@@ -118,6 +121,9 @@ public class Config {
 			//Upgrades
 			HsbItems.itemHsbUpgrade = new ItemHsbUpgrade(Config.getItemId("itemHsbUpgrade", Defaults.ITEM_HSB_UPGRADE));
 			
+			//Unlimited Power
+			HsbItems.itemCreativePower = new ItemCreativePower(Config.getItemId("itemCreativePower", Defaults.ITEM_CREATIVE_POWER)).setItemName("CreativePower");
+			LanguageRegistry.addName(HsbItems.itemCreativePower, "CreativePower");
 		//Blocks
 			//BlockHsb (unbreakable)
 			HsbItems.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setBlockName("Hsb Building Block");

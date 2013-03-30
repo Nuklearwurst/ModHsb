@@ -38,6 +38,8 @@ public class HsbItems {
 	
 	public static Item itemHsbUpgrade;
 	
+	public static Item itemCreativePower;
+	
 	//Not in use!
 //	public static Item itemBlockBuilding;
 //	public static Item itemBlockLockTerminal;

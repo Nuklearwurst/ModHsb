@@ -15,6 +15,8 @@ public class Defaults {
 	public static final int ITEM_UPGRADE_TESLA = 21005;//OLD
 	public static final int ITEM_HSB_UPGRADE = 21006;
 
+	public static final int ITEM_CREATIVE_POWER = 21007;
+
 	
 	//energyUse
 	public static final double ENERGY_HSB_BLOCK = 0.1;
