@@ -62,6 +62,33 @@ public class PacketItemUpdate extends PacketHsb{
 	}
 
 	@Override
+	public void onPacketData(DataInputStream data, Player player) throws IOException {
+		ItemStack stack = ((EntityPlayer)player).getCurrentEquippedItem();
+		this.readData(data);
+		if(stack.getTagCompound().hasKey(this.tag))
+		{
+			switch(this.type)
+			{
+			case PacketItemUpdate.BOOLEAN_KEY:
+				stack.getTagCompound().setBoolean(this.tag, (Boolean) this.value);
+				break;
+			case PacketItemUpdate.INTEGER_KEY:
+				stack.getTagCompound().setInteger(this.tag, (Integer) this.value);
+				break;
+			case PacketItemUpdate.STRING_KEY:
+				stack.getTagCompound().setString(this.tag, (String) this.value);
+				break;
+			default:
+				FMLLog.severe("Hsb: PacketHandler: unexpected type!!");
+				break;
+			}
+		} else {
+			FMLLog.severe("Hsb: PacketHandler: False NBTTAG key!!!!");
+		}
+		
+	}
+
+	@Override
 	public void readData(DataInputStream data) throws IOException {
 		itemclass = data.readUTF();
 		type = data.readShort();
@@ -102,33 +129,6 @@ public class PacketItemUpdate extends PacketHsb{
 			data.writeBoolean((Boolean) value);
 		} else if(type == ERROR){
 			FMLLog.severe("Hsb Packetwriting Error!");
-		}
-		
-	}
-
-	@Override
-	public void onPacketData(DataInputStream data, Player player) throws IOException {
-		ItemStack stack = ((EntityPlayer)player).getCurrentEquippedItem();
-		this.readData(data);
-		if(stack.getTagCompound().hasKey(this.tag))
-		{
-			switch(this.type)
-			{
-			case PacketItemUpdate.BOOLEAN_KEY:
-				stack.getTagCompound().setBoolean(this.tag, (Boolean) this.value);
-				break;
-			case PacketItemUpdate.INTEGER_KEY:
-				stack.getTagCompound().setInteger(this.tag, (Integer) this.value);
-				break;
-			case PacketItemUpdate.STRING_KEY:
-				stack.getTagCompound().setString(this.tag, (String) this.value);
-				break;
-			default:
-				FMLLog.severe("Hsb: PacketHandler: unexpected type!!");
-				break;
-			}
-		} else {
-			FMLLog.severe("Hsb: PacketHandler: False NBTTAG key!!!!");
 		}
 		
 	}

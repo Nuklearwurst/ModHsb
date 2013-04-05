@@ -17,8 +17,6 @@ import hsb.tileentitys.TileEntityHsbBuilding;
 import hsb.tileentitys.TileEntityHsbGuiAccess;
 import hsb.tileentitys.TileEntityLockTerminal;
 import ic2.api.IWrenchable;
-import ic2.api.Items;
-
 import java.util.List;
 import java.util.Random;
 
@@ -70,65 +68,29 @@ public class BlockHsb extends BlockContainer {
 	}
 	
     @Override
-    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int side, float m, float n, float o)
+	/**
+     * ejects contained items into the world, and notifies neighbours of an update, as appropriate
+     */
+    public void breakBlock(World world, int x, int y, int z, int par5, int par6)
     {
-    	//Sneaking
-    	if(entityplayer.isSneaking())
-    		return false;
-    	//Items
-    	if(entityplayer.getCurrentEquippedItem()!=null) {
-    		if(!Config.ECLIPSE)
-    			if(entityplayer.getCurrentEquippedItem().itemID == Config.getIC2ItemId("wrench") || entityplayer.getCurrentEquippedItem().itemID == Config.getIC2ItemId("electricWrench"))
-    				return false;
-    		if(entityplayer.getCurrentEquippedItem().getItem() instanceof ItemBlockPlacer)
-    			return false;
+    	TileEntityHsb te = (TileEntityHsb) world.getBlockTileEntity(x, y, z);
+    	if(te!=null)
+    	{
+    		te.onRemove(world, x, y, z, par5, par6);
     	}
-    	switch (world.getBlockMetadata(i, j, k))
-        {
-            case 0:
-            	return false;
-            case 1:
-            {
-            	//TODO add pass protected Gui (Upgrades)
-            	TileEntityLockTerminal te = (TileEntityLockTerminal) world.getBlockTileEntity(i, j, k);
-            	te.onInventoryChanged();
-            	if(!world.isRemote) {
-            		PacketTerminalInvUpdate packet = new PacketTerminalInvUpdate(te);
-            		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)entityplayer);
-            		entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
-            	}
-                return true;
-            }
-            case 2:
-            	return false;
-            case 3:
-            {
-            	TileEntityHsbBuilding tile = (TileEntityHsbBuilding) world.getBlockTileEntity(i, j, k);
-            	int facing = Facing.faceToSide[tile.getFacing()];
-            	int x = Facing.offsetsXForSide[facing] + i;
-            	int y = Facing.offsetsYForSide[facing] + j;
-            	int z = Facing.offsetsZForSide[facing] + k;
-            	int blockId = world.getBlockId(x, y, z);
-            	int meta = world.getBlockMetadata(x, y, z);
-            	Config.logDebug("Meta: " + meta + " side: " + side + " Block: " + Block.blocksList[blockId] + " Pos: " + x + ", " + y + ", " + z);
-            	if(Block.blocksList[blockId] == null || (blockId == this.blockID && meta == 3))
-            	{
-            		return false;
-            	}
-            	if(Block.blocksList[blockId].onBlockActivated(world, x, y, z, entityplayer, Facing.faceToSide[tile.facing], m, n, o)) {
-            	} else {
-            		Utils.sendChatToPlayer("Nothing happend", entityplayer, true);
-            	}
-            }
-            	return true;
-            default:
-                return false;
-        }
+        super.breakBlock(world, x, y, z, par5, par6);      
+    }
+	@Override
+    public boolean canSilkHarvest()
+    {
+        return false;
     }
 	@Override
 	public TileEntity createNewTileEntity(World world) {	
 		return null;
 	}
+    
+    
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
 		switch(meta)
@@ -143,18 +105,6 @@ public class BlockHsb extends BlockContainer {
 			return new TileEntityHsbGuiAccess();
 		}
 	}
-    
-    
-	@Override
-	public String getTextureFile() {
-		return this.textureFile;
-		
-	}
-	@Override
-    public int idDropped(int meta, Random random, int j)
-    {
-        return this.blockID;
-    }
 	@Override
     public int damageDropped(int meta)
     {
@@ -208,18 +158,12 @@ public class BlockHsb extends BlockContainer {
 	    return tex;
 
     }
-	
-    @Override
+	@Override
     public int getRenderType()
     {
         return ClientProxy.HSBRENDERER_ID;
     }
-    
-    @Override
-    public boolean canSilkHarvest()
-    {
-        return false;
-    }
+	
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public void getSubBlocks(int id, CreativeTabs tab, List itemList)
@@ -229,23 +173,97 @@ public class BlockHsb extends BlockContainer {
         itemList.add(new ItemStack(id, 1, 2));
         itemList.add(new ItemStack(id, 1, 3));
     }
+    
+    @Override
+	public String getTextureFile() {
+		return this.textureFile;
+		
+	}
+    @Override
+    public int idDropped(int meta, Random random, int j)
+    {
+        return this.blockID;
+    }
+    @Override
+    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer entityplayer, int side, float m, float n, float o)
+    {
+    	//Sneaking
+    	if(entityplayer.isSneaking())
+    		return false;
+    	//Items
+    	if(entityplayer.getCurrentEquippedItem()!=null) {
+    		if(Config.ic2Available)
+    			if(entityplayer.getCurrentEquippedItem().itemID == Config.getIC2ItemId("wrench") || entityplayer.getCurrentEquippedItem().itemID == Config.getIC2ItemId("electricWrench"))
+    				return false;
+    		if(entityplayer.getCurrentEquippedItem().getItem() instanceof ItemBlockPlacer)
+    			return false;
+    	}
+    	switch (world.getBlockMetadata(i, j, k))
+        {
+            case 0:
+            	return false;
+            case 1:
+            {
+            	//TODO add pass protected Gui (Upgrades)
+            	TileEntityLockTerminal te = (TileEntityLockTerminal) world.getBlockTileEntity(i, j, k);
+            	te.onInventoryChanged();
+            	if(!world.isRemote) {
+            		PacketTerminalInvUpdate packet = new PacketTerminalInvUpdate(te);
+            		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)entityplayer);
+            		entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, world, i, j, k);
+            	}
+                return true;
+            }
+            case 2:
+            	return false;
+            case 3:
+            {
+            	TileEntityHsbBuilding tile = (TileEntityHsbBuilding) world.getBlockTileEntity(i, j, k);
+            	int facing = Facing.faceToSide[tile.getFacing()];
+            	int x = Facing.offsetsXForSide[facing] + i;
+            	int y = Facing.offsetsYForSide[facing] + j;
+            	int z = Facing.offsetsZForSide[facing] + k;
+            	int blockId = world.getBlockId(x, y, z);
+            	int meta = world.getBlockMetadata(x, y, z);
+            	Config.logDebug("Meta: " + meta + " side: " + side + " Block: " + Block.blocksList[blockId] + " Pos: " + x + ", " + y + ", " + z);
+            	if(Block.blocksList[blockId] == null || (blockId == this.blockID && meta == 3))
+            	{
+            		return false;
+            	}
+            	if(Block.blocksList[blockId].onBlockActivated(world, x, y, z, entityplayer, Facing.faceToSide[tile.facing], m, n, o)) {
+            	} else {
+            		Utils.sendChatToPlayer("Nothing happend", entityplayer, true);
+            	}
+            }
+            	return true;
+            default:
+                return false;
+        }
+    }
     @Override
     public void onBlockAdded(World world, int x, int y, int z) {
     	super.onBlockAdded(world, x, y, z);
     	
     }
     @Override
-	/**
-     * ejects contained items into the world, and notifies neighbours of an update, as appropriate
-     */
-    public void breakBlock(World world, int x, int y, int z, int par5, int par6)
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) 
     {
-    	TileEntityHsb te = (TileEntityHsb) world.getBlockTileEntity(x, y, z);
-    	if(te!=null)
-    	{
-    		te.onRemove(world, x, y, z, par5, par6);
+    	if(!world.isRemote) {
+	    	TileEntity te = world.getBlockTileEntity(x, y, z);
+	    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
+	    	{
+	    		ILockTerminal terminal = ((ILockable)te).getConnectedTerminal();
+	    		if(terminal != null)
+	    		{
+	    			int tesla = terminal.getTesla();
+	    			if(tesla > 0)
+	    			{
+	    				player.sendChatToPlayer("Don't do that!");
+	    				player.attackEntityFrom(DamageSource.magic, tesla);
+	    			}
+	    		}
+	    	}
     	}
-        super.breakBlock(world, x, y, z, par5, par6);      
     }
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player) 
@@ -268,7 +286,7 @@ public class BlockHsb extends BlockContainer {
         if (player != null && te instanceof IWrenchable) 
         {
             IWrenchable wrenchable = (IWrenchable)te;
-            int rotationSegment = MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+            int rotationSegment = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
             if (player.rotationPitch >= 65) 
             {
                 wrenchable.setFacing((short)1);
@@ -290,26 +308,6 @@ public class BlockHsb extends BlockContainer {
                 }
             }
         }          
-    }
-    @Override
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) 
-    {
-    	if(!world.isRemote) {
-	    	TileEntity te = world.getBlockTileEntity(x, y, z);
-	    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
-	    	{
-	    		ILockTerminal terminal = ((ILockable)te).getConnectedTerminal();
-	    		if(terminal != null)
-	    		{
-	    			int tesla = terminal.getTesla();
-	    			if(tesla > 0)
-	    			{
-	    				player.sendChatToPlayer("Don't do that!");
-	    				player.attackEntityFrom(DamageSource.magic, tesla);
-	    			}
-	    		}
-	    	}
-    	}
     }
     
     

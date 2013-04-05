@@ -5,19 +5,32 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import hsb.api.upgrade.IHsbUpgrade;
 import hsb.config.HsbItems;
+import hsb.items.ItemHsbUpgrade;
 import hsb.network.packet.PacketHsb;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class UpgradeTesla implements IHsbUpgrade{
 	
 	@Override
-	public void updateUpgrade(TileEntityLockTerminal te) {
-		int index = te.getUpgradeId(this.getUniqueId());
-		if(te.upgradeCount[index] > 32)
-			te.upgradeCount[index]  = 32;
-		if(te.upgradeActive[index])
-			te.energyUse = te.energyUse + 0.25 * te.upgradeCount[index];
-		
+	public String getButtonName() {
+		return "Tesla";
+	}
+
+	@Override
+	public ItemStack getItem() {
+		return new ItemStack(HsbItems.itemHsbUpgrade, 1, 0);
+	}
+
+	@Override
+	public String getUniqueId() {
+		return ItemHsbUpgrade.ID_UPGRADE_TESLA;
+	}
+	@Override
+	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {}
+
+	@Override
+	public boolean isEnabledByDefault() {
+		return false;
 	}
 
 	@Override
@@ -42,36 +55,24 @@ public class UpgradeTesla implements IHsbUpgrade{
 	}
 
 	@Override
-	public String getButtonName() {
-		return "Tesla";
-	}
-	@Override
-	public String getUniqueId() {
-		return "tesla";
-	}
-
-	@Override
-	public void onTileSave(NBTTagCompound nbttagcompound,
-			TileEntityLockTerminal te) {}
+	public void onGuiOpen(TileEntityLockTerminal te) {}
 
 	@Override
 	public void onTileLoad(NBTTagCompound nbttagcompound,
 			TileEntityLockTerminal te) {}
 
 	@Override
-	public void onGuiOpen(TileEntityLockTerminal te) {}
+	public void onTileSave(NBTTagCompound nbttagcompound,
+			TileEntityLockTerminal te) {}
 
 	@Override
-	public ItemStack getItem() {
-		return new ItemStack(HsbItems.itemHsbUpgrade, 1, 0);
+	public void updateUpgrade(TileEntityLockTerminal te) {
+		int index = te.getUpgradeId(this.getUniqueId());
+		if(te.upgradeCount[index] > 32)
+			te.upgradeCount[index]  = 32;
+		if(te.upgradeActive[index])
+			te.energyUse = te.energyUse + 0.25 * te.upgradeCount[index];
+		
 	}
-
-	@Override
-	public boolean isEnabledByDefault() {
-		return false;
-	}
-
-	@Override
-	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {}
 
 }

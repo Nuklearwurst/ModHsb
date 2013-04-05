@@ -4,7 +4,7 @@ import java.util.List;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import hsb.ClientProxy;
+import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
 import hsb.api.upgrade.IHsbUpgrade;
 import hsb.api.upgrade.IItemHsbUpgrade;
@@ -26,6 +26,13 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 
 	public static final String[] upgradeNames = new String[] {"Tesla", "Password", "Security", "Camoflage"};
     public static final int[] texture = new int[] {5, 6, 7, 8};//TODO textures
+    
+    public static final String ID_UPGRADE_CAMO = "Camoflage";
+    public static final String ID_UPGRADE_TESLA = "tesla";
+    public static final String ID_UPGRADE_PASSWORD = "password";
+    public static final String ID_UPGRADE_SECURITY = "security";
+
+    
 
     public ItemHsbUpgrade(int id)
     {
@@ -35,7 +42,8 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
         this.setCreativeTab(CreativeTabHsb.tabHsb);
     }
 
-    @SideOnly(Side.CLIENT)
+    @Override
+	@SideOnly(Side.CLIENT)
 
     /**
      * Gets an icon index based on an item's damage value
@@ -49,7 +57,8 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
         return 0;
     }
 
-    public String getItemNameIS(ItemStack stack)
+    @Override
+	public String getItemNameIS(ItemStack stack)
     {
     	int damage = stack.getItemDamage();
     	if(damage < upgradeNames.length)
@@ -59,27 +68,8 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
         return "hsbUpgrade";
     }
 
-    /**
-     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
-     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS
-     * 
-     * Used to auto-insert upgrade into LockTerminal
-     */
-    public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
-    {
-		TileEntity te = world.getBlockTileEntity(x, y, z); 
-		if(te instanceof TileEntityLockTerminal && (!((TileEntityLockTerminal) te).locked))
-		{
-			((TileEntityLockTerminal)te).addToInventory(itemstack, 1);
-			//TODO sound
-			Config.logDebug("Upgrade installed!");
-			itemstack.stackSize--;
-			return true;
-		}
-		return false;
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@SideOnly(Side.CLIENT)
 
     /**
@@ -95,6 +85,16 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
     	
     }
 
+    @Override
+	public String getTextureFile() {
+		return CommonProxy.TEXTURE_ITEMS;
+	}
+
+	@Override
+	public String getUniqueId(int meta) {
+		return this.getUpgrade(meta).getUniqueId();
+	}
+	
 	@Override
 	public IHsbUpgrade getUpgrade(int meta) {
 		switch(meta)
@@ -114,11 +114,27 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 			return new UpgradeDummy();
 		}
 	}
-	
-	@Override
-	public String getTextureFile() {
-		return ClientProxy.TEXTURE_ITEMS;
-	}
+
+	/**
+     * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
+     * True if something happen and false if it don't. This is for ITEMS, not BLOCKS
+     * 
+     * Used to auto-insert upgrade into LockTerminal
+     */
+    @Override
+	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
+    {
+		TileEntity te = world.getBlockTileEntity(x, y, z); 
+		if(te instanceof TileEntityLockTerminal && (!((TileEntityLockTerminal) te).locked))
+		{
+			((TileEntityLockTerminal)te).addToInventory(itemstack, 1);
+			//TODO sound
+			Config.logDebug("Upgrade installed!");
+			itemstack.stackSize--;
+			return true;
+		}
+		return false;
+    }
 
 
 }

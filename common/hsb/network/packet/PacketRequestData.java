@@ -17,27 +17,15 @@ public class PacketRequestData extends PacketPosition{
 
 	
 
+	public PacketRequestData() {}
+	
 	public PacketRequestData(TileEntity te) {
 		super(te.xCoord, te.yCoord, te.zCoord);
 	}
-	
-	public PacketRequestData() {}
 
 	@Override
 	public int getID() {
 		return PacketIds.TILE_DATA_REQUEST;
-	}
-
-	@Override
-	public void readData(DataInputStream data) throws IOException {
-		super.readData(data);
-
-	}
-
-	@Override
-	public void writeData(DataOutputStream data) throws IOException {
-		super.writeData(data);
-		
 	}
 
 	@Override
@@ -54,5 +42,17 @@ public class PacketRequestData extends PacketPosition{
 			}
 		}
 
+	}
+
+	@Override
+	public void readData(DataInputStream data) throws IOException {
+		super.readData(data);
+
+	}
+
+	@Override
+	public void writeData(DataOutputStream data) throws IOException {
+		super.writeData(data);
+		
 	}
 }

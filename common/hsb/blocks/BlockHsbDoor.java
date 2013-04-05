@@ -41,15 +41,6 @@ public class BlockHsbDoor extends BlockDoor {
 	}
 	
 	@Override
-    /**
-     * Called whenever the block is added into the world. Args: world, x, y, z
-     */
-    public void onBlockAdded(World world, int x, int y, int z)
-    {
-        super.onBlockAdded(world, x, y, z);
-    }
-	
-    @Override
 	/**
      * ejects contained items into the world, and notifies neighbours of an update, as appropriate
      */
@@ -73,76 +64,12 @@ public class BlockHsbDoor extends BlockDoor {
     }
 	
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int l, float m, float n, float o)
+    public boolean canSilkHarvest()
     {
-    	if(entityplayer != null && entityplayer.getCurrentEquippedItem()!=null && entityplayer.getCurrentEquippedItem().itemID == HsbItems.itemBlockPlacer.itemID)
-    	{
-    		return false;
-    	}
-    	TileEntity te = this.getTileEntity(world, x, y, z);
-    	if(te != null && te instanceof TileEntityDoorBase)
-    	{
-    		if((entityplayer.username.equals(((TileEntityDoorBase)te).placer)) && ((TileEntityDoorBase)te).upgradePlayer)
-    		{
-    			this.toggleDoor(world, x, y, z, entityplayer);
-    		} else {
-				entityplayer.sendChatToPlayer("You are not Allowed to enter!");
-				if(Config.DEBUG)
-				{
-					entityplayer.sendChatToPlayer("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.username);
-				}
-    		}
-		} else {
-			entityplayer.sendChatToPlayer("Huch!! Die Tuer sollte nicht hier sein!");
-		}
-    	return true;
-    }
-    
-    private void toggleDoor(World world, int x, int y, int z, EntityPlayer entityplayer) {
-        int meta = this.getFullMetadata(world, x, y, z);
-        int var11 = meta & 7;
-        var11 ^= 4;
-
-        if ((meta & 8) == 0)
-        {
-            world.setBlockMetadataWithNotify(x, y, z, var11);
-            world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
-        }
-        else
-        {
-            world.setBlockMetadataWithNotify(x, y - 1, z, var11);
-            world.markBlockRangeForRenderUpdate(x, y - 1, z, x, y, z);
-        }
-
-        world.playAuxSFXAtEntity(entityplayer, 1003, x, y, z, 0);
-    }
-    
-    public TileEntity getTileEntity(World world, int x, int y, int z) {
-    	TileEntity te;
-        int meta = this.getFullMetadata(world, x, y, z);
-        if ((meta & 8) == 0)
-        {
-    		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
-    		te = world.getBlockTileEntity(x, y - 1, z);
-    	} else {
-     		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
-    		te = world.getBlockTileEntity(x, y - 2, z);
-    	}
-    	return te;
-    	
-    }
-	@Override
-	public String getTextureFile() {
-		return this.textureFile;
-		
-	}
-	@Override
-    public int idDropped(int meta, Random random, int j)
-    {
-        return HsbItems.itemHsbDoor.itemID;
+        return false;
     }
 	
-	@SideOnly(Side.CLIENT)
+    @SideOnly(Side.CLIENT)
 	@Override
     public int getBlockTexture(IBlockAccess iblockaccess, int x, int y, int z, int side)
     {
@@ -173,7 +100,8 @@ public class BlockHsbDoor extends BlockDoor {
         return index;
 
     }
-	@Override
+    
+    @Override
     public int getBlockTextureFromSideAndMetadata(int side, int meta)
 	{
 		int index = 19;
@@ -184,10 +112,74 @@ public class BlockHsbDoor extends BlockDoor {
 	     return index;
 
     }
+    
     @Override
-    public boolean canSilkHarvest()
+	public String getTextureFile() {
+		return this.textureFile;
+		
+	}
+	public TileEntity getTileEntity(World world, int x, int y, int z) {
+    	TileEntity te;
+        int meta = this.getFullMetadata(world, x, y, z);
+        if ((meta & 8) == 0)
+        {
+    		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
+    		te = world.getBlockTileEntity(x, y - 1, z);
+    	} else {
+     		System.out.println("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
+    		te = world.getBlockTileEntity(x, y - 2, z);
+    	}
+    	return te;
+    	
+    }
+	@Override
+    public int idDropped(int meta, Random random, int j)
     {
-        return false;
+        return HsbItems.itemHsbDoor.itemID;
+    }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+
+    /**
+     * only called by clickMiddleMouseButton , and passed to inventory.setCurrentItem (along with isCreative)
+     */
+    public int idPicked(World par1World, int par2, int par3, int par4)
+    {
+        return hsb.config.HsbItems.itemHsbDoor.itemID;
+    }
+	@Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer entityplayer, int l, float m, float n, float o)
+    {
+    	if(entityplayer != null && entityplayer.getCurrentEquippedItem()!=null && entityplayer.getCurrentEquippedItem().itemID == HsbItems.itemBlockPlacer.itemID)
+    	{
+    		return false;
+    	}
+    	TileEntity te = this.getTileEntity(world, x, y, z);
+    	if(te != null && te instanceof TileEntityDoorBase)
+    	{
+    		if((entityplayer.username.equals(((TileEntityDoorBase)te).placer)) && ((TileEntityDoorBase)te).upgradePlayer)
+    		{
+    			this.toggleDoor(world, x, y, z, entityplayer);
+    		} else {
+				entityplayer.sendChatToPlayer("You are not Allowed to enter!");
+				if(Config.DEBUG)
+				{
+					entityplayer.sendChatToPlayer("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.username);
+				}
+    		}
+		} else {
+			entityplayer.sendChatToPlayer("Huch!! Die Tuer sollte nicht hier sein!");
+		}
+    	return true;
+    }
+    @Override
+    /**
+     * Called whenever the block is added into the world. Args: world, x, y, z
+     */
+    public void onBlockAdded(World world, int x, int y, int z)
+    {
+        super.onBlockAdded(world, x, y, z);
     }
 
     @Override
@@ -213,14 +205,23 @@ public class BlockHsbDoor extends BlockDoor {
 			}
 		}
     }
-    @SideOnly(Side.CLIENT)
+    private void toggleDoor(World world, int x, int y, int z, EntityPlayer entityplayer) {
+        int meta = this.getFullMetadata(world, x, y, z);
+        int var11 = meta & 7;
+        var11 ^= 4;
 
-    /**
-     * only called by clickMiddleMouseButton , and passed to inventory.setCurrentItem (along with isCreative)
-     */
-    public int idPicked(World par1World, int par2, int par3, int par4)
-    {
-        return hsb.config.HsbItems.itemHsbDoor.itemID;
+        if ((meta & 8) == 0)
+        {
+            world.setBlockMetadataWithNotify(x, y, z, var11);
+            world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
+        }
+        else
+        {
+            world.setBlockMetadataWithNotify(x, y - 1, z, var11);
+            world.markBlockRangeForRenderUpdate(x, y - 1, z, x, y, z);
+        }
+
+        world.playAuxSFXAtEntity(entityplayer, 1003, x, y, z, 0);
     }
 
 }

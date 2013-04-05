@@ -8,13 +8,8 @@ public class TileEntityHsbBuilding extends TileEntityHsb
 {
 
 	@Override
-	public boolean wrenchCanSetFacing(EntityPlayer entityPlayer, int side) {
-		return false;
-	}
-
-	@Override
-	public boolean wrenchCanRemove(EntityPlayer entityPlayer) {
-		return false;
+	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
+		return new ItemStack(HsbItems.blockHsb, 1, 0);
 	}
 
 	@Override
@@ -23,8 +18,13 @@ public class TileEntityHsbBuilding extends TileEntityHsb
 	}
 
 	@Override
-	public ItemStack getWrenchDrop(EntityPlayer entityPlayer) {
-		return new ItemStack(HsbItems.blockHsb, 1, 0);
+	public boolean wrenchCanRemove(EntityPlayer entityPlayer) {
+		return false;
+	}
+
+	@Override
+	public boolean wrenchCanSetFacing(EntityPlayer entityPlayer, int side) {
+		return false;
 	}
 
 

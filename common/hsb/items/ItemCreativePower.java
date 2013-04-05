@@ -16,17 +16,10 @@ public class ItemCreativePower extends Item implements IElectricItem{
 	}
 
     @Override
-    public String getTextureFile()
-    {
-        return CommonProxy.TEXTURE_ITEMS;
-
-    }
-    
-	@Override
 	public boolean canProvideEnergy() {
 		return true;
 	}
-
+    
 	@Override
 	public int getChargedItemId() {
 		return this.itemID;
@@ -41,6 +34,13 @@ public class ItemCreativePower extends Item implements IElectricItem{
 	public int getMaxCharge() {
 		return 10000;
 	}
+
+	@Override
+    public String getTextureFile()
+    {
+        return CommonProxy.TEXTURE_ITEMS;
+
+    }
 
 	@Override
 	public int getTier() {

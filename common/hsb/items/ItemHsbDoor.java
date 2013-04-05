@@ -29,7 +29,8 @@ public class ItemHsbDoor extends ItemDoor{
      * Callback for item usage. If the item does something special on right clicking, he will have one of those. Return
      * True if something happen and false if it don't. This is for ITEMS, not BLOCKS
      */
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float par8, float par9, float par10)
+    @Override
+	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float par8, float par9, float par10)
     {
         if (side != 1)
         {
@@ -59,7 +60,7 @@ public class ItemHsbDoor extends ItemDoor{
                 }
                 else
                 {
-                    int var12 = MathHelper.floor_double((double)((player.rotationYaw + 180.0F) * 4.0F / 360.0F) - 0.5D) & 3;
+                    int var12 = MathHelper.floor_double((player.rotationYaw + 180.0F) * 4.0F / 360.0F - 0.5D) & 3;
                     placeDoorBlock(world, x, y, z, var12, block);
                     block.onBlockAdded(world, x, y, z);
                     block.onBlockPlacedBy(world, x, y -1, z, player);

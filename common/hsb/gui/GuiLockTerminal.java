@@ -49,7 +49,90 @@ public class GuiLockTerminal extends GuiContainer
         xSize = 228;
         ySize = 222;
     }
-    @SuppressWarnings("unchecked")
+    @Override
+    protected void actionPerformed(GuiButton guibutton)
+    {
+        switch (guibutton.id)
+        {
+            case 0:
+                this.mc.displayGuiScreen((GuiScreen)null);
+                this.mc.setIngameFocus();
+                break;
+            case 1:
+			controlList.get(1);
+                NetworkManager.getInstance().initiateClientTileEntityEvent(te, 1);
+                break;
+            case 2: 
+            	NetworkManager.getInstance().initiateClientTileEntityEvent(te, -1);
+            	break;
+        }
+        //button 0 - 9 (3 - 12)
+        if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
+        {
+    		//button : 0 - 9
+    		//events: -3 - -12
+    		NetworkManager.getInstance().initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
+        }
+        super.actionPerformed(guibutton);
+    }
+
+    @Override
+	public boolean doesGuiPauseGame()
+    {
+        return false;
+    }
+    
+    @Override
+	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
+			int var3) {
+		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminal.png");
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        mc.renderEngine.bindTexture(i);
+        drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
+        int energy = this.te.getEnergyScaled(100);
+        this.drawTexturedModalRect(xPos + 55, yPos + 115, 26, 222, energy, 14);
+		
+	}
+
+    @Override
+	public void drawScreen(int par1, int par2, float par3)
+    {
+    	super.drawScreen(par1, par2, par3);
+        String energyBar=te.energyStored + "EU/" + (TileEntityLockTerminal.defaultEnergyStorage + te.extraStorage) + "EU";
+        this.drawString(this.fontRenderer, energyBar, xPos + 105 - this.fontRenderer.getStringWidth(energyBar) / 2, yPos + 118, 10526880);
+        ((GuiButton)controlList.get(1)).displayString = getLock(te.locked);
+        
+    }
+
+    protected void drawStringBorder(int x1, int y1, int x2)
+    {
+        drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
+        drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
+    }
+
+
+    /**
+     * function to update the button text
+     * 
+     * @param lockStatus the status after the button is pressed
+     */
+
+    public String getLock(boolean lockStatus)
+    {
+    	String sLock;
+        if (lockStatus)
+        {
+            sLock = "Unlock";
+        }
+        else
+        {
+            sLock = "Lock";
+        }
+        return sLock;
+
+    }
+	@Override
+	@SuppressWarnings("unchecked")
 	public void initGui()
     {
         super.initGui();
@@ -84,84 +167,4 @@ public class GuiLockTerminal extends GuiContainer
         	}
         }
     }
-
-    @Override
-    protected void actionPerformed(GuiButton guibutton)
-    {
-        switch (guibutton.id)
-        {
-            case 0:
-                this.mc.displayGuiScreen((GuiScreen)null);
-                this.mc.setIngameFocus();
-                break;
-            case 1:
-			controlList.get(1);
-                NetworkManager.getInstance().initiateClientTileEntityEvent(te, 1);
-                break;
-            case 2: 
-            	NetworkManager.getInstance().initiateClientTileEntityEvent(te, -1);
-            	break;
-        }
-        //button 0 - 9 (3 - 12)
-        if((guibutton.id >= this.buttonIdStart) && (guibutton.id < (this.buttonIdStart + this.maxButtons)))
-        {
-    		//button : 0 - 9
-    		//events: -3 - -12
-    		NetworkManager.getInstance().initiateClientTileEntityEvent(te, ((guibutton.id-this.buttonIdStart) + 3) * (-1));
-        }
-        super.actionPerformed(guibutton);
-    }
-    
-    /**
-     * function to update the button text
-     * 
-     * @param lockStatus the status after the button is pressed
-     */
-
-    public String getLock(boolean lockStatus)
-    {
-    	String sLock;
-        if (lockStatus)
-        {
-            sLock = "Unlock";
-        }
-        else
-        {
-            sLock = "Lock";
-        }
-        return sLock;
-
-    }
-
-    public void drawScreen(int par1, int par2, float par3)
-    {
-    	super.drawScreen(par1, par2, par3);
-        String energyBar=te.energyStored + "EU/" + (TileEntityLockTerminal.defaultEnergyStorage + te.extraStorage) + "EU";
-        this.drawString(this.fontRenderer, energyBar, xPos + 105 - this.fontRenderer.getStringWidth(energyBar) / 2, yPos + 118, 10526880);
-        ((GuiButton)controlList.get(1)).displayString = getLock(te.locked);
-        
-    }
-
-    protected void drawStringBorder(int x1, int y1, int x2)
-    {
-        drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
-        drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
-    }
-
-
-    public boolean doesGuiPauseGame()
-    {
-        return false;
-    }
-	@Override
-	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
-			int var3) {
-		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminal.png");
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(i);
-        drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
-        int energy = this.te.getEnergyScaled(100);
-        this.drawTexturedModalRect(xPos + 55, yPos + 115, 26, 222, energy, 14);
-		
-	}
 }

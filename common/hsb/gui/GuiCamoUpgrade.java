@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 
 import hsb.ModHsb;
 import hsb.config.Config;
+import hsb.items.ItemHsbUpgrade;
 import hsb.network.NetworkManager;
 import hsb.tileentitys.TileEntityLockTerminal;
 
@@ -28,7 +29,7 @@ public class GuiCamoUpgrade extends GuiContainer
         xSize = 228;
         ySize = 222;
         this.te = te;
-        int id = te.getUpgradeId("Camoflage");
+        int id = te.getUpgradeId(ItemHsbUpgrade.ID_UPGRADE_CAMO);
         if(id != -1)
         {
         	active = te.upgradeActive[id];
@@ -37,21 +38,6 @@ public class GuiCamoUpgrade extends GuiContainer
             entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_LOCKTERMINAL, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
         }
     }
-    @SuppressWarnings("unchecked")
-	public void initGui()
-    {
-        super.initGui();
-        xPos = width / 2 - xSize / 2;
-        yPos = height / 2 - ySize / 2;
-        this.controlList.clear();
-        
-        this.controlList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, "Activate"));//TODO button text
-        
-        this.controlList.add(new GuiButton(2, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));       
-        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
-
-    }
-
     @Override
     protected void actionPerformed(GuiButton guibutton)
     {
@@ -71,22 +57,13 @@ public class GuiCamoUpgrade extends GuiContainer
         super.actionPerformed(guibutton);
     }
 
-    public void drawScreen(int par1, int par2, float par3)
-    {
-    	super.drawScreen(par1, par2, par3);
-//        this.drawString(this.fontRenderer, "Port:", xPos + xSize / 2 - this.fontRenderer.getStringWidth("H") / 2,yPos + 35, 10526880);
-    }
-
-    protected void drawStringBorder(int x1, int y1, int x2)
-    {
-        drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
-        drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
-    }
-    public boolean doesGuiPauseGame()
+    @Override
+	public boolean doesGuiPauseGame()
     {
         return false;
     }
-	@Override
+
+    @Override
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
 		int i = mc.renderEngine.getTexture("/hsb/textures/GuiUpgradeCamo.png");
@@ -95,6 +72,33 @@ public class GuiCamoUpgrade extends GuiContainer
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
 		
 	}
+
+    @Override
+	public void drawScreen(int par1, int par2, float par3)
+    {
+    	super.drawScreen(par1, par2, par3);
+//        this.drawString(this.fontRenderer, "Port:", xPos + xSize / 2 - this.fontRenderer.getStringWidth("H") / 2,yPos + 35, 10526880);
+    }
+    protected void drawStringBorder(int x1, int y1, int x2)
+    {
+        drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
+        drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
+    }
+	@Override
+	@SuppressWarnings("unchecked")
+	public void initGui()
+    {
+        super.initGui();
+        xPos = width / 2 - xSize / 2;
+        yPos = height / 2 - ySize / 2;
+        this.controlList.clear();
+        
+        this.controlList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, active ? "Deactivate" : "Activate"));//TODO button text
+        
+        this.controlList.add(new GuiButton(2, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));       
+        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
+
+    }
 	@Override
     public void onGuiClosed()
     {

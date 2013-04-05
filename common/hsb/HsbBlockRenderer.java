@@ -14,6 +14,49 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
 public class HsbBlockRenderer implements ISimpleBlockRenderingHandler {
 	@Override
+	public int getRenderId() {
+		return ClientProxy.HSBRENDERER_ID;
+	}
+
+	@Override
+	public void renderInventoryBlock(Block block, int metadata, int modelID,
+			RenderBlocks renderer) {
+		Tessellator tes = Tessellator.instance;
+		
+        block.setBlockBoundsForItemRender();
+        GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+        
+        tes.startDrawingQuads();
+        tes.setNormal(0.0F, -1.0F, 0.0F);
+        renderer.renderBottomFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(0, metadata));
+        tes.draw();
+
+        tes.startDrawingQuads();
+        tes.setNormal(0.0F, 1.0F, 0.0F);
+        renderer.renderTopFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(1, metadata));
+        tes.draw();
+
+        tes.startDrawingQuads();
+        tes.setNormal(0.0F, 0.0F, -1.0F);
+        renderer.renderEastFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(2, metadata));
+        tes.draw();
+        tes.startDrawingQuads();
+        tes.setNormal(0.0F, 0.0F, 1.0F);
+        renderer.renderWestFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(3, metadata));
+        tes.draw();
+        tes.startDrawingQuads();
+        tes.setNormal(-1.0F, 0.0F, 0.0F);
+        renderer.renderNorthFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(4, metadata));
+        tes.draw();
+        tes.startDrawingQuads();
+        tes.setNormal(1.0F, 0.0F, 0.0F);
+        renderer.renderSouthFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(5, metadata));
+        tes.draw();
+        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
+		
+	}
+
+	@Override
 	public boolean renderWorldBlock(IBlockAccess world, int x, int y, int z,
 			Block block, int modelId, RenderBlocks renderer) {
 		
@@ -59,48 +102,5 @@ public class HsbBlockRenderer implements ISimpleBlockRenderingHandler {
 	@Override
 	public boolean shouldRender3DInInventory() {
 		return true;
-	}
-
-	@Override
-	public int getRenderId() {
-		return ClientProxy.HSBRENDERER_ID;
-	}
-
-	@Override
-	public void renderInventoryBlock(Block block, int metadata, int modelID,
-			RenderBlocks renderer) {
-		Tessellator tes = Tessellator.instance;
-		
-        block.setBlockBoundsForItemRender();
-        GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
-        
-        tes.startDrawingQuads();
-        tes.setNormal(0.0F, -1.0F, 0.0F);
-        renderer.renderBottomFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(0, metadata));
-        tes.draw();
-
-        tes.startDrawingQuads();
-        tes.setNormal(0.0F, 1.0F, 0.0F);
-        renderer.renderTopFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(1, metadata));
-        tes.draw();
-
-        tes.startDrawingQuads();
-        tes.setNormal(0.0F, 0.0F, -1.0F);
-        renderer.renderEastFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(2, metadata));
-        tes.draw();
-        tes.startDrawingQuads();
-        tes.setNormal(0.0F, 0.0F, 1.0F);
-        renderer.renderWestFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(3, metadata));
-        tes.draw();
-        tes.startDrawingQuads();
-        tes.setNormal(-1.0F, 0.0F, 0.0F);
-        renderer.renderNorthFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(4, metadata));
-        tes.draw();
-        tes.startDrawingQuads();
-        tes.setNormal(1.0F, 0.0F, 0.0F);
-        renderer.renderSouthFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(5, metadata));
-        tes.draw();
-        GL11.glTranslatef(0.5F, 0.5F, 0.5F);
-		
 	}
 }

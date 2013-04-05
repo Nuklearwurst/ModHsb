@@ -31,17 +31,6 @@ public class ItemBlockPlacer extends Item
 	implements IElectricItem
 {
 	 public static int blockID;
-	    public int energyUse;
-
-	    public ItemBlockPlacer(int id)
-	    {
-	        super(id);
-	        this.setMaxStackSize(1);
-	        this.setMaxDamage(13);
-	        this.energyUse = 32;
-	        this.setCreativeTab(CreativeTabHsb.tabHsb);
-	        setIconIndex(0);//TODO energyUse
-	    }
 	    /**
 	     * Set the BlockId placed by this Item
 	     * Call this before Using
@@ -52,6 +41,112 @@ public class ItemBlockPlacer extends Item
 	    public static int setBlockId(int id)
 	    {
 	    	return blockID=id;
+	    }
+
+	    public int energyUse;
+	    public ItemBlockPlacer(int id)
+	    {
+	        super(id);
+	        this.setMaxStackSize(1);
+	        this.setMaxDamage(13);
+	        this.energyUse = 32;
+	        this.setCreativeTab(CreativeTabHsb.tabHsb);
+	        setIconIndex(0);//TODO energyUse
+	    }
+	    @SuppressWarnings({ "rawtypes", "unchecked" })
+		@SideOnly(Side.CLIENT)
+	    @Override
+
+	    /**
+	     * allows items to add custom lines of information to the mouseover description
+	     * Here: Port
+	     */
+	    public void addInformation(ItemStack itemstack, EntityPlayer player, List list, boolean par4)
+	    {
+	        if(itemstack.getTagCompound()!=null)
+	        {
+	        	int port = itemstack.getTagCompound().getInteger("port");
+	        	list.add("Port: " + port);
+	        }
+	    }
+	    @Override
+		public boolean canProvideEnergy()
+	    {
+	        return false;
+	    }
+	    @Override
+		public int getChargedItemId()
+	    {
+	        return HsbItems.itemBlockPlacer.itemID;
+	    }
+
+	    @Override
+		public int getEmptyItemId()
+	    {
+//	        return HsbItems.itemBlockPlacerEmpty.shiftedIndex;
+	        return HsbItems.itemBlockPlacer.itemID;	    	
+	    }
+	    @Override
+	    public String getItemDisplayName(ItemStack itemstack)
+	    {
+    		String mode = "";
+	    	if(itemstack.getTagCompound() != null)
+	    	{
+	    		switch(itemstack.getTagCompound().getInteger("mode"))
+	    		{
+	    		case 0:
+	    			mode = " <Place> ";
+	    			break;
+	    		case 1:
+	    			mode = " <Remove> ";
+	    			break;
+	    		default:
+	    			mode = " <Error> ";
+	    			break;
+	    		}
+	    	}
+	    	return super.getItemDisplayName(itemstack) + mode;
+	    }
+	    @Override
+		public int getMaxCharge()
+	    {
+	        return 9600;
+	        //TODO tuning/balance
+	    }
+	    @Override
+	    public boolean getShareTag()
+	    {
+	        return true;
+	    }
+	    @Override
+	    public String getTextureFile()
+	    {
+	        return CommonProxy.TEXTURE_ITEMS;
+	    }
+	    @Override
+		public int getTier()
+	    {
+	        return 1;
+	    }
+	    @Override
+		public int getTransferLimit()
+	    {
+	        return 100;
+	    }
+	    @Override
+	    public void onCreated(ItemStack itemstack, World world, EntityPlayer entityplayer)
+	    {
+	        NBTTagCompound nbttagcompound;
+	        nbttagcompound = itemstack.getTagCompound();
+
+	        if (nbttagcompound == null)
+	        {
+	            nbttagcompound = new NBTTagCompound();
+	            itemstack.setTagCompound(nbttagcompound);
+	        }
+
+	        nbttagcompound.setInteger("port", 0);
+	        nbttagcompound.setInteger("mode", 0);
 	    }
 	    @Override
 	    public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer entityplayer)
@@ -74,6 +169,7 @@ public class ItemBlockPlacer extends Item
 	    		entityplayer.openGui(ModHsb.instance, GuiHandler.GUI_BLOCKPLACER, world, (int)entityplayer.posX, (int)entityplayer.posY, (int)entityplayer.posZ);
 	        return itemstack;
 	    }
+	    
 	    @Override
 	    public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
 	    {
@@ -212,59 +308,7 @@ public class ItemBlockPlacer extends Item
 	    	}
 			return false;
 	    }
-	    @Override
-	    public void onCreated(ItemStack itemstack, World world, EntityPlayer entityplayer)
-	    {
-	        NBTTagCompound nbttagcompound;
-	        nbttagcompound = itemstack.getTagCompound();
-
-	        if (nbttagcompound == null)
-	        {
-	            nbttagcompound = new NBTTagCompound();
-	            itemstack.setTagCompound(nbttagcompound);
-	        }
-
-	        nbttagcompound.setInteger("port", 0);
-	        nbttagcompound.setInteger("mode", 0);
-	    }
-
-	    @Override
-		public boolean canProvideEnergy()
-	    {
-	        return false;
-	    }
-	    @Override
-		public int getChargedItemId()
-	    {
-	        return HsbItems.itemBlockPlacer.itemID;
-	    }
-	    @Override
-		public int getEmptyItemId()
-	    {
-//	        return HsbItems.itemBlockPlacerEmpty.shiftedIndex;
-	        return HsbItems.itemBlockPlacer.itemID;	    	
-	    }
-	    @Override
-		public int getMaxCharge()
-	    {
-	        return 9600;
-	        //TODO tuning/balance
-	    }
-	    @Override
-		public int getTier()
-	    {
-	        return 1;
-	    }
-	    @Override
-		public int getTransferLimit()
-	    {
-	        return 100;
-	    }
-	    @Override
-	    public String getTextureFile()
-	    {
-	        return CommonProxy.TEXTURE_ITEMS;
-	    }
+	    
 	    /**
 	     * Called to actually place the block, after the location is determined
 	     * and all permission checks have been made.
@@ -277,7 +321,7 @@ public class ItemBlockPlacer extends Item
 	    {
 	    	if(!player.capabilities.isCreativeMode)
 	    	{
-	    		if(!Config.ECLIPSE)
+	    		if(Config.ic2Available)
 	    		{
 		    		if(ElectricItem.discharge(stack, energyUse, getTier(), true, true) >= 0)
 		    		{
@@ -309,49 +353,5 @@ public class ItemBlockPlacer extends Item
 			}
 	
 		   return true;
-	    }
-	    @Override
-	    public boolean getShareTag()
-	    {
-	        return true;
-	    }
-	    
-	    @SuppressWarnings({ "rawtypes", "unchecked" })
-		@SideOnly(Side.CLIENT)
-	    @Override
-
-	    /**
-	     * allows items to add custom lines of information to the mouseover description
-	     * Here: Port
-	     */
-	    public void addInformation(ItemStack itemstack, EntityPlayer player, List list, boolean par4)
-	    {
-	        if(itemstack.getTagCompound()!=null)
-	        {
-	        	int port = itemstack.getTagCompound().getInteger("port");
-	        	list.add("Port: " + port);
-	        }
-	    }
-	    
-	    @Override
-	    public String getItemDisplayName(ItemStack itemstack)
-	    {
-    		String mode = "";
-	    	if(itemstack.getTagCompound() != null)
-	    	{
-	    		switch(itemstack.getTagCompound().getInteger("mode"))
-	    		{
-	    		case 0:
-	    			mode = " <Place> ";
-	    			break;
-	    		case 1:
-	    			mode = " <Remove> ";
-	    			break;
-	    		default:
-	    			mode = " <Error> ";
-	    			break;
-	    		}
-	    	}
-	    	return super.getItemDisplayName(itemstack) + mode;
 	    }
 }

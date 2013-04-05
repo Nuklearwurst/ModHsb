@@ -5,7 +5,7 @@ package hsb.api.upgrade;
  * @author Jonas
  *
  */
-public interface IItemHsbUpgrade {
+public interface IItemHsbUpgrade  {
 
 	/*
 	 * moved to IHsbUpgrade
@@ -18,6 +18,7 @@ public interface IItemHsbUpgrade {
 //	public void onTileLoad(NBTTagCompound nbttagcompound, TileEntityLockTerminal te);
 //	public void onGuiOpen( TileEntityLockTerminal te);
 	
+	public String getUniqueId(int meta);
 	/**
 	 * 
 	 * @param meta of the Item

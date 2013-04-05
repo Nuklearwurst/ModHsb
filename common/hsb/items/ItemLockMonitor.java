@@ -45,10 +45,15 @@ public class ItemLockMonitor extends Item
 	}
 
 	@Override
+	public String getTextureFile() {
+		return CommonProxy.TEXTURE_ITEMS;
+		
+	}
+
+	@Override
 	public int getTier() {
 		return 1;
 	}
-
 	@Override
 	public int getTransferLimit() {
 		return 32;
@@ -80,11 +85,6 @@ public class ItemLockMonitor extends Item
 		} else {
 			return te instanceof TileEntityHsb;
 		}
-	}
-	@Override
-	public String getTextureFile() {
-		return CommonProxy.TEXTURE_ITEMS;
-		
 	}
 
 }

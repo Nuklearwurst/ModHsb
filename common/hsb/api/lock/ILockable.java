@@ -7,13 +7,7 @@ package hsb.api.lock;
  */
 public interface ILockable extends ILockReceiver{
 	
-	/**
-	 * 
-	 * @return Port of the Tile
-	 */
-	public int getPort();
-	
-	public void setPort(int port);
+	public ILockTerminal getConnectedTerminal();
 	
 	/**
 	 * 
@@ -21,15 +15,21 @@ public interface ILockable extends ILockReceiver{
 	 */
 	public String getPass();
 	
-	public void setPass(String pass);
-	
-	public ILockTerminal getConnectedTerminal();
+	/**
+	 * 
+	 * @return Port of the Tile
+	 */
+	public int getPort();
 	
 	/**
 	 * used to check if the Terminal can send signals (eg. the terminal got removed)
 	 * @return return true if the Terminal is going to be destroyed  
 	 */
 	boolean isDestroyed();
+	
+	public void setPass(String pass);
+	
+	public void setPort(int port);
 	
 	
 	

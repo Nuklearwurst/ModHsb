@@ -46,6 +46,12 @@ public class ItemLockHacker extends Item
 	}
 
 	@Override
+	public String getTextureFile() {
+		return CommonProxy.TEXTURE_ITEMS;
+		
+	}
+
+	@Override
 	public int getTier() {
 		return 1;
 	}
@@ -54,7 +60,6 @@ public class ItemLockHacker extends Item
 	public int getTransferLimit() {
 		return 32;
 	}
-
 	@Override
 	public boolean onItemUse(ItemStack itemstack, EntityPlayer entityplayer, World world, int x, int y, int z, int side, float par8, float par9, float par10)
 	{
@@ -89,11 +94,6 @@ public class ItemLockHacker extends Item
 		} else {
 			return te instanceof TileEntityHsb;
 		}
-	}
-	@Override
-	public String getTextureFile() {
-		return CommonProxy.TEXTURE_ITEMS;
-		
 	}
 	
 

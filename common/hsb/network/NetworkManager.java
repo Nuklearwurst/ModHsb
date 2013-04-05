@@ -1,27 +1,15 @@
 package hsb.network;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
-
-
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
 import hsb.ModHsb;
 import hsb.config.Config;
-import hsb.network.packet.PacketClientTileEvent;
 import hsb.network.packet.PacketTileFieldUpdate;
 import ic2.api.network.INetworkDataProvider;
 import ic2.api.network.NetworkHelper;
@@ -34,15 +22,39 @@ import ic2.api.network.NetworkHelper;
  */
 public class NetworkManager {
 	
-	public final int event_range = 20;
+	public static NetworkManager getInstance() {
+		return ModHsb.network_manager;
+	}
 
-	  private int maxNetworkedFieldsToUpdate = 4000;
+	  public final int event_range = 20;
+		
+	public void initiateClientTileEntityEvent(TileEntity te, int ev) {}
 	
 	/**
 	 * workaround if ic2 is not installed
 	 * @param te
 	 */
 	public void requestInitialData(INetworkDataProvider te) {}
+	@SuppressWarnings("unchecked")
+	private void sendPacketToPlayers(int radius, TileEntity te, Packet packet)
+	{
+		try {
+			
+			AxisAlignedBB box = AxisAlignedBB.getBoundingBox(
+					te.xCoord - radius, te.yCoord - radius, te.zCoord - radius,
+					te.xCoord + radius,	te.yCoord + radius, te.zCoord + radius);
+			
+			List<EntityPlayer> e = te.worldObj.getEntitiesWithinAABB(EntityPlayer.class, box);
+//			te.worldObj.playerEntities.iterator();
+			Config.logDebug(e.size() + " Players found!\n X,Y,Z Coords: " + te.xCoord + ", " + te.yCoord + ", " + te.zCoord);
+			for( EntityPlayer player : e) {
+				PacketDispatcher.sendPacketToPlayer(packet, (Player)player);
+			}
+		} catch(Exception e) {
+			Config.logError("Error occured wehen sending event to Client!!!");
+			e.printStackTrace();
+		}
+	}
 	
 	public void updateTileEntityField(TileEntity te, String s) {
 		if(Config.ic2Available)
@@ -73,32 +85,6 @@ public class NetworkManager {
 				Config.logError("Empty Field to be updated!");
 			}
 		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void sendPacketToPlayers(int radius, TileEntity te, Packet packet)
-	{
-		try {
-			
-			AxisAlignedBB box = AxisAlignedBB.getBoundingBox(
-					te.xCoord - radius, te.yCoord - radius, te.zCoord - radius,
-					te.xCoord + radius,	te.yCoord + radius, te.zCoord + radius);
-			
-			List<EntityPlayer> e = te.worldObj.getEntitiesWithinAABB(EntityPlayer.class, box);
-//			te.worldObj.playerEntities.iterator();
-			Config.logDebug(e.size() + " Players found!\n X,Y,Z Coords: " + te.xCoord + ", " + te.yCoord + ", " + te.zCoord);
-			for( EntityPlayer player : e) {
-				PacketDispatcher.sendPacketToPlayer(packet, (Player)player);
-			}
-		} catch(Exception e) {
-			Config.logError("Error occured wehen sending event to Client!!!");
-			e.printStackTrace();
-		}
-	}
-	public void initiateClientTileEntityEvent(TileEntity te, int ev) {}
-	
-	public static NetworkManager getInstance() {
-		return ModHsb.network_manager;
 	}
 	
 }

@@ -37,9 +37,9 @@ public abstract class PacketHsb {
 		return packet;
 	}
 
-	public abstract void readData(DataInputStream data) throws IOException;
-
-	public abstract void writeData(DataOutputStream data) throws IOException;
-	
 	public abstract void onPacketData(DataInputStream data, Player player) throws IOException;
+
+	public abstract void readData(DataInputStream data) throws IOException;
+	
+	public abstract void writeData(DataOutputStream data) throws IOException;
 }

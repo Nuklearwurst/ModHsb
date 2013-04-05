@@ -5,25 +5,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import hsb.api.upgrade.IHsbUpgrade;
 import hsb.config.HsbItems;
+import hsb.items.ItemHsbUpgrade;
 import hsb.network.packet.PacketHsb;
 import hsb.tileentitys.TileEntityLockTerminal;
 
 public class UpgradeSecurity implements IHsbUpgrade {
-
-	@Override
-	public void updateUpgrade(TileEntityLockTerminal te) {
-		int index = te.upgradeCount[te.getUpgradeId(getUniqueId())];
-		te.securityLevel = index;
-
-	}
-
-	@Override
-	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player,
-			int button) {
-		if(!te.worldObj.isRemote){
-			player.sendChatToPlayer("Current security level: " + te.securityLevel);
-		}
-	}
 
 	@Override
 	public String getButtonName() {
@@ -37,12 +23,27 @@ public class UpgradeSecurity implements IHsbUpgrade {
 
 	@Override
 	public String getUniqueId() {
-		return "security";
+		return ItemHsbUpgrade.ID_UPGRADE_SECURITY;
 	}
 
 	@Override
-	public void onTileSave(NBTTagCompound nbttagcompound,
-			TileEntityLockTerminal te) {
+	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {}
+
+	@Override
+	public boolean isEnabledByDefault() {
+		return true;
+	}
+
+	@Override
+	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player,
+			int button) {
+		if(!te.worldObj.isRemote){
+			player.sendChatToPlayer("Current security level: " + te.securityLevel);
+		}
+	}
+
+	@Override
+	public void onGuiOpen(TileEntityLockTerminal te) {
 	}
 
 	@Override
@@ -51,14 +52,14 @@ public class UpgradeSecurity implements IHsbUpgrade {
 	}
 
 	@Override
-	public void onGuiOpen(TileEntityLockTerminal te) {
+	public void onTileSave(NBTTagCompound nbttagcompound,
+			TileEntityLockTerminal te) {
 	}
 
 	@Override
-	public boolean isEnabledByDefault() {
-		return true;
-	}
+	public void updateUpgrade(TileEntityLockTerminal te) {
+		int index = te.upgradeCount[te.getUpgradeId(getUniqueId())];
+		te.securityLevel = index;
 
-	@Override
-	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {}
+	}
 }

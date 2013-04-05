@@ -11,19 +11,6 @@ import hsb.tileentitys.TileEntityLockTerminal;
 public class UpgradeDummy implements IHsbUpgrade {
 
 	@Override
-	public void updateUpgrade(TileEntityLockTerminal te) {
-	}
-
-	@Override
-	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player,
-			int button) {
-		if(!te.worldObj.isRemote){
-			player.sendChatToPlayer("Unknown Upgrade!!");
-		}
-
-	}
-
-	@Override
 	public String getButtonName() {
 		return "??";
 	}
@@ -39,8 +26,24 @@ public class UpgradeDummy implements IHsbUpgrade {
 	}
 
 	@Override
-	public void onTileSave(NBTTagCompound nbttagcompound,
-			TileEntityLockTerminal te) {
+	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {}
+
+	@Override
+	public boolean isEnabledByDefault() {
+		return true;
+	}
+
+	@Override
+	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player,
+			int button) {
+		if(!te.worldObj.isRemote){
+			player.sendChatToPlayer("Unknown Upgrade!!");
+		}
+
+	}
+
+	@Override
+	public void onGuiOpen(TileEntityLockTerminal te) {
 	}
 
 	@Override
@@ -49,15 +52,12 @@ public class UpgradeDummy implements IHsbUpgrade {
 	}
 
 	@Override
-	public void onGuiOpen(TileEntityLockTerminal te) {
-	}
-
-	@Override
-	public boolean isEnabledByDefault() {
-		return true;
+	public void onTileSave(NBTTagCompound nbttagcompound,
+			TileEntityLockTerminal te) {
 	}
 	
 	@Override
-	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {}
+	public void updateUpgrade(TileEntityLockTerminal te) {
+	}
 
 }

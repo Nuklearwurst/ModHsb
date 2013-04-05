@@ -11,13 +11,21 @@ public interface ILockTerminal extends ILockable{
 	
 	
 	/**
+	 * adds the given tileentity to the termianl
+	 * @param te
+	 */
+	void addBlockToTileEntity(ILockable te);
+
+	/**
 	 * used for the Camo Upgrade
 	 * 
 	 * @return Block id of the Camoflage upgrade, or -1 if tere is none
 	 */
 	int getCamoBlockId();
-
+	
 	int getCamoMeta();
+	
+	int getSecurityLevel();
 	
 	/**
 	 * Tesla Upgrades
@@ -26,14 +34,6 @@ public interface ILockTerminal extends ILockable{
 	int getTesla();
 	
 	TileEntity getTileEntity();
-	
-	/**
-	 * adds the given tileentity to the termianl
-	 * @param te
-	 */
-	void addBlockToTileEntity(ILockable te);
-	
-	int getSecurityLevel();
 	
 	
 

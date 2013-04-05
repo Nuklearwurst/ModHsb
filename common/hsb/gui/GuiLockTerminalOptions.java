@@ -38,34 +38,6 @@ public class GuiLockTerminalOptions extends GuiContainer
         port = te.getPort();
         lastPassLength = te.extraPassLength;
     }
-    @SuppressWarnings("unchecked")
-	public void initGui()
-    {
-        super.initGui();
-        xPos = width / 2 - xSize / 2;
-        yPos = height / 2 - ySize / 2;
-        this.controlList.clear();
-        
-        this.controlList.add(new GuiButton(1, xPos + xSize / 2 - 40, yPos + 50, 20, 20, "-"));
-        this.controlList.add(new GuiButton(2, xPos + xSize / 2 + 20, yPos + 50, 20, 20, "+"));
-        this.controlList.add(new GuiButton(3, xPos + xSize / 2 - 70, yPos + 50, 30, 20, "-10"));
-        this.controlList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 50, 30, 20, "+10"));
-        
-        this.controlList.add(new GuiButton(5, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));
-        
-        this.textField = new GuiTextField(this.fontRenderer,  xPos + xSize / 2 - 70, yPos + 90, 140, 20);
-        this.textField.setMaxStringLength(TileEntityLockTerminal.defaultPassLength + te.extraPassLength);
-        this.textField.setFocused(false);
-        this.textField.setText(te.getPass());
-        
-        
-
-        
-        
-        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
-
-    }
-
     @Override
     protected void actionPerformed(GuiButton guibutton)
     {
@@ -96,23 +68,25 @@ public class GuiLockTerminalOptions extends GuiContainer
         }
         super.actionPerformed(guibutton);
     }
-    
-    private void updatePort(int number)
+
+    @Override
+	public boolean doesGuiPauseGame()
     {
-        this.port += number;
-
-        if (this.port < 0)
-        {
-            this.port = TileEntityLockTerminal.maxPort + this.port;
-        }
-
-        if (this.port >= TileEntityLockTerminal.maxPort)
-        {
-            this.port -= TileEntityLockTerminal.maxPort;
-        }
+        return false;
     }
+    
+    @Override
+	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
+			int var3) {
+		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminalOptions.png");
+        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+        mc.renderEngine.bindTexture(i);
+        drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
+		
+	}
 
-    public void drawScreen(int par1, int par2, float par3)
+    @Override
+	public void drawScreen(int par1, int par2, float par3)
     {
     	super.drawScreen(par1, par2, par3);
         this.drawString(this.fontRenderer, "Port:", xPos + xSize / 2 - this.fontRenderer.getStringWidth("Port:") / 2,yPos + 35, 10526880);
@@ -127,46 +101,45 @@ public class GuiLockTerminalOptions extends GuiContainer
         drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
         drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
     }
-    public boolean doesGuiPauseGame()
+    @Override
+	@SuppressWarnings("unchecked")
+	public void initGui()
     {
-        return false;
+        super.initGui();
+        xPos = width / 2 - xSize / 2;
+        yPos = height / 2 - ySize / 2;
+        this.controlList.clear();
+        
+        this.controlList.add(new GuiButton(1, xPos + xSize / 2 - 40, yPos + 50, 20, 20, "-"));
+        this.controlList.add(new GuiButton(2, xPos + xSize / 2 + 20, yPos + 50, 20, 20, "+"));
+        this.controlList.add(new GuiButton(3, xPos + xSize / 2 - 70, yPos + 50, 30, 20, "-10"));
+        this.controlList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 50, 30, 20, "+10"));
+        
+        this.controlList.add(new GuiButton(5, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));
+        
+        this.textField = new GuiTextField(this.fontRenderer,  xPos + xSize / 2 - 70, yPos + 90, 140, 20);
+        this.textField.setMaxStringLength(TileEntityLockTerminal.defaultPassLength + te.extraPassLength);
+        this.textField.setFocused(false);
+        this.textField.setText(te.getPass());
+        
+        
+
+        
+        
+        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
+
     }
 	@Override
-	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
-			int var3) {
-		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminalOptions.png");
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(i);
-        drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
-		
-	}
-	@Override
-    public void updateScreen()
+	protected void keyTyped(char par1, int par2)
     {
-    	super.updateScreen();
-//        updateCounter++;
-        this.textField.updateCursorCounter();
-        if(te.extraPassLength != lastPassLength)
+        super.keyTyped(par1, par2);
+        if (par2 == 1)
         {
-        	this.textField.setMaxStringLength(te.extraPassLength +TileEntityLockTerminal.defaultPassLength);
-        	lastPassLength = te.extraPassLength;
-        	String text = this.textField.getText();
-        	if(text.length() > this.textField.getMaxStringLength())
-        	{
-        		this.textField.setText("error");
-        	}
+            this.mc.thePlayer.closeScreen();
         }
+        this.textField.textboxKeyTyped(par1, par2);
     }
 	@Override
-    public void onGuiClosed()
-    {
-        Keyboard.enableRepeatEvents(false);
-        te.setPass(textField.getText());
-        te.setPort(this.port);
-    	PacketTerminalUpdate packet = new PacketTerminalUpdate(te, textField.getText(), this.port);
-    	((EntityClientPlayerMP)entityplayer).sendQueue.addToSendQueue(packet.getPacket());  
-        super.onGuiClosed();
-    }
 	protected void mouseClicked(int par1, int par2, int par3)
     {
         this.textField.mouseClicked(par1, par2, par3);
@@ -182,14 +155,46 @@ public class GuiLockTerminalOptions extends GuiContainer
 
         super.mouseClicked(par1, par2, par3);
     }
-
-    protected void keyTyped(char par1, int par2)
+	@Override
+    public void onGuiClosed()
     {
-        super.keyTyped(par1, par2);
-        if (par2 == 1)
+        Keyboard.enableRepeatEvents(false);
+        te.setPass(textField.getText());
+        te.setPort(this.port);
+    	PacketTerminalUpdate packet = new PacketTerminalUpdate(te, textField.getText(), this.port);
+    	((EntityClientPlayerMP)entityplayer).sendQueue.addToSendQueue(packet.getPacket());  
+        super.onGuiClosed();
+    }
+	private void updatePort(int number)
+    {
+        this.port += number;
+
+        if (this.port < 0)
         {
-            this.mc.thePlayer.closeScreen();
+            this.port = TileEntityLockTerminal.maxPort + this.port;
         }
-        this.textField.textboxKeyTyped(par1, par2);
+
+        if (this.port >= TileEntityLockTerminal.maxPort)
+        {
+            this.port -= TileEntityLockTerminal.maxPort;
+        }
+    }
+
+    @Override
+    public void updateScreen()
+    {
+    	super.updateScreen();
+//        updateCounter++;
+        this.textField.updateCursorCounter();
+        if(te.extraPassLength != lastPassLength)
+        {
+        	this.textField.setMaxStringLength(te.extraPassLength +TileEntityLockTerminal.defaultPassLength);
+        	lastPassLength = te.extraPassLength;
+        	String text = this.textField.getText();
+        	if(text.length() > this.textField.getMaxStringLength())
+        	{
+        		this.textField.setText("error");
+        	}
+        }
     }
 }

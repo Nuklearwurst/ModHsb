@@ -23,7 +23,8 @@ public class ItemDebugTool extends Item {
 		return CommonProxy.TEXTURE_ITEMS;
 		
 	}
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) 
+    @Override
+	public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) 
     {
     	if(player == null)
     		return false;

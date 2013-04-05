@@ -91,16 +91,6 @@ public class ContainerLockTerminal extends Container {
         
     }
     
-    public void onCraftGuiClosed(EntityPlayer player)
-    {
-    	super.onCraftGuiClosed(player);
-    }
-
-    @Override
-    public boolean canInteractWith(EntityPlayer entityplayer)
-    {
-        return this.te.isUseableByPlayer(entityplayer);
-    }
     @Override
 	public void addCraftingToCrafters(ICrafting par1ICrafting)
     {
@@ -123,6 +113,11 @@ public class ContainerLockTerminal extends Container {
         }
     }
 
+    @Override
+    public boolean canInteractWith(EntityPlayer entityplayer)
+    {
+        return this.te.isUseableByPlayer(entityplayer);
+    }
     /**
      * Updates crafting matrix; called from onCraftMatrixChanged. Args: none
      */
@@ -174,37 +169,11 @@ public class ContainerLockTerminal extends Container {
     }
 
     @Override
-	@SideOnly(Side.CLIENT)
-    public void updateProgressBar(int id, int value)
+	public void onCraftGuiClosed(EntityPlayer player)
     {
-    	if(this.isTerminal)
-    	{
-	    	if (id == 0)
-	        {
-	            this.te.energyStored = value;
-	        }
-	        if (id == 1)
-	        {
-	        	if(value == 0)
-	        	{
-	        		this.te.locked = false;
-	        	} else if(value == 1)
-	        	{
-	        		this.te.locked = true;
-	        	}
-	        }
-	        if(id == 2) 
-	        {
-	        	this.te.extraStorage = value;
-	        }
-    	} else {
-    		if( id == 3)
-    		{
-    			this.te.extraPassLength = value;
-    		}
-    	}
+    	super.onCraftGuiClosed(player);
     }
-    
+
     @Override
     /**
      * returns stack left in the slot?
@@ -238,7 +207,7 @@ public class ContainerLockTerminal extends Container {
 	            }
 	            //from player:
 	           //Ic2 Upgrades
-	            else if((stack.isItemEqual(Config.getIC2Item("transformerUpgrade")) || stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")) || stack.isItemEqual(Config.getIC2Item("overclockerUpgrade"))))
+	            else if(Config.ic2Available && (stack.isItemEqual(Config.getIC2Item("transformerUpgrade")) || stack.isItemEqual(Config.getIC2Item("energyStorageUpgrade")) || stack.isItemEqual(Config.getIC2Item("overclockerUpgrade"))))
 	            {
 	            	if(!this.mergeItemStack(stackSlot, 0, 4, false))
 	            	{
@@ -286,6 +255,38 @@ public class ContainerLockTerminal extends Container {
         }
 
         return stack;
+    }
+    
+    @Override
+	@SideOnly(Side.CLIENT)
+    public void updateProgressBar(int id, int value)
+    {
+    	if(this.isTerminal)
+    	{
+	    	if (id == 0)
+	        {
+	            this.te.energyStored = value;
+	        }
+	        if (id == 1)
+	        {
+	        	if(value == 0)
+	        	{
+	        		this.te.locked = false;
+	        	} else if(value == 1)
+	        	{
+	        		this.te.locked = true;
+	        	}
+	        }
+	        if(id == 2) 
+	        {
+	        	this.te.extraStorage = value;
+	        }
+    	} else {
+    		if( id == 3)
+    		{
+    			this.te.extraPassLength = value;
+    		}
+    	}
     }
 
 }

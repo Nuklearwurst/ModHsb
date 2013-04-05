@@ -13,7 +13,8 @@ public class ItemBlockHsb extends ItemBlock {
         this.setMaxDamage(0);
         this.setHasSubtypes(true);
 	}
-    @SideOnly(Side.CLIENT)
+    @Override
+	@SideOnly(Side.CLIENT)
 
     /**
      * Gets an icon index based on an item's damage value
@@ -23,15 +24,8 @@ public class ItemBlockHsb extends ItemBlock {
         return HsbItems.blockHsb.getBlockTextureFromSideAndMetadata(2, meta);
     }
 
-    /**
-     * Returns the metadata of the block which this Item (ItemBlock) can place
-     */
-    public int getMetadata(int meta)
-    {
-        return meta;
-    }
-
-    public String getItemNameIS(ItemStack itemStack)
+    @Override
+	public String getItemNameIS(ItemStack itemStack)
     {
     	switch(itemStack.getItemDamage())
     	{
@@ -48,6 +42,15 @@ public class ItemBlockHsb extends ItemBlock {
     		return "hsbGuiAccess";
     	}
     	return null;
+    }
+
+    /**
+     * Returns the metadata of the block which this Item (ItemBlock) can place
+     */
+    @Override
+	public int getMetadata(int meta)
+    {
+        return meta;
     }
 
 }

@@ -13,10 +13,8 @@ import java.util.Vector;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Facing;
 import net.minecraft.world.World;
 
-import hsb.api.lock.ILockReceiver;
 import hsb.api.lock.ILockTerminal;
 import hsb.api.lock.ILockable;
 import hsb.config.Config;
@@ -26,6 +24,9 @@ public abstract class TileEntityHsb extends TileEntity
 {
 	public short facing = 1;
 	protected short prevFacing;
+	
+	// >0 when the tile should transfer its signal
+	protected short hasSignal = -1;
 	
 	protected boolean init = false;
 	
@@ -42,6 +43,8 @@ public abstract class TileEntityHsb extends TileEntity
 	public int zTer = 0;
 	
 	
+	
+	
 	public TileEntityHsb() {
 		super();
 		facing = 1;
@@ -53,15 +56,16 @@ public abstract class TileEntityHsb extends TileEntity
 
 	}
 	
+	@Override
+	public boolean connectsTo(int side) {return true;}
+	
+	@Override
 	public ILockTerminal getConnectedTerminal() {
 		TileEntity te = this.worldObj.getBlockTileEntity(xTer, yTer, zTer);
 		if(te instanceof ILockTerminal)
 			return (ILockTerminal) te;
 		return null;
 	}
-	
-	@Override
-	public boolean connectsTo(int side) {return true;}
 
 	
 	@Override
@@ -73,16 +77,27 @@ public abstract class TileEntityHsb extends TileEntity
 	public List<String> getNetworkedFields() {
 		List<String> list = new Vector<String>(4);
 	    list.add("facing");
+	    //?
 	    list.add("port");
 	    list.add("pass");
+	    //
 	    list.add("locked");
 	    
 	    return list;
 	}
 	
+	@Override
+	public String getPass() {
+		return pass;
+	}
+	
+	@Override
+	public int getPort() {
+		return port;
+	}
+	
 	protected void initData()
     {
-        onInventoryChanged();
 		if(worldObj.isRemote)
         {
     		NetworkManager.getInstance().requestInitialData(this);
@@ -90,6 +105,22 @@ public abstract class TileEntityHsb extends TileEntity
         init = true;
     }
 	
+	@Override
+	public boolean isDestroyed() {
+		return removed;
+	}
+	
+	@Override
+	public void onNetworkEvent(EntityPlayer player, int event) {
+		event = event - 2;
+		if(event > 99 || event < 0)
+		{
+			Config.logError("Unexpected event!! " + event);
+			return;
+		}
+		this.port = event;
+	}
+
 	@Override
 	public void onNetworkUpdate(String field) {
 		 if (field.equals("facing") && prevFacing != facing)
@@ -104,34 +135,7 @@ public abstract class TileEntityHsb extends TileEntity
 	     }
 		
 	}
-	
-	@Override
-    public void readFromNBT(NBTTagCompound nbttagcompound)
-    {
-        super.readFromNBT(nbttagcompound);
-        facing = nbttagcompound.getShort("facing");
-        prevFacing = this.facing;
-        locked = nbttagcompound.getBoolean("locked");
-        prevLocked = locked;
-        port = nbttagcompound.getInteger("port");
-        pass = nbttagcompound.getString("pass");
-        xTer = nbttagcompound.getInteger("xTer");
-        yTer = nbttagcompound.getInteger("yTer");
-        zTer = nbttagcompound.getInteger("zTer");
-    	this.onInventoryChanged();
-    }
-	
-	@Override
-	public void setFacing(short facing) {
-        this.facing = facing;
-        if (prevFacing != facing && !Config.ECLIPSE)
-        {
-            NetworkManager.getInstance().updateTileEntityField(this, "facing");
-        }
-        this.prevFacing = facing;
 
-	}
-	
 	public void onRemove(World world, int x, int y, int z, int par5, int par6) {
 		//only on server
 		if(this.worldObj.isRemote)
@@ -147,7 +151,28 @@ public abstract class TileEntityHsb extends TileEntity
 		//transfersignal (from this, no terminal, unlocking, pass, port, all sides)
 		LockManager.tranferSignal(this, null, false, pass, port, 6);
 	}
-
+	
+    @Override
+    public void readFromNBT(NBTTagCompound nbttagcompound)
+    {
+        super.readFromNBT(nbttagcompound);
+        
+        facing = nbttagcompound.getShort("facing");
+        prevFacing = this.facing;
+        
+        locked = nbttagcompound.getBoolean("locked");
+        prevLocked = locked;
+        
+        port = nbttagcompound.getInteger("port");
+        pass = nbttagcompound.getString("pass");
+        
+        xTer = nbttagcompound.getInteger("xTer");
+        yTer = nbttagcompound.getInteger("yTer");
+        zTer = nbttagcompound.getInteger("zTer");
+        
+    	this.onInventoryChanged();
+    }
+    
 	@Override
 	public boolean receiveSignal(int side, ILockTerminal te, boolean value, String pass, int port) {
 		//only simulated on server
@@ -199,7 +224,8 @@ public abstract class TileEntityHsb extends TileEntity
 		//TODO rewrite
 		//continue sending the signal
 		//this.transferSignal_do(te, value, pass, port, side);
-		LockManager.tranferSignal(this, getConnectedTerminal(), value, pass, port, side);
+		//LockManager.tranferSignal(this, getConnectedTerminal(), value, pass, port, side);
+		this.hasSignal = 5;
 		
 		//updating
 		NetworkManager.getInstance().updateTileEntityField(this, "locked");
@@ -232,59 +258,21 @@ public abstract class TileEntityHsb extends TileEntity
 //		}
 //		return true;
 //	}
-
+	
 	@Override
-    public void updateEntity()
-    {
-        super.updateEntity();
-		if (!init)
+	public void setFacing(short facing) {
+        this.facing = facing;
+        if (prevFacing != facing)
         {
-            initData();
-    		onInventoryChanged();
+            NetworkManager.getInstance().updateTileEntityField(this, "facing");
+        }
+        this.prevFacing = facing;
 
-        }  
-
-
-
-    }
-	
-    @Override
-    public void writeToNBT(NBTTagCompound nbttagcompound)
-    {
-        super.writeToNBT(nbttagcompound);
-        nbttagcompound.setShort("facing", this.facing);
-        nbttagcompound.setBoolean("locked", locked);
-        nbttagcompound.setInteger("port", port);
-        nbttagcompound.setString("pass", pass);
-        nbttagcompound.setInteger("xTer", xTer);
-        nbttagcompound.setInteger("yTer", yTer);
-        nbttagcompound.setInteger("zTer", zTer);
-    }
-    
-	@Override
-	public void onNetworkEvent(EntityPlayer player, int event) {
-		event = event - 2;
-		if(event > 99 || event < 0)
-		{
-			Config.logError("Unexpected event!! " + event);
-			return;
-		}
-		this.port = event;
-	}
-	
-	@Override
-	public int getPort() {
-		return port;
 	}
 
-	@Override
-	public String getPass() {
-		return pass;
-	}
-	
-	@Override
-	public boolean isDestroyed() {
-		return removed;
+	@Override 
+	public void setPass(String pass) {
+		this.pass = pass;
 	}
 	
 	@Override
@@ -292,8 +280,41 @@ public abstract class TileEntityHsb extends TileEntity
 		this.port = port;
 	}
 	
-	@Override 
-	public void setPass(String pass) {
-		this.pass = pass;
-	}
+	@Override
+    public void updateEntity()
+    {
+        super.updateEntity();
+		if (!init)
+        {
+            initData();
+        }
+		if(hasSignal == 0)
+		{
+			//transfer
+			LockManager.tranferSignal(this, getConnectedTerminal(), locked, getPass(), getPort(), 6);
+		}
+		if (hasSignal >= 0) {
+			hasSignal--;
+		}
+
+
+
+    }
+	
+	@Override
+    public void writeToNBT(NBTTagCompound nbttagcompound)
+    {
+        super.writeToNBT(nbttagcompound);
+        
+        nbttagcompound.setShort("facing", this.facing);
+        
+        nbttagcompound.setBoolean("locked", locked);
+        
+        nbttagcompound.setInteger("port", port);
+        nbttagcompound.setString("pass", pass);
+        
+        nbttagcompound.setInteger("xTer", xTer);
+        nbttagcompound.setInteger("yTer", yTer);
+        nbttagcompound.setInteger("zTer", zTer);
+    }
 }

@@ -15,6 +15,12 @@ public class WorldGenZwergenfestung extends WorldGenerator implements IWorldGene
     
   }
   @Override
+public void generate(Random random, int chunkX, int chunkZ, World world,
+		IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
+	this.generate(world, random, chunkX, 64, chunkZ);
+	
+}
+@Override
   public boolean generate(World world, Random rand, int x, int y, int z)
   {
      if(world.getBlockId(x, y, z)!= Block.grass.blockID || world.getBlockId(x, y + 1, z)!= 0)
@@ -1191,12 +1197,6 @@ public class WorldGenZwergenfestung extends WorldGenerator implements IWorldGene
 				
                return true;
   }
-@Override
-public void generate(Random random, int chunkX, int chunkZ, World world,
-		IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
-	this.generate(world, random, chunkX, 64, chunkZ);
-	
-}
 
  
 }

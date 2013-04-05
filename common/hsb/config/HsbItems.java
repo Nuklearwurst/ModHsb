@@ -15,30 +15,25 @@ public class HsbItems {
 	static ItemStack battery_empty;
 	static ItemStack battery;
 	
-	public static void initIC2() {
-		reinforcedStone = Config.getIC2Item("reinforcedStone");
-		circuit = Config.getIC2Item("electronicCircuit");
-		refinedIron = Config.getIC2Item("refinedIronIngot");
-		battery_empty = Config.getIC2Item("reBattery");
-		battery = Config.getIC2Item("chargedReBattery");
-	}
-	
 	//List of Items
 	public static Item itemDebugTool;
-	public static Item itemBlockPlacer;	
-	public static Item itemBlockPlacerEmpty;
+	
+	public static Item itemBlockPlacer;
+	public static Item itemBlockPlacerEmpty;	
 	public static Item itemLockMonitor;
 	public static Item itemLockMonitorEmpty;
 	public static Item itemLockHacker;
 	public static Item itemLockHackerEmpty;
 	//ItemBlocks
 	public static Item itemBlockHsb;
-	
 	public static Item itemHsbDoor;
 	
 	public static Item itemHsbUpgrade;
 	
 	public static Item itemCreativePower;
+	
+	//List of Blocks
+	public static Block blockHsb;
 	
 	//Not in use!
 //	public static Item itemBlockBuilding;
@@ -46,10 +41,15 @@ public class HsbItems {
 
 	//Upgrades
 	
-	//List of Blocks
-	public static Block blockHsb;
 	public static Block blockHsbDoor;
 	//Config
+	public static void initIC2() {
+		reinforcedStone = Config.getIC2Item("reinforcedStone");
+		circuit = Config.getIC2Item("electronicCircuit");
+		refinedIron = Config.getIC2Item("refinedIronIngot");
+		battery_empty = Config.getIC2Item("reBattery");
+		battery = Config.getIC2Item("chargedReBattery");
+	}
 
 	//Register
 	public static void register()

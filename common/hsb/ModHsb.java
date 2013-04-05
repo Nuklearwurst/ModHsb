@@ -55,10 +55,14 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 channels={Defaults.NET_CHANNEL}, packetHandler = PacketHandler.class)
 public class ModHsb{
 	static final String version= "0.1";
-	@PreInit
-	void preInit(FMLPreInitializationEvent evt) {
-		Config.preinit(evt);
-	}
+	@Instance
+	public static ModHsb instance;
+	
+	@SidedProxy(clientSide = "hsb.ClientProxy", serverSide = "hsb.CommonProxy") //TODO Bukkit
+	public static CommonProxy proxy;
+	
+	@SidedProxy(clientSide = "hsb.network.NetworkManagerClient", serverSide = "hsb.network.NetworkManager") //TODO Bukkit
+	public static NetworkManager network_manager;
 	
 	@Init
 	void init(FMLInitializationEvent evt) {
@@ -78,13 +82,9 @@ public class ModHsb{
 		Config.logInfo("Hsb Version: "+ version + " loaded.");
 	}
 	
-	@Instance
-	public static ModHsb instance;
-	
-	@SidedProxy(clientSide = "hsb.ClientProxy", serverSide = "hsb.CommonProxy") //TODO Bukkit
-	public static CommonProxy proxy;
-	
-	@SidedProxy(clientSide = "hsb.network.NetworkManagerClient", serverSide = "hsb.network.NetworkManager") //TODO Bukkit
-	public static NetworkManager network_manager;
+	@PreInit
+	void preInit(FMLPreInitializationEvent evt) {
+		Config.preinit(evt);
+	}
 
 }

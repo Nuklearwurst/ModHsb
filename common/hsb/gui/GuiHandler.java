@@ -18,26 +18,6 @@ public class GuiHandler
 	public static final int GUI_UPGRADE_CAMOFLAGE = 5;
 
 	@Override
-	public Object getServerGuiElement(int ID, EntityPlayer player, World world,
-			int x, int y, int z) {
-		switch(ID)
-		{
-		case GUI_BLOCKPLACER:
-			return null;
-		case GUI_LOCKTERMINAL:
-			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, true);
-		case GUI_LOCKTERMINAL_OPTIONS :
-			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, false);
-		case GUI_UPGRADE_CAMOFLAGE:
-			return new ContainerCamoUpgrade((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
-		default:
-			return null;
-		}
-				
-
-	}
-
-	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world,
 			int x, int y, int z) {
 		switch(ID)
@@ -62,6 +42,26 @@ public class GuiHandler
 			return null;
 				
 		}
+	}
+
+	@Override
+	public Object getServerGuiElement(int ID, EntityPlayer player, World world,
+			int x, int y, int z) {
+		switch(ID)
+		{
+		case GUI_BLOCKPLACER:
+			return null;
+		case GUI_LOCKTERMINAL:
+			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, true);
+		case GUI_LOCKTERMINAL_OPTIONS :
+			return new ContainerLockTerminal((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player, false);
+		case GUI_UPGRADE_CAMOFLAGE:
+			return new ContainerCamoUpgrade((TileEntityLockTerminal) world.getBlockTileEntity(x, y, z), player);
+		default:
+			return null;
+		}
+				
+
 	}
 
 }

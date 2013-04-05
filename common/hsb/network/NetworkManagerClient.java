@@ -10,6 +10,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class NetworkManagerClient extends NetworkManager{
 
+	@Override
 	public void initiateClientTileEntityEvent(TileEntity te, int ev) {
 		if(Config.ic2Available) 
 		{
@@ -21,6 +22,7 @@ public class NetworkManagerClient extends NetworkManager{
 	}
 	
 	 
+	@Override
 	public void requestInitialData(INetworkDataProvider te) {
 		if(Config.ic2Available)
 		{

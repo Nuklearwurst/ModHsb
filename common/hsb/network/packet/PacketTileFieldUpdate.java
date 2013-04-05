@@ -25,6 +25,8 @@ public class PacketTileFieldUpdate extends PacketPosition{
 
 	
 
+	public PacketTileFieldUpdate() {}
+	
 	public PacketTileFieldUpdate(TileEntity te, String name, Object value) {
 		super(te.xCoord, te.yCoord, te.zCoord);
 		this.value = value;
@@ -50,12 +52,36 @@ public class PacketTileFieldUpdate extends PacketPosition{
 		}
 		Config.logDebug("Type: " + type);
 	}
-	
-	public PacketTileFieldUpdate() {}
 
 	@Override
 	public int getID() {
 		return PacketIds.TILE_FIELD_UPDATE;
+	}
+
+	@Override
+	public void onPacketData(DataInputStream data, Player player)
+			throws IOException {
+		this.readData(data);
+		TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
+		try {
+			te.getClass().getField(name).set(te, value);
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(te instanceof INetworkUpdateListener) {
+			((INetworkUpdateListener) te).onNetworkUpdate(name);
+		}
+
 	}
 
 	@Override
@@ -155,31 +181,5 @@ public class PacketTileFieldUpdate extends PacketPosition{
 			Config.logError("invalid type (PacketTileFieldUpdate, writeData)");
 			break;
 		}
-	}
-
-	@Override
-	public void onPacketData(DataInputStream data, Player player)
-			throws IOException {
-		this.readData(data);
-		TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-		try {
-			te.getClass().getField(name).set(te, value);
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if(te instanceof INetworkUpdateListener) {
-			((INetworkUpdateListener) te).onNetworkUpdate(name);
-		}
-
 	}
 }

@@ -1,6 +1,7 @@
 package hsb.container;
 
 import hsb.config.Config;
+import hsb.items.ItemHsbUpgrade;
 import hsb.tileentitys.TileEntityLockTerminal;
 import hsb.upgrades.UpgradeCamoflage;
 import net.minecraft.block.Block;
@@ -30,7 +31,7 @@ public class ContainerCamoUpgrade extends Container {
 
         this.invPlayer = entityplayer.inventory;
         this.te = te;
-        this.upgrade = (UpgradeCamoflage) te.getUpgrade("Camoflage");
+        this.upgrade = (UpgradeCamoflage) te.getUpgrade(ItemHsbUpgrade.ID_UPGRADE_CAMO);
         this.invUpgrade = this.upgrade;
         int reihe;
         int spalte;

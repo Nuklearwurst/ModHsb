@@ -13,6 +13,7 @@ import hsb.api.upgrade.IHsbUpgrade;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.gui.GuiHandler;
+import hsb.items.ItemHsbUpgrade;
 import hsb.network.packet.PacketHsb;
 import hsb.network.packet.PacketUpgradeCamo;
 import hsb.tileentitys.TileEntityLockTerminal;
@@ -22,102 +23,7 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 	public ItemStack itemSlot = null;
 	
 	@Override
-	public void updateUpgrade(TileEntityLockTerminal te) {
-		if(this.itemSlot!=null)
-		{
-			if(itemSlot.getItem() instanceof ItemBlock)
-			{
-				Block block = Block.blocksList[((ItemBlock)itemSlot.getItem()).getBlockID()];
-				int meta = ((ItemBlock)itemSlot.getItem()).getMetadata(itemSlot.getItemDamage());
-				if(block.isOpaqueCube())
-				{
-					te.camoMeta = meta;
-					te.camoId = itemSlot.itemID;
-				}
-			}
-		}
-	}
-
-	@Override
-	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player,
-			int button) {
-		if(te.worldObj == null)
-		{
-			player.sendChatToPlayer("WorldObj == null!!");
-			return;
-		}
-		//Can't cast??
-		PacketUpgradeCamo packet = new PacketUpgradeCamo();
-		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)player);
-//		((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packet.getPacket()); 
-		player.openGui(ModHsb.instance, GuiHandler.GUI_UPGRADE_CAMOFLAGE, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
-		
-	}
-
-	@Override
-	public String getButtonName() {		
-		return "Camo";
-	}
-
-	@Override
-	public ItemStack getItem() {
-		return new ItemStack(HsbItems.itemHsbUpgrade, 1, 3);
-	}
-
-	@Override
-	public String getUniqueId() {
-		return "Camoflage";
-	}
-
-	@Override
-	public void onTileSave(NBTTagCompound nbttagcompound,
-			TileEntityLockTerminal te) {
-		//Items
-		if (this.itemSlot != null)
-        {
-            NBTTagCompound nbttag = new NBTTagCompound();
-            this.itemSlot.writeToNBT(nbttag);
-            nbttagcompound.setTag("camoInv", nbttag);
-        } else {
-        	Config.logDebug("itemslot empty!");
-        }
-	}
-
-	@Override
-	public void onTileLoad(NBTTagCompound nbttagcompound,
-			TileEntityLockTerminal te) {
-		//Items
-		NBTTagCompound nbttag = (NBTTagCompound) nbttagcompound.getTag("camoInv");
-		if(nbttag != null) {
-			this.itemSlot = ItemStack.loadItemStackFromNBT(nbttag);
-		} else {
-			Config.logDebug("nbttag not found!");
-		}
-	}
-
-	@Override
-	public void onGuiOpen(TileEntityLockTerminal te) {}
-
-	@Override
-	public boolean isEnabledByDefault() {
-		return true;
-	}
-
-	@Override
-	public int getSizeInventory() {
-		return 1;
-	}
-
-	@Override
-	public ItemStack getStackInSlot(int slot) {
-		if(slot == 0)
-		{
-			return itemSlot;
-		} else {
-			Config.logError("Unknnown Slot in UpgradeCamoflage!!!!");
-			return null;
-		}
-	}
+	public void closeChest() {}
 
 	@Override
 	public ItemStack decrStackSize(int slot, int amount) {
@@ -149,6 +55,42 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 	}
 
 	@Override
+	public String getButtonName() {		
+		return "Camo";
+	}
+
+	@Override
+	public int getInventoryStackLimit() {
+		return 1;
+	}
+
+	@Override
+	public String getInvName() {
+		return "UpgradeCamoflage";
+	}
+
+	@Override
+	public ItemStack getItem() {
+		return new ItemStack(HsbItems.itemHsbUpgrade, 1, 3);
+	}
+
+	@Override
+	public int getSizeInventory() {
+		return 1;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(int slot) {
+		if(slot == 0)
+		{
+			return itemSlot;
+		} else {
+			Config.logError("Unknnown Slot in UpgradeCamoflage!!!!");
+			return null;
+		}
+	}
+
+	@Override
 	public ItemStack getStackInSlotOnClosing(int slot) {
 		if (slot == 0) {
 			if(itemSlot != null)
@@ -166,6 +108,92 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 	}
 
 	@Override
+	public String getUniqueId() {
+		return ItemHsbUpgrade.ID_UPGRADE_CAMO;
+	}
+
+	@Override
+	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {
+		PacketUpgradeCamo p = (PacketUpgradeCamo) packet;
+		this.itemSlot = p.inv;
+		this.updateUpgrade(te);
+		
+		
+	}
+
+	@Override
+	public boolean isEnabledByDefault() {
+		return true;
+	}
+
+	@Override
+	public boolean isUseableByPlayer(EntityPlayer player) {
+		return true;
+	}
+
+	@Override
+	public void onButtonClicked(TileEntityLockTerminal te, EntityPlayer player,
+			int button) {
+		if(te.worldObj == null)
+		{
+			player.sendChatToPlayer("WorldObj == null!!");
+			return;
+		}
+		//Can't cast??
+		PacketUpgradeCamo packet = new PacketUpgradeCamo();
+		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)player);
+//		((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packet.getPacket()); 
+		player.openGui(ModHsb.instance, GuiHandler.GUI_UPGRADE_CAMOFLAGE, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+		
+	}
+
+	@Override
+	public void onGuiOpen(TileEntityLockTerminal te) {}
+
+	@Override
+	public void onInventoryChanged() {
+		
+	}
+
+	@Override
+	public void onTileLoad(NBTTagCompound nbttagcompound,
+			TileEntityLockTerminal te) {
+		Config.logDebug("readNBTTAG");
+		//Items
+		NBTTagCompound nbttag = (NBTTagCompound) nbttagcompound.getTag("camoInv");
+		if(nbttag != null) {
+			this.itemSlot = ItemStack.loadItemStackFromNBT(nbttag);
+			NBTTagCompound nbt = te.getFirstUpgradeItem(getUniqueId()).getTagCompound();
+			if(nbt != null) {
+				this.itemSlot = ItemStack.loadItemStackFromNBT(nbt);
+			} else {
+				Config.logError("Nbttag not read");
+			}
+		} else {
+			Config.logDebug("nbttag not found!");
+		}
+	}
+
+	@Override
+	public void onTileSave(NBTTagCompound nbttagcompound,
+			TileEntityLockTerminal te) {
+		Config.logDebug("writing NBTTAG");
+		//Items
+		if (this.itemSlot != null)
+        {
+            NBTTagCompound nbttag = new NBTTagCompound();
+            this.itemSlot.writeToNBT(nbttag);
+            nbttagcompound.setTag("camoInv", nbttag);
+            te.getFirstUpgradeItem(getUniqueId()).setTagCompound(nbttag);
+        } else {
+        	Config.logDebug("Read from NBT: itemslot empty!");
+        }
+	}
+
+	@Override
+	public void openChest() {}
+
+	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack) {
 		if(slot == 0)
 		{
@@ -176,38 +204,20 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 	}
 
 	@Override
-	public String getInvName() {
-		return "UpgradeCamoflage";
-	}
-
-	@Override
-	public int getInventoryStackLimit() {
-		return 1;
-	}
-
-	@Override
-	public void onInventoryChanged() {
-		
-	}
-
-	@Override
-	public boolean isUseableByPlayer(EntityPlayer player) {
-		return true;
-	}
-
-	@Override
-	public void openChest() {}
-
-	@Override
-	public void closeChest() {}
-
-	@Override
-	public void handlePacket(PacketHsb packet, TileEntityLockTerminal te) {
-		PacketUpgradeCamo p = (PacketUpgradeCamo) packet;
-		this.itemSlot = p.inv;
-		this.updateUpgrade(te);
-		
-		
+	public void updateUpgrade(TileEntityLockTerminal te) {
+		if(this.itemSlot!=null)
+		{
+			if(itemSlot.getItem() instanceof ItemBlock)
+			{
+				Block block = Block.blocksList[((ItemBlock)itemSlot.getItem()).getBlockID()];
+				int meta = ((ItemBlock)itemSlot.getItem()).getMetadata(itemSlot.getItemDamage());
+				if(block.isOpaqueCube())
+				{
+					te.camoMeta = meta;
+					te.camoId = itemSlot.itemID;
+				}
+			}
+		}
 	}
 	
 
