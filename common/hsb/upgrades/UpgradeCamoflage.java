@@ -219,6 +219,18 @@ public class UpgradeCamoflage implements IHsbUpgrade, IInventory {
 			}
 		}
 	}
+
+	@Override
+	public boolean isInvNameLocalized() {
+		// TODO language support
+		return false;
+	}
+
+	@Override
+	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+		// TODO check
+		return false;
+	}
 	
 
 }

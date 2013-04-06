@@ -1,5 +1,6 @@
 package hsb.gui;
 
+import hsb.config.Defaults;
 import hsb.network.NetworkManager;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -59,7 +60,7 @@ public class GuiLockTerminal extends GuiContainer
                 this.mc.setIngameFocus();
                 break;
             case 1:
-			controlList.get(1);
+			buttonList.get(1);
                 NetworkManager.getInstance().initiateClientTileEntityEvent(te, 1);
                 break;
             case 2: 
@@ -85,9 +86,9 @@ public class GuiLockTerminal extends GuiContainer
     @Override
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
-		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminal.png");
+//		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminal.png");
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(i);
+        mc.renderEngine.bindTexture(Defaults.GUI_LOCATION + "GuiLockTerminal.png");
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
         int energy = this.te.getEnergyScaled(100);
         this.drawTexturedModalRect(xPos + 55, yPos + 115, 26, 222, energy, 14);
@@ -100,7 +101,7 @@ public class GuiLockTerminal extends GuiContainer
     	super.drawScreen(par1, par2, par3);
         String energyBar=te.energyStored + "EU/" + (TileEntityLockTerminal.defaultEnergyStorage + te.extraStorage) + "EU";
         this.drawString(this.fontRenderer, energyBar, xPos + 105 - this.fontRenderer.getStringWidth(energyBar) / 2, yPos + 118, 10526880);
-        ((GuiButton)controlList.get(1)).displayString = getLock(te.locked);
+        ((GuiButton)buttonList.get(1)).displayString = getLock(te.locked);
         
     }
 
@@ -138,7 +139,7 @@ public class GuiLockTerminal extends GuiContainer
         super.initGui();
         xPos = width / 2 - xSize / 2;
         yPos = height / 2 - ySize / 2;
-        this.controlList.clear();
+        this.buttonList.clear();
 
         //Normal width = 52px
         //TODO Design
@@ -146,9 +147,9 @@ public class GuiLockTerminal extends GuiContainer
         int bPosY = 4;
         
         
-        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
-        this.controlList.add(new GuiButton(1, xPos + 175, yPos + 105, 40, 20, getLock(te.locked)));
-        this.controlList.add(new GuiButton(2, xPos + 175, yPos + 85, 40, 20, "Options"));
+        this.buttonList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
+        this.buttonList.add(new GuiButton(1, xPos + 175, yPos + 105, 40, 20, getLock(te.locked)));
+        this.buttonList.add(new GuiButton(2, xPos + 175, yPos + 85, 40, 20, "Options"));
 
         //TODO better
         int buttonSize = (int) Math.floor((this.xSize - 6) / (maxButtons / 2));
@@ -163,7 +164,7 @@ public class GuiLockTerminal extends GuiContainer
         	//String button = te.buttonNumber[i];
         	if(button != null && button != "" && button.length() > 0)
         	{
-        		this.controlList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, te.getUpgrade(i).getButtonName()/*te.buttonNumber[i]*/));
+        		this.buttonList.add(new GuiButton(i + this.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, te.getUpgrade(i).getButtonName()/*te.buttonNumber[i]*/));
         	}
         }
     }

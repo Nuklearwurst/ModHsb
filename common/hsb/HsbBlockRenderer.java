@@ -74,25 +74,16 @@ public class HsbBlockRenderer implements ISimpleBlockRenderingHandler {
 					Block camoBlock = Block.blocksList[camoBlockId];
 					if(camoBlock != null)
 					{
-						if(camoBlock.getTextureFile()!=null)
-						{
-							ForgeHooksClient.bindTexture(camoBlock.getTextureFile(), 1);
-//							ForgeHooksClient.bindTexture("/terrain.png", 1);
-	
-							renderer.renderBlockByRenderType(camoBlock, x, y, z);
-							return true;
-						}
+						renderer.renderBlockByRenderType(camoBlock, x, y, z);
+						return true;
 					}
-					ForgeHooksClient.bindTexture("/terrain.png", 0);
-					renderer.renderStandardBlock(block, x, y, z);
+//					renderer.renderStandardBlock(block, x, y, z);
 				} else {
 					//render normal Block
-					ForgeHooksClient.bindTexture(CommonProxy.TEXTURE_BLOCKS, 0);
-					renderer.renderStandardBlock(block, x, y, z);
+//					renderer.renderStandardBlock(block, x, y, z);
 				}
 			} else {
-				ForgeHooksClient.bindTexture(CommonProxy.TEXTURE_BLOCKS, 0);
-				renderer.renderStandardBlock(block, x, y, z);
+//				renderer.renderStandardBlock(block, x, y, z);
 			}
 		}
 		renderer.renderStandardBlock(block, x, y, z);

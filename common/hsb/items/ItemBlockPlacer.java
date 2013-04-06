@@ -5,6 +5,7 @@ import java.util.List;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,7 +14,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
+import hsb.HsbInfo;
 import hsb.ModHsb;
+import hsb.PluginIC2;
 import hsb.Utils;
 import hsb.blocks.BlockHsbDoor;
 import hsb.config.Config;
@@ -51,7 +54,6 @@ public class ItemBlockPlacer extends Item
 	        this.setMaxDamage(13);
 	        this.energyUse = 32;
 	        this.setCreativeTab(CreativeTabHsb.tabHsb);
-	        setIconIndex(0);//TODO energyUse
 	    }
 	    @SuppressWarnings({ "rawtypes", "unchecked" })
 		@SideOnly(Side.CLIENT)
@@ -70,18 +72,18 @@ public class ItemBlockPlacer extends Item
 	        }
 	    }
 	    @Override
-		public boolean canProvideEnergy()
+		public boolean canProvideEnergy(ItemStack itemStack)
 	    {
 	        return false;
 	    }
 	    @Override
-		public int getChargedItemId()
+		public int getChargedItemId(ItemStack itemStack)
 	    {
 	        return HsbItems.itemBlockPlacer.itemID;
 	    }
 
 	    @Override
-		public int getEmptyItemId()
+		public int getEmptyItemId(ItemStack itemStack)
 	    {
 //	        return HsbItems.itemBlockPlacerEmpty.shiftedIndex;
 	        return HsbItems.itemBlockPlacer.itemID;	    	
@@ -108,7 +110,7 @@ public class ItemBlockPlacer extends Item
 	    	return super.getItemDisplayName(itemstack) + mode;
 	    }
 	    @Override
-		public int getMaxCharge()
+		public int getMaxCharge(ItemStack itemStack)
 	    {
 	        return 9600;
 	        //TODO tuning/balance
@@ -118,18 +120,18 @@ public class ItemBlockPlacer extends Item
 	    {
 	        return true;
 	    }
+//	    @Override
+//	    public String getTextureFile()
+//	    {
+//	        return CommonProxy.TEXTURE_ITEMS;
+//	    }
 	    @Override
-	    public String getTextureFile()
-	    {
-	        return CommonProxy.TEXTURE_ITEMS;
-	    }
-	    @Override
-		public int getTier()
+		public int getTier(ItemStack itemStack)
 	    {
 	        return 1;
 	    }
 	    @Override
-		public int getTransferLimit()
+		public int getTransferLimit(ItemStack itemStack)
 	    {
 	        return 100;
 	    }
@@ -211,7 +213,7 @@ public class ItemBlockPlacer extends Item
 			    		}
 			    		Config.logDebug("Removing Block at: " + x + ", " + y + ", " + z);
 			    		//removing block
-			    		if(world.setBlockAndMetadataWithNotify(x, y, z, 0, 0))
+			    		if(world.setBlock(x, y, z, 0, 0, 0) && !entityplayer.capabilities.isCreativeMode)
 			    			HsbItems.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 			    		return true;
 			    	} else if(world.getBlockId(x, y, z) == HsbItems.blockHsbDoor.blockID)
@@ -224,7 +226,7 @@ public class ItemBlockPlacer extends Item
 			    				return true;
 			    			}
 				    		Config.logDebug("Trying to Remove Door!!");
-				    		if(world.setBlockAndMetadataWithNotify(x, y, z, 0, 0))
+				    		if(world.setBlock(x, y, z, 0, 0, 0))
 				    		{
 				    			HsbItems.blockHsbDoor.breakBlock(world, x, y, z, 0, 0);
 				    			HsbItems.blockHsbDoor.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
@@ -292,7 +294,7 @@ public class ItemBlockPlacer extends Item
 			            return false;
 			        }
 		            Block blockPlace = Block.blocksList[ItemBlockPlacer.blockID];
-			        if (world.canPlaceEntityOnSide(ItemBlockPlacer.blockID, x, y, z, false, side, null))
+			        if (world.canPlaceEntityOnSide(ItemBlockPlacer.blockID, x, y, z, false, side, null, itemstack))
 		            {
 			            if (placeBlockAt(itemstack, entityplayer, world, x, y, z, side, par8, par9, par10))
 			            {
@@ -321,21 +323,19 @@ public class ItemBlockPlacer extends Item
 	    {
 	    	if(!player.capabilities.isCreativeMode)
 	    	{
-	    		if(Config.ic2Available)
+	    		if(PluginIC2.discharge(stack, energyUse, getTier(stack), true, true) >= 0)
 	    		{
-		    		if(ElectricItem.discharge(stack, energyUse, getTier(), true, true) >= 0)
-		    		{
-		    			ElectricItem.discharge(stack, energyUse, getTier(), false, false);
-		    		} else {
-		    			return false;
-		    		}
+	    			PluginIC2.discharge(stack, energyUse, getTier(stack), false, false);
+	    		} else {
+	    			return false;
 	    		}
+	    		
 				if(!Utils.removeFromInventory(ItemBlockPlacer.blockID, 0, player.inventory))
 				{
 					return false;
 				}
 	    	}
-			if (!world.setBlockAndMetadataWithNotify(x, y, z, ItemBlockPlacer.blockID, 0))
+			if (!world.setBlock(x, y, z, ItemBlockPlacer.blockID, 0, 0))
 			{
 				   Config.logDebug("placing failed!");
 			       return false;
@@ -343,7 +343,7 @@ public class ItemBlockPlacer extends Item
 			
 			if (world.getBlockId(x, y, z) == ItemBlockPlacer.blockID)
 			{
-			    Block.blocksList[ItemBlockPlacer.blockID].onBlockPlacedBy(world, x, y, z, player);
+			    Block.blocksList[ItemBlockPlacer.blockID].onBlockPlacedBy(world, x, y, z, player, stack);
 			    NBTTagCompound tag = stack.getTagCompound();
 			    if(tag!=null)
 			    {
@@ -353,5 +353,16 @@ public class ItemBlockPlacer extends Item
 			}
 	
 		   return true;
+	    }
+	    @Override
+	    @SideOnly(Side.CLIENT)
+
+	    /**
+	     * When this method is called, your block should register all the icons it needs with the given IconRegister. This
+	     * is the only chance you get to register icons.
+	     */
+	    public void updateIcons(IconRegister reg)
+	    {
+	    	this.iconIndex = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + "BlockPlacer");
 	    }
 }

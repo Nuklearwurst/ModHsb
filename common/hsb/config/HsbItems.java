@@ -51,9 +51,9 @@ public class HsbItems {
 		battery = Config.getIC2Item("chargedReBattery");
 	}
 
-	//Register
-	public static void register()
-	{
-		LanguageRegistry.addName(itemDebugTool, "Debug Tool");
-	}
+//	//Register
+//	public static void register()
+//	{
+//		LanguageRegistry.addName(itemDebugTool, "Debug Tool");
+//	}
 }

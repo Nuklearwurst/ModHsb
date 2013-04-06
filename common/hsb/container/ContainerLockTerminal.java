@@ -215,7 +215,7 @@ public class ContainerLockTerminal extends Container {
 	            	}
 	            }
 	            //battery
-	            else if(item instanceof IElectricItem && ((IElectricItem) item).canProvideEnergy())
+	            else if(item instanceof IElectricItem && ((IElectricItem) item).canProvideEnergy(stack))
 	        	{
 	        		if(!this.mergeItemStack(stackSlot, 4, 5, true))
 	        		{

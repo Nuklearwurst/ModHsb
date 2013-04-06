@@ -16,7 +16,6 @@ public class BlockMachine extends BlockContainer{
 		super(id, material);	
 		this.setHardness(1.0F);
 		this.setResistance(10F);
-		this.blockIndexInTexture = 0;
 		this.setCreativeTab(CreativeTabHsb.tabHsb);
 	}
 
@@ -26,7 +25,7 @@ public class BlockMachine extends BlockContainer{
 	}
 	
 	@Override
-	public TileEntity createNewTileEntity(World world, int meta) {
+	public TileEntity createTileEntity(World world, int meta) {
 		return null;
 	}
 

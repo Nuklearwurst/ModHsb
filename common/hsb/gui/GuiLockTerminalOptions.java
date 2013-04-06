@@ -1,5 +1,6 @@
 package hsb.gui;
 
+import hsb.config.Defaults;
 import hsb.network.NetworkManager;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
@@ -78,9 +79,9 @@ public class GuiLockTerminalOptions extends GuiContainer
     @Override
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
-		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminalOptions.png");
+//		int i = mc.renderEngine.getTexture("/hsb/textures/GuiLockTerminalOptions.png");
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(i);
+        mc.renderEngine.bindTexture(Defaults.GUI_LOCATION + "GuiLockTerminalOptions.png");
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
 		
 	}
@@ -108,14 +109,14 @@ public class GuiLockTerminalOptions extends GuiContainer
         super.initGui();
         xPos = width / 2 - xSize / 2;
         yPos = height / 2 - ySize / 2;
-        this.controlList.clear();
+        this.buttonList.clear();
         
-        this.controlList.add(new GuiButton(1, xPos + xSize / 2 - 40, yPos + 50, 20, 20, "-"));
-        this.controlList.add(new GuiButton(2, xPos + xSize / 2 + 20, yPos + 50, 20, 20, "+"));
-        this.controlList.add(new GuiButton(3, xPos + xSize / 2 - 70, yPos + 50, 30, 20, "-10"));
-        this.controlList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 50, 30, 20, "+10"));
+        this.buttonList.add(new GuiButton(1, xPos + xSize / 2 - 40, yPos + 50, 20, 20, "-"));
+        this.buttonList.add(new GuiButton(2, xPos + xSize / 2 + 20, yPos + 50, 20, 20, "+"));
+        this.buttonList.add(new GuiButton(3, xPos + xSize / 2 - 70, yPos + 50, 30, 20, "-10"));
+        this.buttonList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 50, 30, 20, "+10"));
         
-        this.controlList.add(new GuiButton(5, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));
+        this.buttonList.add(new GuiButton(5, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));
         
         this.textField = new GuiTextField(this.fontRenderer,  xPos + xSize / 2 - 70, yPos + 90, 140, 20);
         this.textField.setMaxStringLength(TileEntityLockTerminal.defaultPassLength + te.extraPassLength);
@@ -126,7 +127,7 @@ public class GuiLockTerminalOptions extends GuiContainer
 
         
         
-        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
+        this.buttonList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
 
     }
 	@Override

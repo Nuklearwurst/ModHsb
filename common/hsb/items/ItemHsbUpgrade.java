@@ -6,6 +6,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
+import hsb.HsbInfo;
 import hsb.api.upgrade.IHsbUpgrade;
 import hsb.api.upgrade.IItemHsbUpgrade;
 import hsb.config.Config;
@@ -15,22 +16,28 @@ import hsb.upgrades.UpgradeDummy;
 import hsb.upgrades.UpgradePassword;
 import hsb.upgrades.UpgradeSecurity;
 import hsb.upgrades.UpgradeTesla;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 
 public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 
-	public static final String[] upgradeNames = new String[] {"Tesla", "Password", "Security", "Camoflage"};
-    public static final int[] texture = new int[] {5, 6, 7, 8};//TODO textures
+	public static final String[] upgradeNames = new String[] {"Tesla", "Password", "Security", "Camoflage", "Dummy"};
+	public static final String[] textureNames = new String[] {"UpgradeTesla", "UpgradePass", "UpgradeSecurity", "UpgradeCamoflage", "UpgradeEmpty"};
+	
+    public static final Icon[] texture = new Icon[textureNames.length];//TODO textures
     
     public static final String ID_UPGRADE_CAMO = "Camoflage";
     public static final String ID_UPGRADE_TESLA = "tesla";
     public static final String ID_UPGRADE_PASSWORD = "password";
     public static final String ID_UPGRADE_SECURITY = "security";
+    
+    public static final int metaDummy = 4;
 
     
 
@@ -48,17 +55,18 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
     /**
      * Gets an icon index based on an item's damage value
      */
-    public int getIconFromDamage(int damage)
+    public Icon getIconFromDamage(int damage)
     {
     	if(damage < texture.length)
     	{
     		return texture[damage];
     	}
-        return 0;
+        return texture[0];
     }
 
+    //TODO
     @Override
-	public String getItemNameIS(ItemStack stack)
+	public String getItemDisplayName(ItemStack stack)
     {
     	int damage = stack.getItemDamage();
     	if(damage < upgradeNames.length)
@@ -84,12 +92,6 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
         }
     	
     }
-
-    @Override
-	public String getTextureFile() {
-		return CommonProxy.TEXTURE_ITEMS;
-	}
-
 	@Override
 	public String getUniqueId(int meta) {
 		return this.getUpgrade(meta).getUniqueId();
@@ -110,6 +112,8 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 			return new UpgradeSecurity();
 		case 3:
 			return new UpgradeCamoflage();
+		case 4:
+			return new UpgradeDummy();
 		default:
 			return new UpgradeDummy();
 		}
@@ -134,6 +138,21 @@ public class ItemHsbUpgrade extends Item implements IItemHsbUpgrade{
 			return true;
 		}
 		return false;
+    }
+    @Override
+    @SideOnly(Side.CLIENT)
+
+    /**
+     * When this method is called, your block should register all the icons it needs with the given IconRegister. This
+     * is the only chance you get to register icons.
+     */
+    public void updateIcons(IconRegister reg)
+    {
+    	int i = 0;
+    	for(String s : textureNames)
+    	{
+    		ItemHsbUpgrade.texture[i++] = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + s);
+    	}
     }
 
 

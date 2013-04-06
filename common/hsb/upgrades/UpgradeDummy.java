@@ -17,7 +17,7 @@ public class UpgradeDummy implements IHsbUpgrade {
 
 	@Override
 	public ItemStack getItem() {
-		return new ItemStack(HsbItems.itemHsbUpgrade, 1, 0);
+		return new ItemStack(HsbItems.itemHsbUpgrade, 1, 4);
 	}
 
 	@Override

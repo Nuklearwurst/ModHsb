@@ -25,6 +25,7 @@ import ic2.api.energy.tile.IEnergySink;
 import hsb.network.NetworkManager;
 import hsb.LockManager;
 import hsb.ModHsb;
+import hsb.PluginIC2;
 import hsb.api.lock.ILockTerminal;
 import hsb.api.lock.ILockable;
 import hsb.api.upgrade.IHsbUpgrade;
@@ -381,7 +382,7 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 	public int injectEnergy(Direction directionFrom, int amount) {
 		if(amount > this.maxInput)
 		{
-			this.worldObj.setBlockAndMetadataWithNotify(this.xCoord, this.yCoord, this.zCoord, 0, 0);
+			this.worldObj.setBlock(this.xCoord, this.yCoord, this.zCoord, 0, 0, 2);
 			this.worldObj.createExplosion(null, xCoord, yCoord, zCoord, 0.8F, false);
 			return 0;
 		}
@@ -699,17 +700,6 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 				isAddedToEnergyNet = true;
 			}
 			
-			//charge from battery //4:ChargeSlot(-->ContainerLockTerminal)
-			ItemStack item = this.getStackInSlot(4);
-			if(item != null && item.getItem() instanceof IElectricItem && (this.demandsEnergy() > 0))
-			{
-				if(Config.ic2Available) {
-					int leftover = this.injectEnergy(Direction.YN, ElectricItem.discharge(item, this.maxInput, 2, false, false));
-					ElectricItem.charge(item, leftover, 2, false, false);
-				} else if(item.getItem() instanceof ItemCreativePower) {
-					this.injectEnergy(Direction.YN,  this.getMaxSafeInput());
-				}
-			}
 			//Use Energy
 			if (this.locked && this.blocksInUse > 0 && this.isAddedToEnergyNet) {
 				double need = (this.energyUse * this.blocksInUse + 2);
@@ -721,6 +711,19 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 					energyStored = (int) Math.round(energyStored - need);
 				}
 			}
+			
+			//charge from battery //4:ChargeSlot(-->ContainerLockTerminal)
+			ItemStack item = this.getStackInSlot(4);
+			if(item != null && item.getItem() instanceof IElectricItem && (this.demandsEnergy() > 0))
+			{
+				if(Config.ic2Available) {
+					int leftover = this.injectEnergy(Direction.YN, PluginIC2.discharge(item, this.maxInput, 2, false, false));
+					PluginIC2.charge(item, leftover, 2, false, false);
+				} else if(item.getItem() instanceof ItemCreativePower) {
+					this.injectEnergy(Direction.YN,  this.getMaxSafeInput());
+				}
+			}
+
 //			this.updateCounter++;
 			if (updateCounter >= 20) {
 				updateCounter = 0;
@@ -792,6 +795,17 @@ public class TileEntityLockTerminal extends TileEntityHsb implements
 		nbttagcompound.setInteger("energyStored", this.energyStored);
 		
 		nbttagcompound.setInteger("blocksInUse", this.blocksInUse);
+	}
+
+	@Override
+	public boolean isInvNameLocalized() {
+		// TODO Language support
+		return false;
+	}
+
+	@Override
+	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+		return true; //slots
 	}
 
 

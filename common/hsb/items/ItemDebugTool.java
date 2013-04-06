@@ -1,5 +1,8 @@
 package hsb.items;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -7,6 +10,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
+import hsb.HsbInfo;
 import hsb.config.HsbItems;
 import hsb.tileentitys.TileEntityHsb;
 import hsb.tileentitys.TileEntityLockTerminal;
@@ -16,12 +20,7 @@ public class ItemDebugTool extends Item {
 	public ItemDebugTool(int id) {
 		super(id);
 		 this.setCreativeTab(CreativeTabHsb.tabHsb);
-		 this.setIconIndex(1);//TODO Texture
-	}
-	@Override
-	public String getTextureFile() {
-		return CommonProxy.TEXTURE_ITEMS;
-		
+		 
 	}
     @Override
 	public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ) 
@@ -57,6 +56,17 @@ public class ItemDebugTool extends Item {
     		return true;
     	}
         return false;
+    }
+    @Override
+    @SideOnly(Side.CLIENT)
+
+    /**
+     * When this method is called, your block should register all the icons it needs with the given IconRegister. This
+     * is the only chance you get to register icons.
+     */
+    public void updateIcons(IconRegister reg)
+    {
+    	this.iconIndex = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + "debugTool");
     }
 
 	

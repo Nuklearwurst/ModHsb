@@ -50,11 +50,11 @@ import cpw.mods.fml.common.network.NetworkRegistry;
  *
  */
 
-@Mod(modid = "HSB", name = "High Security Blocks", version = ModHsb.version, useMetadata = true, dependencies = "after:IC2")//!!TODO Versioning Mod 
+@Mod(modid = HsbInfo.modId, name = HsbInfo.modName, version = HsbInfo.version, useMetadata = true, dependencies = "after:IC2")//!!TODO Versioning Mod 
 @NetworkMod(clientSideRequired = true, versionBounds = "0.1", serverSideRequired=false, 
 channels={Defaults.NET_CHANNEL}, packetHandler = PacketHandler.class)
 public class ModHsb{
-	static final String version= "0.1";
+	
 	@Instance
 	public static ModHsb instance;
 	
@@ -63,6 +63,11 @@ public class ModHsb{
 	
 	@SidedProxy(clientSide = "hsb.network.NetworkManagerClient", serverSide = "hsb.network.NetworkManager") //TODO Bukkit
 	public static NetworkManager network_manager;
+	
+	@PreInit
+	void preInit(FMLPreInitializationEvent evt) {
+		Config.preinit(evt);
+	}
 	
 	@Init
 	void init(FMLInitializationEvent evt) {
@@ -78,13 +83,13 @@ public class ModHsb{
 		
 		//check for ic2 and register recipes
 		Config.postInit(evt);
+		
+		PluginIC2.initPluginIC2();
+		
 		Config.initRecipes();
-		Config.logInfo("Hsb Version: "+ version + " loaded.");
+		Config.logInfo("Hsb Version: "+ HsbInfo.version + " loaded.");
 	}
 	
-	@PreInit
-	void preInit(FMLPreInitializationEvent evt) {
-		Config.preinit(evt);
-	}
+
 
 }

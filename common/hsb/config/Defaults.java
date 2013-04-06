@@ -28,5 +28,8 @@ public class Defaults {
 	public static final int ENERGY_PORT_HACKER = 1000;
 
 	public static final String NET_CHANNEL="Hsb";
+	
+	//GUI
+	public static final String GUI_LOCATION = "/mods/hsb/textures/gui/";
 
 }

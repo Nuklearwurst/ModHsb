@@ -1,5 +1,6 @@
 package hsb.config;
 
+import hsb.PluginIC2;
 import hsb.blocks.BlockHsb;
 import hsb.blocks.BlockHsbDoor;
 import hsb.items.ItemBlockHsb;
@@ -79,19 +80,23 @@ public class Config {
 		}
 	}
 	
-	private static boolean checkIC2Installed() {
-    	return Config.ic2Available = Loader.isModLoaded("IC2");
-    }
+
 	
 	public static int getBlockId(String name, int defaultId)//BlockIDs
     {
-        return Integer.parseInt(config.getBlock(name, defaultId).value);
+        return config.getBlock(name, defaultId).getInt();
     }
 	
 	public static ItemStack getIC2Item(String name)
     {
-    	return ic2.api.Items.getItem(name);
+    	ItemStack item = ic2.api.Items.getItem(name);
+    	if(item != null) {
+    		return item;
+    	} else {
+    		return new ItemStack(HsbItems.itemHsbUpgrade, 1, ItemHsbUpgrade.metaDummy);
+    	}
     }
+	
 	public static int getIC2ItemId(String name) {
     	ItemStack i = getIC2Item(name);
     	if(i != null) {
@@ -103,7 +108,7 @@ public class Config {
 	
     public static int getItemId(String name, int defaultId)
     {
-        return Integer.parseInt(config.getItem(name, defaultId).value); //ItemIDs
+        return config.getItem(name, defaultId).getInt(); //ItemIDs
     }
     public static void init(FMLInitializationEvent evt)
 	{
@@ -227,11 +232,7 @@ public class Config {
     }
     
     public static void postInit(FMLPostInitializationEvent evt) {
-		if(Config.checkIC2Installed()) {
-			Config.logInfo("IC2 found!!");
-		} else {
-			Config.logError("IC2 not found, this mod may not work without IC2!!!\n Please check if you installed IC2 (correctly).");
-		}
+
 		
 	}
     
@@ -246,69 +247,69 @@ public class Config {
 			//Debug Mode
 			Property debugMode = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false);
 			debugMode.comment="Debug Mode";
-			DEBUG = Boolean.parseBoolean(debugMode.value);
+			DEBUG = debugMode.getBoolean(false);
 			
 			//Use IC2 (true recommend)
 			Property propIC2 = config.get(Configuration.CATEGORY_GENERAL, "useIC2", true);
 			propIC2.comment = "Use IC2 if installed";
-			ic2Available = Boolean.parseBoolean(propIC2.value);
+			ic2Available = propIC2.getBoolean(true);
 			
 		//energyuse
 			//Building Block
 			Property propEnergyHsbBlock = config.get(Configuration.CATEGORY_GENERAL, "energyHsbBlock", Defaults.ENERGY_HSB_BLOCK);
 			propEnergyHsbBlock.comment="Energyuse per one locked Block";
-			energyHsbBlock = Double.parseDouble(propEnergyHsbBlock.value);
+			energyHsbBlock = propEnergyHsbBlock.getDouble(Defaults.ENERGY_HSB_BLOCK);
 			
 			//Tesla Upgrade
 			Property propEnergyUpgradeTesla = config.get(Configuration.CATEGORY_GENERAL, "energyUpgradeTesla", Defaults.ENERGY_HSB_TESLA);
 			propEnergyUpgradeTesla.comment="extra energyuse per one locked Block and Tesla Upgrade";
-			energyUpgradeTesla = Double.parseDouble(propEnergyUpgradeTesla.value);
+			energyUpgradeTesla = propEnergyUpgradeTesla.getDouble(Defaults.ENERGY_HSB_TESLA);
 			
 			//Block Placer
 			Property propEnergyBlockPlacer = config.get(Configuration.CATEGORY_GENERAL, "energyBlockPlacer", Defaults.ENERGY_BLOCK_PLACER);
 			propEnergyBlockPlacer.comment="EnergyUse for BlockPlacer";
-			energyBlockPlacer = Integer.parseInt(propEnergyBlockPlacer.value);
+			energyBlockPlacer = propEnergyBlockPlacer.getInt(Defaults.ENERGY_BLOCK_PLACER);
 			
 			//Port Monitor
 			Property propEnergyPortMonitor = config.get(Configuration.CATEGORY_GENERAL, "energyPortMonitor", Defaults.ENERGY_PORT_MONITOR);
 			propEnergyPortMonitor.comment="EnergyUse for Port Monitor";
-			energyHsbMonitor = Integer.parseInt(propEnergyPortMonitor.value);
+			energyHsbMonitor = propEnergyPortMonitor.getInt(Defaults.ENERGY_PORT_MONITOR);
 			
 			//Port Hacker
 			Property propEnergyPortHacker = config.get(Configuration.CATEGORY_GENERAL, "energyPortHacker", Defaults.ENERGY_PORT_HACKER);
 			propEnergyPortHacker.comment="EnergyUse for Port Hacker";
-			energyHsbHacker = Integer.parseInt(propEnergyPortHacker.value);
+			energyHsbHacker = propEnergyPortHacker.getInt(Defaults.ENERGY_PORT_HACKER);
 						
 		//Items
 			//DebugTool
-			HsbItems.itemDebugTool = new ItemDebugTool(Config.getItemId("Debug Tool", Defaults.ITEM_DEBUG)).setItemName("Debug Tool");
+			HsbItems.itemDebugTool = new ItemDebugTool(Config.getItemId("Debug Tool", Defaults.ITEM_DEBUG)).setUnlocalizedName("itemToolDebug");
 			LanguageRegistry.addName(HsbItems.itemDebugTool, "Debug Tool");
 			
 			//BlockPlacer
-			HsbItems.itemBlockPlacer = new ItemBlockPlacer(Config.getItemId("itemBlockPlacer", Defaults.ITEM_BLOCKPLACER)).setItemName("Block MultiTool");
+			HsbItems.itemBlockPlacer = new ItemBlockPlacer(Config.getItemId("itemBlockPlacer", Defaults.ITEM_BLOCKPLACER)).setUnlocalizedName("itemBlockPlacer");
 			LanguageRegistry.addName(HsbItems.itemBlockPlacer, "Block Placer");
 			
 			//LockMonitor
-			HsbItems.itemLockMonitor = new ItemLockMonitor(Config.getItemId("itemLockMonitor", Defaults.ITEM_LOCK_MONITOR)).setItemName("LockMonitor");
+			HsbItems.itemLockMonitor = new ItemLockMonitor(Config.getItemId("itemLockMonitor", Defaults.ITEM_LOCK_MONITOR)).setUnlocalizedName("itemLockMonitor");
 			LanguageRegistry.addName(HsbItems.itemLockMonitor, "Lock Monitor");
 			
 			//LockHacker
-			HsbItems.itemLockHacker = new ItemLockHacker(Config.getItemId("itemLockHacker", Defaults.ITEM_LOCK_HACKER)).setItemName("Lock Hacker");
+			HsbItems.itemLockHacker = new ItemLockHacker(Config.getItemId("itemLockHacker", Defaults.ITEM_LOCK_HACKER)).setUnlocalizedName("itemLockHacker");
 			LanguageRegistry.addName(HsbItems.itemLockHacker, "Lock Port Hacker");
 			
 			//Item Hsb Door
-			HsbItems.itemHsbDoor = new ItemHsbDoor(Config.getItemId("itemHsbDoor", Defaults.ITEM_HSB_DOOR)).setItemName("LockDoor");
+			HsbItems.itemHsbDoor = new ItemHsbDoor(Config.getItemId("itemHsbDoor", Defaults.ITEM_HSB_DOOR)).setUnlocalizedName("itemLockDoor");
 			LanguageRegistry.addName(HsbItems.itemHsbDoor, "HSB Door");
 			
 			//Upgrades
 			HsbItems.itemHsbUpgrade = new ItemHsbUpgrade(Config.getItemId("itemHsbUpgrade", Defaults.ITEM_HSB_UPGRADE));
 			
 			//Unlimited Power
-			HsbItems.itemCreativePower = new ItemCreativePower(Config.getItemId("itemCreativePower", Defaults.ITEM_CREATIVE_POWER)).setItemName("CreativePower");
+			HsbItems.itemCreativePower = new ItemCreativePower(Config.getItemId("itemCreativePower", Defaults.ITEM_CREATIVE_POWER)).setUnlocalizedName("itemCreativePower");
 			LanguageRegistry.addName(HsbItems.itemCreativePower, "CreativePower");
 		//Blocks
 			//BlockHsb (unbreakable)
-			HsbItems.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setBlockName("Hsb Building Block");
+			HsbItems.blockHsb = new BlockHsb(Config.getBlockId("blockHsb", Defaults.BLOCK_HSB)).setUnlocalizedName("blockHsb");
 			
 			//BlockHsbDoor
 			HsbItems.blockHsbDoor = new BlockHsbDoor(Config.getBlockId("blockHsbDoor", Defaults.BLOCK_HSB_DOOR));

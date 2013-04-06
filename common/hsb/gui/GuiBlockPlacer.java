@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import hsb.config.Config;
+import hsb.config.Defaults;
 import hsb.network.packet.PacketItemUpdate;
 import hsb.tileentitys.TileEntityHsb;
 
@@ -107,9 +108,9 @@ public class GuiBlockPlacer extends GuiScreen {
 	    }
 	 protected void drawGuiContainerBackgroundLayer(float f)
 	{
-	    int i = mc.renderEngine.getTexture("/hsb/textures/GuiBlockPlacer.png");
+//	    int i = mc.renderEngine.getTexture("/hsb/textures/GuiBlockPlacer.png");
 	    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-	    mc.renderEngine.bindTexture(i);
+	    mc.renderEngine.bindTexture(Defaults.GUI_LOCATION + "GuiBlockPlacer.png");
 	    int j = (width - xSize) / 2;
 	    int k = (height - ySize) / 2;
 	    drawTexturedModalRect(j, k, 0, 0, xSize, ySize);
@@ -172,14 +173,14 @@ public class GuiBlockPlacer extends GuiScreen {
 		public void initGui() {
 		    xPos = width / 2 - xSize / 2;
 		    yPos = height / 2 - ySize / 2;
-		    controlList.clear();
-		    controlList.add(new GuiButton(0, xPos + xSize / 2 - 30, yPos + ySize / 2 - 10, 20 , 20 , "-1"));
-		    controlList.add(new GuiButton(1, xPos + xSize / 2 + 10, yPos + ySize / 2 - 10, 20, 20, "+1"));
-		    controlList.add(new GuiButton(2, xPos + xSize / 2 - 50, yPos + ySize / 2 - 10, 20 , 20 , "-10"));
-		    controlList.add(new GuiButton(3, xPos + xSize / 2 + 30, yPos + ySize / 2 - 10, 20, 20, "+10"));
-		    controlList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 80, 40, 20, "Done"));
+		    buttonList.clear();
+		    buttonList.add(new GuiButton(0, xPos + xSize / 2 - 30, yPos + ySize / 2 - 10, 20 , 20 , "-1"));
+		    buttonList.add(new GuiButton(1, xPos + xSize / 2 + 10, yPos + ySize / 2 - 10, 20, 20, "+1"));
+		    buttonList.add(new GuiButton(2, xPos + xSize / 2 - 50, yPos + ySize / 2 - 10, 20 , 20 , "-10"));
+		    buttonList.add(new GuiButton(3, xPos + xSize / 2 + 30, yPos + ySize / 2 - 10, 20, 20, "+10"));
+		    buttonList.add(new GuiButton(4, xPos + xSize / 2 + 40, yPos + 80, 40, 20, "Done"));
 		    if(item)
-		    	controlList.add(new GuiButton(5, xPos + xSize / 2 - 10, yPos + 80, 40, 20, "Mode"));
+		    	buttonList.add(new GuiButton(5, xPos + xSize / 2 - 10, yPos + 80, 40, 20, "Mode"));
 		    super.initGui();
 			
 		}

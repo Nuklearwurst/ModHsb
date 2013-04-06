@@ -1,6 +1,6 @@
 package hsb.blocks;
 
-import hsb.CommonProxy;
+import hsb.HsbInfo;
 import hsb.config.Config;
 import hsb.config.HsbItems;
 import hsb.tileentitys.TileEntityDoorBase;
@@ -15,29 +15,33 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 
 public class BlockHsbDoor extends BlockDoor {
 
-	public String textureFile = "";
 	
 	/*
 	 * Meta data
 	 * 0: 
 	 * 8: top block 
 	 */
+	Icon doorRedBot;
+	Icon doorGreenTop;
+	Icon doorGreenBot;
+	
 	
 	public BlockHsbDoor(int id) {
 		super(id, Material.wood); //TODO: Material
 		this.setBlockUnbreakable();
 		this.setResistance(999F);
-		this.blockIndexInTexture = 0;
-		this.textureFile = CommonProxy.TEXTURE_BLOCKS;
 	}
 	
 	@Override
@@ -53,7 +57,7 @@ public class BlockHsbDoor extends BlockDoor {
 		} else {
 			if(te != null && world.getBlockId(te.xCoord, te.yCoord, te.zCoord) == HsbItems.blockHsb.blockID && world.getBlockMetadata(te.xCoord, te.yCoord, te.zCoord) == 2)
 			{
-				world.setBlockMetadataWithNotify(te.xCoord, te.yCoord, te.zCoord, 0);
+				world.setBlock(te.xCoord, te.yCoord, te.zCoord, 0);
 				world.setBlockTileEntity(te.xCoord, te.yCoord, te.zCoord, new TileEntityHsbBuilding());
 				world.markBlockForUpdate(te.xCoord, te.yCoord, te.zCoord);
 			} else {
@@ -71,7 +75,7 @@ public class BlockHsbDoor extends BlockDoor {
 	
     @SideOnly(Side.CLIENT)
 	@Override
-    public int getBlockTexture(IBlockAccess iblockaccess, int x, int y, int z, int side)
+    public Icon getBlockTexture(IBlockAccess iblockaccess, int x, int y, int z, int side)
     {
 		int meta = iblockaccess.getBlockMetadata(x, y, z);
 		TileEntity te = null;
@@ -87,37 +91,36 @@ public class BlockHsbDoor extends BlockDoor {
         //testing...
 
 		
-		int index = 19;
+		Icon tex = this.doorRedBot;
 		if(meta >= 8)
 		{
-			index = 3;
+			tex = this.blockIcon;
 		}
         if(te != null && ((TileEntityHsb)te).locked)
         {
-        	index = index + 32;
+        	tex = this.doorGreenBot;
+        	if(meta >= 8)
+    		{
+    			tex = this.doorGreenTop;
+    		}
         	
         }
-        return index;
+        return tex;
 
     }
     
     @Override
-    public int getBlockTextureFromSideAndMetadata(int side, int meta)
+    public Icon getBlockTextureFromSideAndMetadata(int side, int meta)
 	{
-		int index = 19;
+		Icon tex = this.doorRedBot;
 		if(meta >= 8)
 		{
-			index = 3;
+			tex = this.blockIcon;
 		}
-	     return index;
+	     return tex;
 
     }
     
-    @Override
-	public String getTextureFile() {
-		return this.textureFile;
-		
-	}
 	public TileEntity getTileEntity(World world, int x, int y, int z) {
     	TileEntity te;
         int meta = this.getFullMetadata(world, x, y, z);
@@ -183,7 +186,7 @@ public class BlockHsbDoor extends BlockDoor {
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player) 
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player, ItemStack stack) 
     {
 		if(world.getBlockMetadata(x, y, z) < 8)
 		{
@@ -191,7 +194,7 @@ public class BlockHsbDoor extends BlockDoor {
 			if(te instanceof TileEntityHsbBuilding && player instanceof EntityPlayer)
 			{
 				int port = ((TileEntityHsbBuilding) te).getPort();
-				world.setBlockMetadataWithNotify(te.xCoord, te.yCoord, te.zCoord, 2);
+				world.setBlockMetadataWithNotify(te.xCoord, te.yCoord, te.zCoord, 2, 2);
 				world.setBlockTileEntity(x, y, z, new TileEntityDoorBase());
 				te = world.getBlockTileEntity(x, y, z);
 				if(te instanceof TileEntityDoorBase)
@@ -212,16 +215,31 @@ public class BlockHsbDoor extends BlockDoor {
 
         if ((meta & 8) == 0)
         {
-            world.setBlockMetadataWithNotify(x, y, z, var11);
+            world.setBlockMetadataWithNotify(x, y, z, var11, 2);
             world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
         }
         else
         {
-            world.setBlockMetadataWithNotify(x, y - 1, z, var11);
+            world.setBlockMetadataWithNotify(x, y - 1, z, var11, 2);
             world.markBlockRangeForRenderUpdate(x, y - 1, z, x, y, z);
         }
 
         world.playAuxSFXAtEntity(entityplayer, 1003, x, y, z, 0);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+
+    /**
+     * When this method is called, your block should register all the icons it needs with the given IconRegister. This
+     * is the only chance you get to register icons.
+     */
+    public void registerIcons(IconRegister reg)
+    {
+    	this.blockIcon = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + "doorTop_red");
+    	this.doorGreenTop = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + "doorTop_green");
+    	this.doorRedBot = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + "doorBot_red");
+    	this.doorGreenBot = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + "doorBot_green");
     }
 
 }

@@ -3,6 +3,7 @@ package hsb.blocks;
 import hsb.ClientProxy;
 import hsb.CommonProxy;
 import hsb.CreativeTabHsb;
+import hsb.HsbInfo;
 import hsb.ModHsb;
 import hsb.Utils;
 import hsb.api.lock.ILockTerminal;
@@ -28,6 +29,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
@@ -35,6 +37,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Facing;
+import net.minecraft.util.Icon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -43,11 +46,14 @@ import net.minecraft.world.World;
  */
 public class BlockHsb extends BlockContainer {
 	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
-	public static final int[][] blockTexture = {{0, 0, 0, 0, 0, 0, 16, 16, 16, 16, 16, 16}, 
-												{1, 1, 1, 17, 1, 1, 16, 16, 16, 17, 16, 16}, 
-												{2, 2, 2, 2, 2, 2, 18, 18, 18, 18, 18, 18},
-												{3, 3, 36, 35, 3, 3, 19, 19, 19, 35, 19, 19}};//TODO: Texture for GuiAccessBlock
-	public static final int maxDamage = 2;
+	public static final int[][] blockTextureId = {{0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1}, 
+												{0, 0, 0, 2, 0, 0, 1, 1, 1, 2, 1, 1},
+												{3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4},
+												{0, 0, 2, 0, 0, 0, 1, 1, 1, 2, 1, 1}};//TODO: Texture for GuiAccessBlock
+	public static final int maxDamage = 3;
+    static final String[] textureNames = /*new String[]*/{"hsb_red", "hsb_green", "terminal", "doorBase_red", "doorBase_green", "Orange"};
+	public static final Icon[] blockTextureIcons = new Icon[textureNames.length];
+
 	public String textureFile = "";
 	
 	/*
@@ -62,7 +68,6 @@ public class BlockHsb extends BlockContainer {
 		super(id, Material.iron); //TODO: Material
 		this.setBlockUnbreakable();
 		this.setResistance(999F);
-		this.blockIndexInTexture = 0;
 		this.textureFile = CommonProxy.TEXTURE_BLOCKS;
 		this.setCreativeTab(CreativeTabHsb.tabHsb);
 	}
@@ -92,7 +97,7 @@ public class BlockHsb extends BlockContainer {
     
     
 	@Override
-	public TileEntity createNewTileEntity(World world, int meta) {
+	public TileEntity createTileEntity(World world, int meta) {
 		switch(meta)
 		{
 		case 0:
@@ -122,7 +127,7 @@ public class BlockHsb extends BlockContainer {
     }
 	@SideOnly(Side.CLIENT)
 	@Override
-    public int getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int side)
+    public Icon getBlockTexture(IBlockAccess iblockaccess, int i, int j, int k, int side)
     {
         TileEntity te = iblockaccess.getBlockTileEntity(i, j, k);
         short facing = 1;
@@ -139,23 +144,23 @@ public class BlockHsb extends BlockContainer {
         {
         	texid = texid + 6;
         }
-        int tex = blockTexture[meta][texid];
+        int tex = blockTextureId[meta][texid];
         
         if(((TileEntityHsb)te).getConnectedTerminal()!= null && ((TileEntityHsb)te).getConnectedTerminal().getCamoBlockId()!=-1)
         {
         	return Block.blocksList[((TileEntityHsb)te).getConnectedTerminal().getCamoBlockId()].getBlockTextureFromSideAndMetadata(side, ((TileEntityHsb)te).getConnectedTerminal().getCamoBlockId());
         }
-        return tex;
+        return blockTextureIcons[tex];
 
     }
 	@Override
-    public int getBlockTextureFromSideAndMetadata(int side, int meta)
+    public Icon getBlockTextureFromSideAndMetadata(int side, int meta)
 	{
 		if(meta > maxDamage)
-			return 0;
+			return blockTextureIcons[0];
 		int texid = sideAndFacingToSpriteOffset[side][1];
-		int tex = blockTexture[meta][texid];
-	    return tex;
+		int tex = blockTextureId[meta][texid];
+	    return blockTextureIcons[tex];
 
     }
 	@Override
@@ -174,11 +179,11 @@ public class BlockHsb extends BlockContainer {
         itemList.add(new ItemStack(id, 1, 3));
     }
     
-    @Override
-	public String getTextureFile() {
-		return this.textureFile;
-		
-	}
+//    @Override
+//	public String getTextureFile() {
+//		return this.textureFile;
+//		
+//	}
     @Override
     public int idDropped(int meta, Random random, int j)
     {
@@ -266,7 +271,7 @@ public class BlockHsb extends BlockContainer {
     	}
     }
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player) 
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player, ItemStack stack) 
     {
         TileEntity te = world.getBlockTileEntity(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);
@@ -274,12 +279,12 @@ public class BlockHsb extends BlockContainer {
         switch(metadata) {
         case 0:
         	if(player instanceof EntityPlayer && te!=null)
-        		if(((EntityPlayer) player).getCurrentEquippedItem().itemID == this.blockID)
+        		if(stack.itemID == this.blockID)
         			((EntityPlayer) player).openGui(ModHsb.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
         	break;
         case 2:
         	if(player instanceof EntityPlayer && te!=null)
-        		if(((EntityPlayer) player).getCurrentEquippedItem().itemID == this.blockID)
+        		if(stack.itemID == this.blockID)
         			((EntityPlayer) player).openGui(ModHsb.instance, GuiHandler.GUI_BLOCKBUILDING, world, x, y, z);
         }
         
@@ -309,14 +314,21 @@ public class BlockHsb extends BlockContainer {
             }
         }          
     }
+    @Override
+    @SideOnly(Side.CLIENT)
+
+    /**
+     * When this method is called, your block should register all the icons it needs with the given IconRegister. This
+     * is the only chance you get to register icons.
+     */
+    public void registerIcons(IconRegister reg)
+    {
+    	int i = 0;
+    	for(String s : textureNames) {
+    		BlockHsb.blockTextureIcons[i++] = reg.registerIcon(HsbInfo.modId.toLowerCase() + ":" + s);
+    	}
+    }
     
-    
-    //custom renderer
-//    @SideOnly(Side.CLIENT)
-//	@Override
-//	public int getRenderBlockPass() {
-//		return 0;
-//	}
 
 
 }

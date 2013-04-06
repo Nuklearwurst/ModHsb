@@ -10,8 +10,8 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	void initRendering()
 	{
-		MinecraftForgeClient.preloadTexture(TEXTURE_BLOCKS);
-		MinecraftForgeClient.preloadTexture(TEXTURE_ITEMS);
+//		MinecraftForgeClient.preloadTexture(TEXTURE_BLOCKS);
+//		MinecraftForgeClient.preloadTexture(TEXTURE_ITEMS);
 		HSBRENDERER_ID = RenderingRegistry.getNextAvailableRenderId();
 		
 	}

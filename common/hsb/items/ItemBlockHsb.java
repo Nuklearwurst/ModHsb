@@ -4,6 +4,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import hsb.config.HsbItems;
 
 public class ItemBlockHsb extends ItemBlock {
@@ -19,13 +20,13 @@ public class ItemBlockHsb extends ItemBlock {
     /**
      * Gets an icon index based on an item's damage value
      */
-    public int getIconFromDamage(int meta)
+    public Icon getIconFromDamage(int meta)
     {
         return HsbItems.blockHsb.getBlockTextureFromSideAndMetadata(2, meta);
     }
 
     @Override
-	public String getItemNameIS(ItemStack itemStack)
+	public String getItemDisplayName(ItemStack itemStack)//TODO name
     {
     	switch(itemStack.getItemDamage())
     	{

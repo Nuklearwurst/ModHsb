@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 
 import hsb.ModHsb;
 import hsb.config.Config;
+import hsb.config.Defaults;
 import hsb.items.ItemHsbUpgrade;
 import hsb.network.NetworkManager;
 import hsb.tileentitys.TileEntityLockTerminal;
@@ -66,9 +67,9 @@ public class GuiCamoUpgrade extends GuiContainer
     @Override
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
-		int i = mc.renderEngine.getTexture("/hsb/textures/GuiUpgradeCamo.png");
+//		int i = mc.renderEngine.getTexture("/hsb/textures/GuiUpgradeCamo.png");
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(i);
+        mc.renderEngine.bindTexture(Defaults.GUI_LOCATION + "GuiUpgradeCamo.png");
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
 		
 	}
@@ -91,12 +92,12 @@ public class GuiCamoUpgrade extends GuiContainer
         super.initGui();
         xPos = width / 2 - xSize / 2;
         yPos = height / 2 - ySize / 2;
-        this.controlList.clear();
+        this.buttonList.clear();
         
-        this.controlList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, active ? "Deactivate" : "Activate"));//TODO button text
+        this.buttonList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, active ? "Deactivate" : "Activate"));//TODO button text
         
-        this.controlList.add(new GuiButton(2, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));       
-        this.controlList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
+        this.buttonList.add(new GuiButton(2, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));       
+        this.buttonList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
 
     }
 	@Override
