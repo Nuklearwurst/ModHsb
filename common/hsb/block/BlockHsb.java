@@ -160,7 +160,6 @@ public class BlockHsb extends BlockSimpleContainer{
 	    		}
 	    	}
     	}
-    	//TODO tesla
     }
     @Override
     public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int side, float m, float n, float o)
@@ -184,11 +183,8 @@ public class BlockHsb extends BlockSimpleContainer{
             case META_TERMINAL:
             {
             	if(!world.isRemote) {
-//            		TileEntityHsbTerminal te = (TileEntityHsbTerminal) world.getBlockTileEntity(i, j, k);
-            		//TODO sync upgrades
-//            		PacketSyncUpgrade packet = new PacketSyncUpgrade(te);
-//            		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)entityplayer);
-            		
+//            		PacketTerminalButtons packet = new PacketTerminalButtons();
+//            		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)player);
             		//open gui
             		player.openGui(ModHsb.instance, GuiIds.GUI_LOCKTERMINAL, world, i, j, k);
             	}

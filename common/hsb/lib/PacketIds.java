@@ -9,7 +9,11 @@ public class PacketIds {
 	
 	public static final int GUI_PASSWORD_UPDATE = 3; // Client --> Server || Server --> Client
 	
-	public static final int ITEM_NBTTAG_UPDATE = 4;
+	public static final int ITEM_NBTTAG_UPDATE = 4; //client --> server
+	
+	public static final int TILE_TERMINAL_BUTTONS = 5; // server --> client
+	
+	public static final int TILE_REQUEST_BUTTON_UPDATE = 6; // client --> server
 
 	
 	

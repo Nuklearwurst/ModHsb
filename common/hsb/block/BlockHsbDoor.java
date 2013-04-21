@@ -5,6 +5,8 @@ import hsb.core.helper.HsbLog;
 import hsb.item.ModItems;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
+import hsb.lock.ILockTerminal;
+import hsb.lock.ILockable;
 import hsb.tileentity.TileEntityDoorBase;
 import hsb.tileentity.TileEntityHsb;
 import hsb.tileentity.TileEntityHsbBuilding;
@@ -18,6 +20,7 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.Icon;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
@@ -181,6 +184,26 @@ public class BlockHsbDoor extends BlockDoor {
 			}
 		}
     	return true;
+    }
+    @Override
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) 
+    {
+    	if(!world.isRemote) {
+	    	TileEntity te = this.getTileEntity(world, x, y, z);
+	    	if(te != null && te instanceof TileEntityHsb && ((TileEntityHsb)te).locked)
+	    	{
+	    		ILockTerminal terminal = ((ILockable)te).getConnectedTerminal();
+	    		if(terminal != null)
+	    		{
+	    			int tesla = terminal.getTesla();
+	    			if(tesla > 0)
+	    			{
+	    				player.sendChatToPlayer("Don't do that!");
+	    				player.attackEntityFrom(DamageSource.magic, tesla);
+	    			}
+	    		}
+	    	}
+    	}
     }
     @Override
     /**

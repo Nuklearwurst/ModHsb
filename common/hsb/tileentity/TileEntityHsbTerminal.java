@@ -14,6 +14,7 @@ import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.types.IHsbUpgrade;
 import hsb.upgrade.types.IMachineUpgradeItem;
 import hsb.upgrade.types.ITerminalUpgradeItem;
+import hsb.upgrade.types.IUpgradeButton;
 import ic2.api.Direction;
 import ic2.api.IElectricItem;
 import ic2.api.IWrenchable;
@@ -42,7 +43,7 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 	//how many blocks are locked
 	private int blocksInUse = 0;
 	
-	//if tile wnatss to reconnect
+	//if tile wants to reconnect
 	private boolean needReconnect = false;
 	
 	//IC2
@@ -56,13 +57,16 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 	
 	private ItemStack[] mainInventory = new ItemStack[this.getSizeInventory()];
 	
-	//TODO upgrades
+	//is empty on client
 	private Map<String, IHsbUpgrade> upgrades;
+	//contains unique id on server || button text on Client
 	private List<String> buttons;
 	
 	//Upgrades
 	public int camoId = -1;
 	public int camoMeta = -1;
+	
+	public int tesla = 0;
 	
 	public int securityLevel = 0;
 	
@@ -160,7 +164,7 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 	
 	//TODO
 	public List<String> getButtons() {
-		return null;
+		return buttons;
 	}
 
 	@Override
@@ -173,6 +177,10 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 		if(!lock)
 			this.blocksInUse = 0;
 		super.setLocked(lock);
+	}
+	public void setButtons(List<String> l)
+	{
+		this.buttons = l;
 	}
 
 	@Override
@@ -244,8 +252,7 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 
 	@Override
 	public int getTesla() {
-		// TODO Tesla
-		return 0;
+		return tesla;
 	}
 
 	@Override
@@ -332,8 +339,12 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 			break;
 		}
 		case EVENT_GUI_TERMINAL:
+		{
+//			PacketTerminalButtons packet = new PacketTerminalButtons(this);
+//			PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)player);
 			player.openGui(ModHsb.instance, GuiIds.GUI_LOCKTERMINAL, worldObj, xCoord, yCoord, zCoord);
 			break;
+		}
 		default:
 			//port update (<=0)
 			super.onNetworkEvent(player, event);	
@@ -358,7 +369,7 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 			//Upgrade Data
 			//clearing List for new Data
 			Map<String, IHsbUpgrade> oldData = upgrades;
-			upgrades.clear();
+			upgrades = new HashMap<String, IHsbUpgrade>();
 			
 			for(int i = 0; i < this.mainInventory.length; i++)
 			{
@@ -399,11 +410,12 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 					//adding new Upgrade
 						
 						this.upgrades.put(key, upgrade);
-						if(oldData.containsKey(key)){
+						if(oldData.containsKey(key) && oldData.get(key) != null){
 							upgrade.addInformation(oldData.get(key));
 						}
 					}
-					upgrade.setCount(upgrade.getCount() + stack.stackSize);
+					if(upgrade != null)
+						upgrade.setCount(upgrade.getCount() + stack.stackSize);
 					
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
@@ -414,8 +426,17 @@ public class TileEntityHsbTerminal extends TileEntityHsb
 			//updating upgrade information
 			for(IHsbUpgrade update: upgrades.values()) 
 			{
-				update.updateUpgrade(this);
-				//TODO add buttons etc.
+				if(update != null)
+				{
+					update.updateUpgrade(this);
+					if(update instanceof IUpgradeButton)
+					{
+						HsbLog.debug("adding Button...");
+						buttons.add(((IUpgradeButton) update).getUniqueId());
+					}
+					
+					//TODO add buttons etc.
+				}
 			}
 		}
 		super.onInventoryChanged();

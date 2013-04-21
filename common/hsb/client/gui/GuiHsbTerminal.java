@@ -1,12 +1,15 @@
 package hsb.client.gui;
 
+import hsb.core.helper.HsbLog;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
 import hsb.network.NetworkManager;
+import hsb.network.packet.PacketRequestButtons;
 import hsb.tileentity.TileEntityHsbTerminal;
 
 import java.util.List;
 
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -25,6 +28,10 @@ public class GuiHsbTerminal extends GuiContainer
     //Upgrade button constants
     private static final int maxButtons = 10;
     private static final int buttonIdStart = 3;
+    
+    private int lastButtonLength = 0;
+    
+    EntityPlayer player;
 
 
     public GuiHsbTerminal(TileEntityHsbTerminal te, Container container, EntityPlayer entityplayer)
@@ -33,6 +40,7 @@ public class GuiHsbTerminal extends GuiContainer
         this.te = te;
         xSize = 228;
         ySize = 222;
+        player = entityplayer;
     }
     @Override
     protected void actionPerformed(GuiButton guibutton)
@@ -140,8 +148,10 @@ public class GuiHsbTerminal extends GuiContainer
         //TODO better
         int buttonSize = (int) Math.floor((this.xSize - 6) / (maxButtons / 2));
         List<String> buttons = te.getButtons();
+//        HsbLog.debug("gui button size: " + buttons.size());
         if(buttons != null) {
-	        for(int i=0; i<buttons.size(); i++)
+        	int i = 0;
+	        for(String s : buttons)
 	        {
 	        	if(i>4)
 	        	{
@@ -150,9 +160,28 @@ public class GuiHsbTerminal extends GuiContainer
 	        	bPosX= (i % 5) * buttonSize + 4;
 	        	if(buttons.get(i) != null && buttons.get(i) != "" && buttons.get(i).length() > 0)
 	        	{
-	        		this.buttonList.add(new GuiButton(i + GuiHsbTerminal.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, buttons.get(i)));
+	        		this.buttonList.add(new GuiButton(i + GuiHsbTerminal.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, s));
 	        	}
+	        	i++;
 	        }
+	        if(buttons.size() == 0)
+	        {
+		    	PacketRequestButtons packet = new PacketRequestButtons(te);
+		    	((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packet.getPacket());
+	        }
+        } else {
+        	HsbLog.severe("buttons = null!");
         }
+    }
+	
+    @Override
+    public void updateScreen()
+    {
+    	super.updateScreen();
+    	if(te.getButtons() != null && te.getButtons().size() > this.lastButtonLength)
+    	{
+    		this.initGui();
+    		this.lastButtonLength = te.getButtons().size();
+    	}
     }
 }

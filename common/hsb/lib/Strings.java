@@ -38,6 +38,8 @@ public class Strings {
 	public static final String GUI_DONE = "gui.done";
 	public static final String GUI_MODE = "gui.mode";
 	
+	public static final String UPGRADE_GUI_BUTTON_TESLA = "upgrade.gui.button.tesla";
+	
 	//container
 	public static final String CONTAINER_MULTI_TOOL = "container.multitool";
 	public static final String CONTAINER_TERMINAL_OPTIONS_NAME = "container." + HSB_TERMINAL + "Options";
