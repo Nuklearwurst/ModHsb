@@ -148,6 +148,12 @@ public class GuiMultiTool extends GuiScreen{
 	        drawRect(x1 - 3, y1 - 3, x2 + 3, y1 + 10, -16777216);
 	        drawRect(x1 - 2, y1 - 2, x2 + 2, y1 + 9, -1);
 	    }
+	    
+	    @Override
+	    public boolean doesGuiPauseGame()
+	    {
+	        return false;
+	    }
 	    @SuppressWarnings("unchecked")
 		@Override
 		public void initGui() {
