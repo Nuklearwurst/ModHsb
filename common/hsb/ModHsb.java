@@ -1,48 +1,43 @@
 package hsb;
 
-import hsb.config.Config;
-import hsb.config.Defaults;
-import hsb.gui.GuiHandler;
+
+
+import hsb.block.ModBlocks;
+import hsb.configuration.Config;
+import hsb.core.addons.PluginIC2;
+import hsb.core.handlers.GuiHandler;
+import hsb.core.handlers.LocalizationHandler;
+import hsb.core.helper.HsbLog;
+import hsb.core.proxy.CommonProxy;
+import hsb.item.ModItems;
+import hsb.lib.Reference;
+import hsb.lib.Strings;
 import hsb.network.NetworkManager;
 import hsb.network.PacketHandler;
+import hsb.recipes.HsbRecipes;
+import hsb.tileentity.TileEntityDoorBase;
+import hsb.tileentity.TileEntityGuiAccess;
+import hsb.tileentity.TileEntityHsbBuilding;
+import hsb.tileentity.TileEntityHsbTerminal;
+import hsb.upgrade.UpgradeRegistry;
+
+import java.util.logging.Level;
+
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.FingerprintWarning;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
+import cpw.mods.fml.common.event.FMLFingerprintViolationEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.registry.GameRegistry;
 
-/*
- * This Mod Part adds / plans to add:
- * 
- * block for building - done
- * door - in work (no Upgrades yet!)
- * fence - TODO add fence
- * block for control - done
- * 	--> Upgrade System - done
- * 		- 
- * block for interaction - TODO block to open gui behind
- * some upgrades
- * 	in progress:
- * 		Tesla TODO: Tesla onEntityColliding
- * 
- * 
- * ?? also for interaction
- * ???interaction cabeling/controlling
- * ?monitoring block
- * 
- * placer/removetool (electric) - done
- * adminbreaker ?
- * 
- * upgrades
- * 	tesla -in work
- * 
- */
 /**
  * Main Mod Class
  * 
@@ -50,45 +45,93 @@ import cpw.mods.fml.common.network.NetworkRegistry;
  *
  */
 
-@Mod(modid = HsbInfo.modId, name = HsbInfo.modName, version = HsbInfo.version, useMetadata = true, dependencies = "after:IC2")//!!TODO Versioning Mod 
-@NetworkMod(clientSideRequired = true, versionBounds = "0.1", serverSideRequired=false, 
-channels={Defaults.NET_CHANNEL}, packetHandler = PacketHandler.class)
+@Mod(	modid = Reference.MOD_ID,
+		name = Reference.MOD_NAME,
+		version = Reference.VERSION_NUMBER,
+		dependencies = Reference.DEPENDENCIES) 
+
+@NetworkMod(	clientSideRequired = true,
+				serverSideRequired=false, 
+				channels={Reference.CHANNEL_NAME},
+				packetHandler = PacketHandler.class)
 public class ModHsb{
 	
 	@Instance
 	public static ModHsb instance;
 	
-	@SidedProxy(clientSide = "hsb.ClientProxy", serverSide = "hsb.CommonProxy") //TODO Bukkit
+	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS) //TODO Bukkit
 	public static CommonProxy proxy;
 	
-	@SidedProxy(clientSide = "hsb.network.NetworkManagerClient", serverSide = "hsb.network.NetworkManager") //TODO Bukkit
+	@SidedProxy(clientSide = Reference.CLIENT_NETWORK_CLASS, serverSide = Reference.SERVER_NETWORK__CLASS) //TODO Bukkit
 	public static NetworkManager network_manager;
+	
+    @FingerprintWarning
+    public void invalidFingerprint(FMLFingerprintViolationEvent event) {
+
+        HsbLog.log(Level.SEVERE, Strings.INVALID_FINGERPRINT_MESSAGE);
+    }
 	
 	@PreInit
 	void preInit(FMLPreInitializationEvent evt) {
-		Config.preinit(evt);
+		
+		//init Logger
+		HsbLog.init();
+		
+		//Localization
+		LocalizationHandler.loadLanguages();
+		
+		//TODO key bindings
+		
+		//TODO sounds
+		
+		//read Config
+		Config.readConfig(evt);
+		
+		//registerBlocks
+		ModBlocks.init();
+		//register Items
+		ModItems.init();
 	}
 	
 	@Init
 	void init(FMLInitializationEvent evt) {
-		Config.init(evt);
-		proxy.initRendering();
+		
+		//register guihandler
 		NetworkRegistry.instance().registerGuiHandler(this, new GuiHandler());
+		
+		//Register Events 
+		//nothing yet
+		
+		//register TileEntities
+		GameRegistry.registerTileEntity(TileEntityHsbBuilding.class, Strings.TILE_ENTITY_HSB_BUILDING);
+		GameRegistry.registerTileEntity(TileEntityHsbTerminal.class, Strings.TILE_ENTITY_HSB_TERMINAL);
+		GameRegistry.registerTileEntity(TileEntityDoorBase.class, Strings.TILE_ENTITY_HSB_DOOR_BASE);
+		GameRegistry.registerTileEntity(TileEntityGuiAccess.class, Strings.TILE_ENTITY_HSB_GUI_ACCESS);
+		
+		//add Names (Done in localization)
+//		Config.initNames();
+		
+		//init rendering
+		proxy.initRendering();
 		proxy.initSpecialRenderer();
-//		GameRegistry.registerWorldGenerator(new WorldGenZwergenfestung());
+		
+		//check for IC2
+		PluginIC2.initPluginIC2();
+		
+		//init Recipes
+		HsbRecipes.initRecipes();
+
+		
+		//register upgrades
+		UpgradeRegistry.initUpgrades();
 	}
 	
 	@PostInit
 	void postInit(FMLPostInitializationEvent evt) {
 		
-		//check for ic2 and register recipes
-		Config.postInit(evt);
-		
-		PluginIC2.initPluginIC2();
-		
-		Config.initRecipes();
-		Config.logInfo("Hsb Version: "+ HsbInfo.version + " loaded.");
+		HsbLog.info("Hsb Version: "+ Reference.VERSION_NUMBER + " loaded.");
 	}
+
 	
 
 

@@ -1,6 +1,7 @@
 package hsb.network.packet;
 
-import hsb.network.PacketIds;
+import hsb.core.helper.HsbLog;
+import hsb.lib.PacketIds;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,17 +10,9 @@ import java.io.IOException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.Player;
-//Mal sehen
+
 public class PacketItemUpdate extends PacketHsb{
-	
-	public static final short BOOLEAN_KEY= 0;
-	public static final short INTEGER_KEY= 1;
-	public static final short STRING_KEY= 2;
-	
-	public static final short ERROR= -1;
 	
 	public String itemclass;
 	public String tag;
@@ -31,21 +24,22 @@ public class PacketItemUpdate extends PacketHsb{
 	public PacketItemUpdate(Item item, String tag, Object value) {
 		if(value instanceof Integer)
 		{
-			this.type = INTEGER_KEY;
+			this.type = PacketIds.INTEGER;
 		}
 		else if(value instanceof String)
 		{
-			this.type = STRING_KEY;
+			this.type = PacketIds.STRING;
 		}
 		else if(value instanceof Boolean)
 		{
-			this.type = BOOLEAN_KEY;
+			this.type = PacketIds.BOOLEAN;
 		} else {
-			FMLLog.severe("Hsb Packet Error!!");
-			this.type = ERROR;
+			HsbLog.severe("Hsb Packet Error!!");
+			this.type = PacketIds.ERROR;
 		}
 		try
 		{
+			//Item Class name
 			this.itemclass = item.getClass().getName();
 		} catch(Exception e){
 			e.printStackTrace();
@@ -65,25 +59,29 @@ public class PacketItemUpdate extends PacketHsb{
 	public void onPacketData(DataInputStream data, Player player) throws IOException {
 		ItemStack stack = ((EntityPlayer)player).getCurrentEquippedItem();
 		this.readData(data);
+//		if(stack.getItem().getClass().getName() != this.itemclass) {
+//			HsbLog.severe("False ItemClass! (maybe lag?)");
+//			return;
+//		}
 		if(stack.getTagCompound().hasKey(this.tag))
 		{
 			switch(this.type)
 			{
-			case PacketItemUpdate.BOOLEAN_KEY:
+			case PacketIds.BOOLEAN:
 				stack.getTagCompound().setBoolean(this.tag, (Boolean) this.value);
 				break;
-			case PacketItemUpdate.INTEGER_KEY:
+			case PacketIds.INTEGER:
 				stack.getTagCompound().setInteger(this.tag, (Integer) this.value);
 				break;
-			case PacketItemUpdate.STRING_KEY:
+			case PacketIds.STRING:
 				stack.getTagCompound().setString(this.tag, (String) this.value);
 				break;
 			default:
-				FMLLog.severe("Hsb: PacketHandler: unexpected type!!");
+				HsbLog.severe("PacketHandler: unexpected type!!");
 				break;
 			}
 		} else {
-			FMLLog.severe("Hsb: PacketHandler: False NBTTAG key!!!!");
+			HsbLog.severe("PacketHandler: False NBTTAG key!!!!");
 		}
 		
 	}
@@ -93,20 +91,20 @@ public class PacketItemUpdate extends PacketHsb{
 		itemclass = data.readUTF();
 		type = data.readShort();
 		tag = data.readUTF();
-		if(type == INTEGER_KEY)
+		if(type == PacketIds.INTEGER)
 		{
 			value = data.readInt();
 		}
-		else if(type == STRING_KEY)
+		else if(type == PacketIds.STRING)
 		{
 			value = data.readUTF();
 		}
-		else if(type == BOOLEAN_KEY)
+		else if(type == PacketIds.BOOLEAN)
 		{
 			value = data.readBoolean();
-		} else if(type == ERROR)
+		} else if(type == PacketIds.ERROR)
 		{
-			FMLLog.severe("Hsb Packet reading Error!!");
+			HsbLog.severe("Hsb Packet reading Error!!");
 		}
 		
 	}
@@ -114,21 +112,22 @@ public class PacketItemUpdate extends PacketHsb{
 	@Override
 	public void writeData(DataOutputStream data) throws IOException {
 		data.writeUTF(itemclass); //The Class Name
-		data.writeShort(type);
-		data.writeUTF(tag);
-		if(type == INTEGER_KEY)
+		data.writeShort(type); //the type of the nbttag
+		data.writeUTF(tag); //the tag name
+		//The value...
+		if(type == PacketIds.INTEGER)
 		{
 			data.writeInt((Integer) value);
 		}
-		else if(type == STRING_KEY)
+		else if(type == PacketIds.STRING)
 		{
 			data.writeUTF((String) value);
 		}
-		else if(type == BOOLEAN_KEY)
+		else if(type == PacketIds.BOOLEAN)
 		{
 			data.writeBoolean((Boolean) value);
-		} else if(type == ERROR){
-			FMLLog.severe("Hsb Packetwriting Error!");
+		} else if(type == PacketIds.ERROR){
+			HsbLog.severe("Hsb Packetwriting Error!");
 		}
 		
 	}

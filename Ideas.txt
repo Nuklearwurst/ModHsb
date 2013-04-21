@@ -1,0 +1,53 @@
+
+Mod:
+	- ic2 suppport (not addon)
+	- maybe support other energy systems
+
+blocks:
+	- explosion resistant block
+	-- hsb block
+		--> has a port, can be locked
+		--> hard to break
+		--> medium explosion resistance
+		--> cannot be pushed
+	-- hsb terminal
+		--> block to lock hsb blocks
+		--> upgrades (see: upgrades)
+		--> uses energy (maybe different versions: coal, electricity)
+		--> upgrade to hsb block
+	-- Access Terminal
+		--> calls blcoks activated of the block behind  (if not same block)
+		--> upgrade to hsb block
+	- hsb door
+		--> has to be placed on hsb block
+			--> stores its data in this block
+		- made out of 2 hsb blocks
+	
+items:
+	- hsb multitool
+		--> used to easily place and remove hsb blocks 
+		--> intigrated wrench
+		--> gui to change settings (shift rigthclick)
+	- hsb infoReader
+		--> reads port (simple)
+		--> advanced version to read port of locked blocks
+		--> maybe upgrade to multitool
+	- upgrades (see: upgrades)
+
+upgrades:
+	- may add buttons to gui
+	- installed by:
+		- shift right clicking
+
+	- security -> make it harder to hack
+	- tesla
+		-> maybe diffeent versions
+		-> hurts on touch
+	- password
+		-> enables longer passwords ("harder to hack")
+	- camoflage
+		-> changes texture of blocks (custom renderer)
+		
+Done/TODO:
+	- HeavyStone (missing texture)
+	-

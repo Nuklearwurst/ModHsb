@@ -1,5 +1,7 @@
 package hsb.network.packet;
 
+import hsb.lib.Reference;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,16 +9,17 @@ import java.io.IOException;
 
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet250CustomPayload;
-
 import cpw.mods.fml.common.network.Player;
-
-import hsb.config.Defaults;
 
 public abstract class PacketHsb {
 
 	protected boolean isChunkDataPacket = false;
-	protected String channel = Defaults.NET_CHANNEL;
+	protected String channel = Reference.CHANNEL_NAME;
 
+	/**
+	 * 
+	 * @return PacketId
+	 */
 	public abstract int getID();
 
 	public Packet getPacket() {
@@ -37,9 +40,25 @@ public abstract class PacketHsb {
 		return packet;
 	}
 
+	/**
+	 * handle Packet when arrives
+	 * @param data
+	 * @param player
+	 * @throws IOException
+	 */
 	public abstract void onPacketData(DataInputStream data, Player player) throws IOException;
 
+	/**
+	 * read data from dataImputStream
+	 * @param data
+	 * @throws IOException
+	 */
 	public abstract void readData(DataInputStream data) throws IOException;
 	
+	/**
+	 * write data to DataOutputStream
+	 * @param data
+	 * @throws IOException
+	 */
 	public abstract void writeData(DataOutputStream data) throws IOException;
 }
