@@ -24,6 +24,7 @@ public class ItemLockMonitor extends Item
 	public ItemLockMonitor(int id, boolean hacker) {
 		super(id);
 		this.setCreativeTab(CreativeTabHsb.tabHsb);
+		this.setMaxDamage(Settings.maxDamageMonitor);
 		this.isHacker = hacker;
 		if(isHacker) {
 			this.setUnlocalizedName(Strings.ITEM_LOCK_HACKER);
@@ -49,8 +50,7 @@ public class ItemLockMonitor extends Item
 
 	@Override
 	public int getMaxCharge(ItemStack itemStack) {
-		//TODO Charge
-		return 10000;
+		return Settings.maxEnergyMonitor;
 	}
 
 	@Override

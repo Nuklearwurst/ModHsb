@@ -89,12 +89,11 @@ public class BlockHsbDoor extends BlockDoor {
 		TileEntity te = null;
     	if(meta >= 8)
     	{
-//    		HsbLog.debug("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
     		te = iblockaccess.getBlockTileEntity(x, y - 2, z);
     	} else {
-//    		HsbLog.debug("meta == " + meta + "\nCoordinates: " + x + ", " + y + ", " + z);
     		te = iblockaccess.getBlockTileEntity(x, y - 1, z);
     	}
+
     	//Texture for unlocked door
 		Icon tex = this.doorRedBot;
 		if(meta >= 8)
@@ -104,6 +103,10 @@ public class BlockHsbDoor extends BlockDoor {
 		//texture for locked door
         if(te != null && ((TileEntityHsb)te).locked)
         {
+        	if(((TileEntityHsbBuilding)te).camoId != -1)
+        	{
+        		return ModBlocks.blockHsb.getBlockTexture(iblockaccess, x, meta >= 8 ? y-2 : y-1, z, side);
+        	}
         	tex = this.doorGreenBot;
         	if(meta >= 8)
     		{

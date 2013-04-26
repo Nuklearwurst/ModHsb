@@ -4,6 +4,7 @@ import hsb.core.helper.HsbLog;
 import hsb.inventory.slot.SlotCharge;
 import hsb.inventory.slot.SlotEnergyUpgrade;
 import hsb.tileentity.TileEntityHsbTerminal;
+import hsb.upgrade.types.IMachineUpgradeItem;
 
 import java.util.Iterator;
 
@@ -13,8 +14,6 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBed;
-import net.minecraft.item.ItemMinecart;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -165,7 +164,7 @@ public class ContainerTerminal extends Container {
             }
             //from player:
            // Upgrades
-            else if(item instanceof ItemMinecart)//TODO
+            else if(item instanceof IMachineUpgradeItem)
             {
             	if(!this.mergeItemStack(stackSlot, 0, 4, false))
             	{
@@ -173,7 +172,7 @@ public class ContainerTerminal extends Container {
             	}
             }
             //coal
-            else if(item instanceof ItemBed)//TODO
+            else if(TileEntityHsbTerminal.isItemFuel(stackSlot))
         	{
         		if(!this.mergeItemStack(stackSlot, 4, 5, true))
         		{

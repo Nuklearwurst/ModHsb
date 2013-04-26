@@ -19,6 +19,7 @@ public class Textures {
 														texFolder + "UpgradePass", 
 														texFolder + "UpgradeSecurity", 
 														texFolder + "UpgradeCamoflage", 
+														texFolder + "UpgradeEmpty", 
 														texFolder + "UpgradeEmpty"};
 
 	public static final String[] BLOCK_HSB_DOOR = {		texFolder + "doorTop_red", 

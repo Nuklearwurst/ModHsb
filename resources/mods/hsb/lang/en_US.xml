@@ -17,6 +17,9 @@
 	<entry key="gui.unlock">Unlock</entry>
 	<entry key="gui.mode">Mode</entry>
 	
+	<entry key="upgrade.gui.button.tesla">Tesla</entry>
+	<entry key="upgrade.gui.button.camo">Camo</entry>
+	
 	<entry key="multitool.place">Place</entry>
 	<entry key="multitool.remove">Remove</entry>
 	<entry key="multitool.wrench">Wrench</entry>

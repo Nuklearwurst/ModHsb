@@ -1,18 +1,21 @@
 package hsb.inventory;
 
-import java.util.Iterator;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import hsb.core.helper.HsbLog;
 import hsb.inventory.slot.SlotTerminalUpgrade;
 import hsb.tileentity.TileEntityHsbTerminal;
+import hsb.upgrade.types.ITerminalUpgradeItem;
+
+import java.util.Iterator;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class ContainerTerminalOptions extends Container {
 
@@ -109,6 +112,62 @@ public class ContainerTerminalOptions extends Container {
     	{
     		this.te.passLength = value;
     	}
+    }
+    
+    
+    @Override
+    /**
+     * returns stack left in the slot?
+     */
+    public ItemStack transferStackInSlot(EntityPlayer player, int id)
+    {
+        ItemStack stack = null;
+        Slot slot = (Slot)this.inventorySlots.get(id);
+
+        //Slot has content
+        if (slot != null && slot.getHasStack())
+        {
+        	//get Stack
+            ItemStack stackSlot = slot.getStack();
+            //copy for output
+            stack = stackSlot.copy();
+            
+            Item item = stackSlot.getItem();
+            
+            //Terminal
+            //to player //0 - 10
+            if(id >= 0 && id < 10)
+            {
+            	if(!this.mergeItemStack(stackSlot, 10, this.inventorySlots.size(), false))
+            	{
+            		return null;
+            	}
+
+            }
+            //from player:
+           // Upgrades
+            else if(item instanceof ITerminalUpgradeItem)
+            {
+            	if(!this.mergeItemStack(stackSlot, 0, 10, false))
+            	{
+            		return null;
+            	}
+            }
+            if (stackSlot.stackSize == 0)
+            {
+                slot.putStack((ItemStack)null);
+            }
+            else
+            {
+                slot.onSlotChanged();
+            }
+            if (stackSlot.stackSize == stack.stackSize)
+            {
+                return null;
+            }
+        }
+
+        return stack;
     }
 
 }

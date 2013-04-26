@@ -29,14 +29,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class ItemUpgradeHsb extends ItemSimple
 	implements ITerminalUpgradeItem
 {
-
-//	public static final String[] upgradeNames = new String[] {"Tesla", "Password", "Security", "Camoflage", "Dummy"};
-//	public static final String[] textureNames = new String[] {"UpgradeTesla", "UpgradePass", "UpgradeSecurity", "UpgradeCamoflage", "UpgradeEmpty"};
-	
-    public static final Icon[] texture = new Icon[Textures.ITEM_UPGRADE_HSB.length];//TODO textures
+    public static final Icon[] texture = new Icon[Textures.ITEM_UPGRADE_HSB.length];
     
+    public static final int metaTesla = 0;
+    public static final int metaPassword = 1;
+    public static final int metaSecurity = 2;
+    public static final int metaCamo = 3;
     public static final int metaDummy = 4;
-
+    public static final int metaEmpty = 5;
     
 
     public ItemUpgradeHsb(int id)
@@ -102,6 +102,8 @@ public class ItemUpgradeHsb extends ItemSimple
 				return UpgradeRegistry.ID_UPGRADE_CAMO;
 			case 4:
 				return UpgradeRegistry.ID_UPGRADE_DUMMY;
+			case 5:
+				return UpgradeRegistry.ID_UPGRADE_DUMMY;
 			default:
 				return UpgradeRegistry.ID_UPGRADE_DUMMY;
 		}
@@ -123,6 +125,8 @@ public class ItemUpgradeHsb extends ItemSimple
 		case 3:
 			return new UpgradeCamoflage();
 		case 4:
+			return new UpgradeDummy();
+		case 5:
 			return new UpgradeDummy();
 		default:
 			return new UpgradeDummy();

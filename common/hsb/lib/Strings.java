@@ -9,7 +9,7 @@ public class Strings {
 	
 	//Item names
 	public static final String ITEM_MULTI_TOOL = "multiTool";
-	public static final String[] ITEM_HSB_UPGRADES = {"upgradeTesla", "upgradePassword", "upgradeSecurity", "upgradeCamoflage", "upgradeDummy"};
+	public static final String[] ITEM_HSB_UPGRADES = {"upgradeTesla", "upgradePassword", "upgradeSecurity", "upgradeCamoflage", "upgradeDummy", "upgradeEmpty"};
 	public static final String[] ITEM_HSB_MACHINE_UPGRADES = {"upgradeStorage"};
 	public static final String ITEM_LOCK_MONITOR = "lockMonitor";
 	public static final String ITEM_LOCK_HACKER = "lockHacker";
@@ -39,10 +39,12 @@ public class Strings {
 	public static final String GUI_MODE = "gui.mode";
 	
 	public static final String UPGRADE_GUI_BUTTON_TESLA = "upgrade.gui.button.tesla";
+	public static final String UPGRADE_GUI_BUTTON_CAMO = "upgrade.gui.button.camo";
 	
 	//container
 	public static final String CONTAINER_MULTI_TOOL = "container.multitool";
 	public static final String CONTAINER_TERMINAL_OPTIONS_NAME = "container." + HSB_TERMINAL + "Options";
+	public static final String CONTAINER_TERMINAL_NAME = "container." + HSB_TERMINAL;
 	
 	//MultiTool Modes
 	public static final String MULTI_TOOL_REMOVE = "multitool.remove";

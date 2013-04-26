@@ -1,19 +1,28 @@
 package hsb.upgrade.terminal;
 
-import net.minecraft.util.StatCollector;
 import hsb.lib.Strings;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.types.IHsbUpgrade;
+import hsb.upgrade.types.INBTUpgrade;
 import hsb.upgrade.types.IUpgradeButton;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.StatCollector;
 
 public class UpgradeTesla extends UpgradeHsbTerminal
-	implements IUpgradeButton
+	implements IUpgradeButton, INBTUpgrade
 {
 
+	public boolean active = false;
 	@Override
 	public void updateUpgrade(TileEntityHsbTerminal te) {
-		te.tesla = this.count;//for now
+		if(active)
+		{
+			te.tesla = this.count;//for now
+		} else {
+			te.tesla = 0;
+		}
 	}
 
 	@Override
@@ -23,13 +32,31 @@ public class UpgradeTesla extends UpgradeHsbTerminal
 
 	@Override
 	public void addInformation(IHsbUpgrade upgrade) {
-		// TODO Auto-generated method stub
-		
+		if(upgrade instanceof UpgradeTesla) {
+			this.active = ((UpgradeTesla) upgrade).active;
+		}
 	}
 
 	@Override
 	public String getButton() {
 		return StatCollector.translateToLocal(Strings.UPGRADE_GUI_BUTTON_TESLA);
+	}
+
+	@Override
+	public void onButtonClicked(EntityPlayer player, TileEntityHsbTerminal te) {
+		active = !active;
+		player.sendChatToPlayer(active ? "active" : "diabled");//TODO translations
+		this.updateUpgrade(te);
+	}
+
+	@Override
+	public void readFromNBT(NBTTagCompound tag) {
+		tag.getBoolean("upgradeTeslaActive");
+	}
+
+	@Override
+	public void writeToNBT(NBTTagCompound tag) {
+		tag.setBoolean("upgradeTelsaActive", active);
 	}
 
 }

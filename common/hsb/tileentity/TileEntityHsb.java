@@ -115,6 +115,10 @@ public abstract class TileEntityHsb extends TileEntitySimple
 		{
 			return;
 		}
+		if(!this.isLocked())
+		{
+			return;
+		}
 		//unlocking
 		this.locked = false;
 		//set removed mark

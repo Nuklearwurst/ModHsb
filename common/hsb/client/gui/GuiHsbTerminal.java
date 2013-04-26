@@ -41,6 +41,7 @@ public class GuiHsbTerminal extends GuiContainer
         xSize = 228;
         ySize = 222;
         player = entityplayer;
+        lastButtonLength = 0;
     }
     @Override
     protected void actionPerformed(GuiButton guibutton)

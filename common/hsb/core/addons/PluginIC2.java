@@ -2,6 +2,7 @@ package hsb.core.addons;
 
 import hsb.configuration.Settings;
 import hsb.core.helper.HsbLog;
+import hsb.item.ModItems;
 import ic2.api.ElectricItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -16,7 +17,9 @@ public class PluginIC2 {
 		}
 		return Settings.ic2Available;
     }
-	
+	public static boolean isAvaliable() {
+		return Settings.ic2Available;
+	}
 	public static void initPluginIC2() {
 		if(checkIC2Installed()) {
 			HsbLog.info("IC2 found!!");
@@ -28,10 +31,17 @@ public class PluginIC2 {
 		if(Settings.ic2Available)
 		{
 			//enable electric items etc.
+			ModItems.itemLockHacker.setMaxDamage(13);
+			ModItems.itemLockMonitor.setMaxDamage(13);
 		}
 	}
 	
-	
+	public static void initIC2Recipes() {
+		if(!isAvaliable())
+		{
+			return;
+		}
+	}
 	
 	//////////////
 	// Settings //
@@ -129,6 +139,7 @@ public class PluginIC2 {
 		else
 			return true;
 	}
+
 	
 	/**
 	 * Credits: 

@@ -280,11 +280,14 @@ public class BlockHsb extends BlockSimpleContainer{
         
         int tex = blockTextureId[meta][texid];
         
-        if(((ILockable)te).getConnectedTerminal()!= null && ((ILockable)te).getConnectedTerminal().getCamoBlockId()!=-1)
+        if(te instanceof TileEntityHsbBuilding && ((TileEntityHsbBuilding) te).isLocked() && ((TileEntityHsbBuilding) te).camoId != -1)
         {
-        	ILockTerminal terminal = ((ILockable) te).getConnectedTerminal();
-        	return Block.blocksList[terminal.getCamoBlockId()]
-        			.getBlockTextureFromSideAndMetadata(side, terminal.getCamoMeta());
+        	TileEntityHsbBuilding tebuild = (TileEntityHsbBuilding) te;
+        	Block block = Block.blocksList[tebuild.camoId];
+        	if(block != null && block.isOpaqueCube())
+        	{
+        		return block.getBlockTextureFromSideAndMetadata(side, tebuild.camoMeta);
+        	}
         }
         
         return blockTextureIcons[tex];

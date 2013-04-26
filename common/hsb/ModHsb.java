@@ -20,9 +20,6 @@ import hsb.tileentity.TileEntityGuiAccess;
 import hsb.tileentity.TileEntityHsbBuilding;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
-
-import java.util.logging.Level;
-
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.FingerprintWarning;
 import cpw.mods.fml.common.Mod.Init;
@@ -48,7 +45,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 @Mod(	modid = Reference.MOD_ID,
 		name = Reference.MOD_NAME,
 		version = Reference.VERSION_NUMBER,
-		dependencies = Reference.DEPENDENCIES) 
+		dependencies = Reference.DEPENDENCIES,
+		certificateFingerprint = Reference.FINGERPRINT) 
 
 @NetworkMod(	clientSideRequired = true,
 				serverSideRequired=false, 
@@ -67,8 +65,8 @@ public class ModHsb{
 	
     @FingerprintWarning
     public void invalidFingerprint(FMLFingerprintViolationEvent event) {
-
-        HsbLog.log(Level.SEVERE, Strings.INVALID_FINGERPRINT_MESSAGE);
+    	//TODO fingerprint
+        //HsbLog.severe(Strings.INVALID_FINGERPRINT_MESSAGE);
     }
 	
 	@PreInit

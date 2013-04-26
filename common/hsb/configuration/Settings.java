@@ -13,9 +13,13 @@ public class Settings {
 	//IC2
 	public static int energyHsbMonitor = 32;
 	public static int energyHsbHacker = 32;
+	
+	public static int maxEnergyMonitor = 10000;
 	//damage
 	public static int damageHsbMonitor = 1;
 	public static int damageHsbHacker = 4;
+	
+	public static int maxDamageMonitor = 20;
 
 
 }
