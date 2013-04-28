@@ -82,12 +82,12 @@ public class ItemUpgradeHsb extends ItemSimple
      */
     public void getSubItems(int itemId, CreativeTabs creativeTab, List list)
     {
-    	//TODO SubItems for Upgrades
         for (int i = 0; i < Strings.ITEM_HSB_UPGRADES.length; ++i)
         {
+        	if(i == metaDummy)
+        		continue;
             list.add(new ItemStack(itemId, 1, i));
-        }
-    	
+        }	
     }
 	@Override
 	public String getUniqueId(int meta) {
@@ -145,10 +145,13 @@ public class ItemUpgradeHsb extends ItemSimple
 		TileEntity te = world.getBlockTileEntity(x, y, z); 
 		if(te instanceof TileEntityHsbTerminal && (!((TileEntityHsbTerminal) te).locked))
 		{
-//			((TileEntityHsbTerminal)te).addToInventory(itemstack, 1);
-			//TODO sound
-			HsbLog.debug("Upgrade installed!");
-			itemstack.stackSize--;
+			if(!world.isRemote)
+			{
+				((TileEntityHsbTerminal)te).addToInventory(itemstack, 1);
+				//TODO sound
+				HsbLog.debug("Upgrade installed!");
+//				itemstack.stackSize--;
+			}
 			return true;
 		}
 		return false;

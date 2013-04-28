@@ -3,8 +3,6 @@ package hsb.network;
 import hsb.lib.PacketIds;
 import hsb.network.packet.PacketItemUpdate;
 import hsb.network.packet.PacketPasswordUpdate;
-import hsb.network.packet.PacketRequestButtons;
-import hsb.network.packet.PacketTerminalButtons;
 import hsb.network.packet.tileentity.PacketClientTileEvent;
 import hsb.network.packet.tileentity.PacketRequestData;
 import hsb.network.packet.tileentity.PacketTileFieldUpdate;
@@ -59,18 +57,19 @@ public class PacketHandler implements IPacketHandler{
 					packet.onPacketData(data, player);
 					break;
 				}
-				case PacketIds.TILE_TERMINAL_BUTTONS:
-				{
-					PacketTerminalButtons packet = new PacketTerminalButtons();
-					packet.onPacketData(data, player);
-					break;
-				}
-				case PacketIds.TILE_REQUEST_BUTTON_UPDATE:
-				{
-					PacketRequestButtons packet = new PacketRequestButtons();
-					packet.onPacketData(data, player);
-					break;
-				}
+				//not needed
+//				case PacketIds.TILE_TERMINAL_BUTTONS:
+//				{
+//					PacketTerminalButtons packet = new PacketTerminalButtons();
+//					packet.onPacketData(data, player);
+//					break;
+//				}
+//				case PacketIds.TILE_REQUEST_BUTTON_UPDATE:
+//				{
+//					PacketRequestButtons packet = new PacketRequestButtons();
+//					packet.onPacketData(data, player);
+//					break;
+//				}
 			}
 			
 		} catch (Exception ex) {

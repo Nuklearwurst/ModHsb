@@ -31,9 +31,11 @@ public class PacketRequestButtons extends PacketPosition{
 			throws IOException {
 		this.readData(data);
 
+		//not needed 
 		TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
 		if(te!=null && te instanceof TileEntityHsbTerminal)
 		{
+			te.onInventoryChanged();
 			PacketTerminalButtons packet = new PacketTerminalButtons((TileEntityHsbTerminal) te);
 			PacketDispatcher.sendPacketToPlayer(packet.getPacket(), player);
 		} else {

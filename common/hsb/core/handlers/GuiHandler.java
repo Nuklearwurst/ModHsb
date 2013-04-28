@@ -31,6 +31,7 @@ public class GuiHandler
 		case GuiIds.GUI_BLOCKBUILDING:
 			return new GuiBlockBuilding((TileEntityHsb) te, player);
 		case GuiIds.GUI_LOCKTERMINAL:
+			te.onInventoryChanged();
 			return new GuiHsbTerminal((TileEntityHsbTerminal) te,(Container)this.getServerGuiElement(ID, player, world, x, y, z), player);
 		case GuiIds.GUI_LOCKTERMINAL_OPTIONS:
 			return new GuiHsbTerminalOptions((TileEntityHsbTerminal) te, new ContainerTerminalOptions((TileEntityHsbTerminal) te, player), player);

@@ -19,7 +19,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 public class UpgradeCamoflage extends UpgradeHsbTerminal
@@ -156,7 +155,8 @@ public class UpgradeCamoflage extends UpgradeHsbTerminal
 
 	@Override
 	public String getButton() {
-		return StatCollector.translateToLocal(Strings.UPGRADE_GUI_BUTTON_CAMO);
+//		return StatCollector.translateToLocal(Strings.UPGRADE_GUI_BUTTON_CAMO);
+		return Strings.UPGRADE_GUI_BUTTON_CAMO;
 	}
 
 	@Override

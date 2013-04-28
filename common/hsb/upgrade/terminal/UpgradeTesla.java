@@ -8,7 +8,6 @@ import hsb.upgrade.types.INBTUpgrade;
 import hsb.upgrade.types.IUpgradeButton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
 
 public class UpgradeTesla extends UpgradeHsbTerminal
 	implements IUpgradeButton, INBTUpgrade
@@ -39,7 +38,8 @@ public class UpgradeTesla extends UpgradeHsbTerminal
 
 	@Override
 	public String getButton() {
-		return StatCollector.translateToLocal(Strings.UPGRADE_GUI_BUTTON_TESLA);
+//		return StatCollector.translateToLocal(Strings.UPGRADE_GUI_BUTTON_TESLA);
+		return Strings.UPGRADE_GUI_BUTTON_TESLA;
 	}
 
 	@Override

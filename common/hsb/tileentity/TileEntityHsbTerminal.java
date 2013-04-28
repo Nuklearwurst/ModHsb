@@ -67,7 +67,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	//is empty on client
 	private Map<String, IHsbUpgrade> upgrades;
 	//contains unique id on server || button text on Client
-	private List<String> buttons;
+	public List<String> buttons;
 	
 	//Upgrades	
 	public int tesla = 0;
@@ -104,6 +104,78 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	@Override
 	public void addBlockToTileEntity(ILockable te) {
 		this.blocksInUse++;
+	}
+	
+	/**
+	 * add an item to the terminals inventory
+	 * @param item 
+	 * @param number how many should be added, can be -1 for all
+	 * @return itemstack 
+	 */
+	public ItemStack addToInventory(ItemStack item, int number)
+	{
+		//setting number
+		if(number == -1)
+		{
+			number = item.stackSize;
+		}
+		//setting slot
+		int start = 0; //including
+		int end = this.getSizeInventory();//excluding --> see for-loop
+		if(item == null)
+		{
+			return item;
+		}
+		if(item.getItem() instanceof IMachineUpgradeItem) {
+			start = 0;
+			end = 4;
+		} else if(item.getItem() instanceof ITerminalUpgradeItem) {
+			start = 5;
+			end = this.getSizeInventory();
+		} else if(Settings.ic2Available) {
+			if(item.getItem() instanceof IElectricItem)
+			{
+				start = 4;
+				end = 5;
+			}
+		} else {
+			if(isItemFuel(item))
+			{
+				start = 4;
+				end = 5;
+			}
+		}
+		//adding item
+		for(int i = start; i < end; i++)
+		{
+			ItemStack slot = this.getStackInSlot(i);
+			if(slot == null)
+			{
+				ItemStack stack = item.splitStack(number);
+				this.mainInventory[i] = stack;
+//				this.mainInventory[i].stackSize = number; //setting stacksize
+//				item.stackSize = item.stackSize - number;//decreasing stacksize of item
+				return item;
+			}
+			if(slot.isItemEqual(item))
+			{
+				int size = slot.stackSize + number; 
+				if(size <= slot.getMaxStackSize())
+				{
+					this.mainInventory[i].stackSize = size; //setting slot
+					item.stackSize = item.stackSize - number; //setting new stacksize to return
+					if(item.stackSize == 0)
+						item = null;
+					return item;
+				} else {
+					int rest = size - slot.getMaxStackSize(); 
+					this.mainInventory[i].stackSize = slot.getMaxStackSize();
+					item.stackSize = rest;
+					return item;
+				}
+			}
+		}
+		return item;
 	}
 
 	@Override
@@ -170,6 +242,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		return super.receiveSignal(side, te, value, pass, port);
 	}
 	
+	@Deprecated
 	public List<String> getButtons() {
 		return buttons;
 	}
@@ -185,6 +258,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 			this.blocksInUse = 0;
 		super.setLocked(lock);
 	}
+	@Deprecated
 	public void setButtons(List<String> l)
 	{
 		this.buttons = l;
@@ -331,7 +405,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 				: entityplayer.getDistanceSq(this.xCoord + 0.5D,
 						this.yCoord + 0.5D, this.zCoord + 0.5D) <= 64.0D;
 	}
-
+	@Deprecated
 	public List<IUpgradeButton> getButtonList() {
 		List<IUpgradeButton> list = new ArrayList<IUpgradeButton>();
 		for( IHsbUpgrade upgrade : upgrades.values()) {
@@ -410,7 +484,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 			this.camoMeta = -1;
 			this.camoId = -1;
 			
-			this.buttons.clear();
+			this.buttons = new ArrayList<String>();
 			
 			//Upgrade Data
 			//clearing List for new Data
@@ -478,7 +552,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 					if(update instanceof IUpgradeButton)
 					{
 						HsbLog.debug("adding Button...");
-						buttons.add(((IUpgradeButton) update).getUniqueId());
+						buttons.add(((IUpgradeButton) update).getButton());
 					}
 				}
 			}

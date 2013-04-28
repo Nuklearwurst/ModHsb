@@ -4,12 +4,7 @@ import hsb.core.helper.HsbLog;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
 import hsb.network.NetworkManager;
-import hsb.network.packet.PacketRequestButtons;
 import hsb.tileentity.TileEntityHsbTerminal;
-
-import java.util.List;
-
-import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -29,7 +24,7 @@ public class GuiHsbTerminal extends GuiContainer
     private static final int maxButtons = 10;
     private static final int buttonIdStart = 3;
     
-    private int lastButtonLength = 0;
+    private int lastButtonHashCode;
     
     EntityPlayer player;
 
@@ -41,7 +36,6 @@ public class GuiHsbTerminal extends GuiContainer
         xSize = 228;
         ySize = 222;
         player = entityplayer;
-        lastButtonLength = 0;
     }
     @Override
     protected void actionPerformed(GuiButton guibutton)
@@ -136,42 +130,37 @@ public class GuiHsbTerminal extends GuiContainer
         yPos = height / 2 - ySize / 2;
         this.buttonList.clear();
 
-        //Normal width = 52px
-        //TODO Design
         int bPosX = 4;
         int bPosY = 4;
         
+        lastButtonHashCode = te.buttons.hashCode();
         
         this.buttonList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
         this.buttonList.add(new GuiButton(1, xPos + 175, yPos + 105, 40, 20, getLock(te.locked)));
         this.buttonList.add(new GuiButton(2, xPos + 175, yPos + 85, 40, 20, StatCollector.translateToLocal(Strings.GUI_OPTIONS)));
 
-        //TODO better
+        //TODO better button positioning
         int buttonSize = (int) Math.floor((this.xSize - 6) / (maxButtons / 2));
-        List<String> buttons = te.getButtons();
-//        HsbLog.debug("gui button size: " + buttons.size());
-        if(buttons != null) {
+//        HsbLog.debug("gui button: " + te.buttons);
+        if(te.buttons != null) {
         	int i = 0;
-	        for(String s : buttons)
+	        for(String s : te.buttons)
 	        {
 	        	if(i>4)
 	        	{
 	        		bPosY = 23; // one time bPosY + 20
 	        	}
 	        	bPosX= (i % 5) * buttonSize + 4;
-	        	if(buttons.get(i) != null && buttons.get(i) != "" && buttons.get(i).length() > 0)
+	        	if(te.buttons.get(i) != null /*&& buttons.get(i) != "" && buttons.get(i).length() > 0*/)
 	        	{
-	        		this.buttonList.add(new GuiButton(i + GuiHsbTerminal.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, s));
+	        		this.buttonList.add(new GuiButton(i + GuiHsbTerminal.buttonIdStart, xPos + bPosX, yPos + bPosY, buttonSize, 20, StatCollector.translateToLocal(s)));
+	        	} else {
+	        		HsbLog.severe("button == null");
 	        	}
 	        	i++;
 	        }
-	        if(buttons.size() == 0)
-	        {
-		    	PacketRequestButtons packet = new PacketRequestButtons(te);
-		    	((EntityClientPlayerMP)player).sendQueue.addToSendQueue(packet.getPacket());
-	        }
         } else {
-        	HsbLog.severe("buttons = null!");
+        	HsbLog.severe("sdfgsdfg"); //impossible?
         }
     }
 	
@@ -179,10 +168,9 @@ public class GuiHsbTerminal extends GuiContainer
     public void updateScreen()
     {
     	super.updateScreen();
-    	if(te.getButtons() != null && te.getButtons().size() > this.lastButtonLength)
+    	if(te.buttons.hashCode() != lastButtonHashCode)
     	{
     		this.initGui();
-    		this.lastButtonLength = te.getButtons().size();
     	}
     }
 }

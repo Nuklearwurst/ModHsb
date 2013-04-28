@@ -16,6 +16,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import cpw.mods.fml.common.network.Player;
 
+/**
+ * unused
+ * @author Nuklearwurst
+ *
+ */
 public class PacketTerminalButtons extends PacketPosition {
 	
 	List<String> buttons = new ArrayList<String>();
@@ -31,7 +36,7 @@ public class PacketTerminalButtons extends PacketPosition {
 	public PacketTerminalButtons(TileEntityHsbTerminal te) {
 		super(te.xCoord, te.yCoord, te.zCoord);
 		//getting the ids
-		List<String> ids = te.getButtons();
+		List<String> ids = te.buttons;
 		if(ids != null)
 		{
 			//setting button text for client
@@ -80,9 +85,7 @@ public class PacketTerminalButtons extends PacketPosition {
 		TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
 		if(te instanceof TileEntityHsbTerminal)
 		{
-			((TileEntityHsbTerminal) te).setButtons(buttons);
-//			HsbLog.debug("updated button on client!");
-//			HsbLog.debug("button number: " + buttons.size());
+			((TileEntityHsbTerminal) te).buttons = buttons;
 		} else {
 			HsbLog.severe("error when reading button update packet!");
 		}

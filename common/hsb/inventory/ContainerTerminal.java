@@ -4,9 +4,12 @@ import hsb.core.helper.HsbLog;
 import hsb.inventory.slot.SlotCharge;
 import hsb.inventory.slot.SlotEnergyUpgrade;
 import hsb.tileentity.TileEntityHsbTerminal;
+import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.types.IMachineUpgradeItem;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
@@ -27,6 +30,7 @@ public class ContainerTerminal extends Container {
     private int lastEnergyStored = 0;
     private boolean lastLocked = false;
     private int lastMaxStorage = 0;
+    private List<String> lastList = null;
     
     public ContainerTerminal(TileEntityHsbTerminal te, EntityPlayer entityplayer)
     {
@@ -63,6 +67,9 @@ public class ContainerTerminal extends Container {
         {
             this.addSlotToContainer(new Slot(invPlayer, reihe, 34 + reihe * 18, 198));
         }
+        
+        //init list
+        lastList = new ArrayList<String>();
     }
     
     @Override
@@ -80,6 +87,7 @@ public class ContainerTerminal extends Container {
     	}
         crafter.sendProgressBarUpdate(this, 1, lockInt);
         crafter.sendProgressBarUpdate(this, 2, this.te.maxEnergyStorage);
+        sendButtonListUpdate(crafter);
     }
 
     @Override
@@ -120,11 +128,42 @@ public class ContainerTerminal extends Container {
             {
             	crafter.sendProgressBarUpdate(this, 2, this.te.maxEnergyStorage);
             }
+            /* 3 - 12*/
+            if(!this.lastList.equals( this.te.buttons))
+            {
+            	this.sendButtonListUpdate(crafter);
+            }
         }
         
         this.lastEnergyStored = this.te.energyStored;
         this.lastLocked = this.te.locked;
         this.lastMaxStorage = this.te.maxEnergyStorage;
+        this.lastList = this.te.buttons;
+    }
+    
+    /**
+     * sends progressbar update, updating all buttons, id 3 - 12
+     * @param crafter
+     */
+    private void sendButtonListUpdate(ICrafting crafter)
+    {
+    	List<String> buttons = te.buttons;
+    	int i = 0;
+    	for(String name : buttons)
+    	{
+    		int value = UpgradeRegistry.buttonNames.indexOf(name);
+    		if(value == -1)
+    		{
+    			HsbLog.severe("button name not found: " + name);
+    		} else {
+	    		crafter.sendProgressBarUpdate(this, 3 + i, value);
+    		}
+    		i++;
+    	}
+    	if(i == 0)
+    	{
+    		crafter.sendProgressBarUpdate(this, 3, -1);
+    	}
     }
 
     @Override
@@ -217,6 +256,28 @@ public class ContainerTerminal extends Container {
         if(id == 2) 
         {
         	this.te.maxEnergyStorage = value;
+        }
+        if(id >= 3 && id < 13)
+        {
+        	
+        	if(te.buttons == null) //init list
+        	{
+        		te.buttons = new ArrayList<String>();        		
+        	}
+        	
+        	if(value == -1) // empty list --> no buttons
+    		{
+    			te.buttons = new ArrayList<String>();
+    			return;
+    		}
+        	
+    		for(int i = te.buttons.size(); i <= id - 3; i++)//workaround for possible index out of bounds exception
+    		{
+    			te.buttons.add("");
+    		}
+    		
+			te.buttons.set(id - 3, UpgradeRegistry.buttonNames.get(value));
+    		HsbLog.debug("updated buttons: " + te.buttons);
         }
     }
 
