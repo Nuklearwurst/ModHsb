@@ -1,5 +1,7 @@
 package hsb.item;
 
+import java.util.List;
+
 import hsb.lib.Strings;
 import hsb.lib.Textures;
 import hsb.upgrade.UpgradeRegistry;
@@ -7,6 +9,7 @@ import hsb.upgrade.machine.UpgradeEnergyStorage;
 import hsb.upgrade.types.IMachineUpgradeItem;
 import hsb.upgrade.types.IUpgradeHsbMachine;
 import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Icon;
 import cpw.mods.fml.relauncher.Side;
@@ -44,6 +47,21 @@ public class ItemHsbMachineUpgrade extends ItemSimple
         return "item.upgradeDummy";
     }
 
+    @Override
+	@SideOnly(Side.CLIENT)
+
+    /**
+     * Gets an icon index based on an item's damage value
+     */
+    public Icon getIconFromDamage(int damage)
+    {
+    	if(damage < texture.length)
+    	{
+    		return texture[damage];
+    	}
+        return texture[0];
+    }
+    
 	@Override
 	public IUpgradeHsbMachine getUpgrade(int meta) {
 		switch(meta)
@@ -54,6 +72,21 @@ public class ItemHsbMachineUpgrade extends ItemSimple
 			return new UpgradeEnergyStorage();
 		}
 	}
+	
+    @Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SideOnly(Side.CLIENT)
+
+    /**
+     * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
+     */
+    public void getSubItems(int itemId, CreativeTabs creativeTab, List list)
+    {
+        for (int i = 0; i < Strings.ITEM_HSB_MACHINE_UPGRADES.length; ++i)
+        {
+            list.add(new ItemStack(itemId, 1, i));
+        }	
+    }
 
 	@Override
 	@SideOnly(Side.CLIENT)

@@ -13,6 +13,7 @@ public class Strings {
 	public static final String[] ITEM_HSB_MACHINE_UPGRADES = {"upgradeStorage"};
 	public static final String ITEM_LOCK_MONITOR = "lockMonitor";
 	public static final String ITEM_LOCK_HACKER = "lockHacker";
+	public static final String ITEM_HSB_DOOR = "hsbDoor";
 	
 	//blockHsb
 	public static final String HSB_BUILDING = "hsbBuilding";

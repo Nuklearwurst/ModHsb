@@ -22,6 +22,7 @@ public class ItemHsbDoor extends ItemDoor{
 	public ItemHsbDoor(int id) {
 		super(id, Material.iron);
 		this.setCreativeTab(CreativeTabHsb.tabHsb);
+		this.setUnlocalizedName(Strings.ITEM_HSB_DOOR);
 	}
 
     /**
