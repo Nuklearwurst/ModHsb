@@ -30,10 +30,12 @@
 	<entry key="item.upgradeSecurity.name">Security Upgrade</entry>
 	<entry key="item.upgradeCamoflage.name">Camoflage Upgrade</entry>
 	<entry key="item.upgradeDummy.name">Dummy Upgrade</entry>
+	<entry key="item.upgradeEmpty.name">Empty Upgrade</entry>
 	
 	<entry key="item.upgradeStorage.name">Energy Storage Upgrade</entry>
 	<entry key="item.lockMonitor.name">Lock Monitor</entry>
 	<entry key="item.lockHacker.name">Lock Hacker</entry>
+	<entry key="item.hsbDoor.name">Hsb Door</entry>
 	
 	<entry key="container.multitool">Hsb Multi Tool</entry>
 	
