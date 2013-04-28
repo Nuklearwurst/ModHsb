@@ -7,8 +7,8 @@ import hsb.core.helper.Utils;
 import hsb.core.proxy.ClientProxy;
 import hsb.item.ItemHsbMultiTool;
 import hsb.lib.GuiIds;
-import hsb.lib.Reference;
 import hsb.lib.Strings;
+import hsb.lib.Textures;
 import hsb.lock.ILockTerminal;
 import hsb.lock.ILockable;
 import hsb.tileentity.TileEntityGuiAccess;
@@ -46,8 +46,8 @@ public class BlockHsb extends BlockSimpleContainer{
 												{3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4},
 												{0, 0, 0, 2, 0, 0, 1, 1, 1, 2, 1, 1}};//TODO: Texture for GuiAccessBlock
 	
-    static final String[] textureNames = {"hsb_red", "hsb_green", "terminal", "doorBase_red", "doorBase_green", "Orange"};
-	public static final Icon[] blockTextureIcons = new Icon[textureNames.length];
+//    static final String[] textureNames = {"hsb_red", "hsb_green", "terminal", "doorBase_red", "doorBase_green", "Orange"};
+	public static final Icon[] blockTextureIcons = new Icon[Textures.BLOCK_HSB.length];
 	
 	public static final int maxDamage = 3;
 	
@@ -67,8 +67,8 @@ public class BlockHsb extends BlockSimpleContainer{
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IconRegister reg) {
     	int i = 0;
-    	for(String s : textureNames) {
-    		BlockHsb.blockTextureIcons[i++] = reg.registerIcon(Reference.MOD_ID.toLowerCase() + ":" + s);
+    	for(String s : Textures.BLOCK_HSB) {
+    		BlockHsb.blockTextureIcons[i++] = reg.registerIcon(s);
     	}		
 	}
     @Override

@@ -1,6 +1,7 @@
 package hsb.block;
 
 import hsb.lib.Strings;
+import hsb.lib.Textures;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.material.Material;
@@ -18,8 +19,7 @@ public class BlockHeavyStone extends BlockSimple{
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerIcons(IconRegister reg) {
-		// TODO Auto-generated method stub
-		
+		blockIcon = reg.registerIcon(Textures.BLOCK_HEAVY_STONE);
 	}
 
 }
