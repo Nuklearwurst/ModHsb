@@ -1,5 +1,6 @@
 package hsb.lock;
 
+import hsb.core.helper.HsbLog;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Facing;
 
@@ -25,6 +26,10 @@ public class LockManager {
 			{
 				continue;
 			}
+			if(sender == null) {
+				HsbLog.severe("BUG, sender cannot be null (transferSignal, LockManager)");
+				return false;
+			}
 			//get TileEntity on the current side
 			TileEntity tile = sender.worldObj.getBlockTileEntity(
 					sender.xCoord+Facing.offsetsXForSide[i],
@@ -34,9 +39,9 @@ public class LockManager {
 			if(tile != null && tile instanceof ILockReceiver)
 			{
 				//send signal to that tileentity
-				if(((ILockReceiver) tile).connectsTo(Facing.faceToSide[i])) {
+				if(((ILockReceiver) tile).connectsTo(Facing.oppositeSide[i])) {
 					//if successful
-					if(((ILockReceiver) tile).receiveSignal(Facing.faceToSide[i], te, lock, pass, port))
+					if(((ILockReceiver) tile).receiveSignal(Facing.oppositeSide[i], te, lock, pass, port))
 						b = true;
 				}
 			}

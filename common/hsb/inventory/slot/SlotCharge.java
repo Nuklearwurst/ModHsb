@@ -1,6 +1,6 @@
 package hsb.inventory.slot;
 
-import hsb.tileentity.TileEntityHsbTerminal;
+import hsb.core.helper.StackUtils;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -14,6 +14,6 @@ public class SlotCharge extends Slot{
 	@Override
     public boolean isItemValid(ItemStack stack)
     {
-        return TileEntityHsbTerminal.isItemFuel(stack);
+        return StackUtils.isItemFuel(stack);
     }
 }

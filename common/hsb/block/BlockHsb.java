@@ -1,11 +1,9 @@
 package hsb.block;
 
 import hsb.ModHsb;
-import hsb.configuration.Settings;
-import hsb.core.addons.PluginIC2;
+import hsb.core.helper.MachineUtils;
 import hsb.core.helper.Utils;
 import hsb.core.proxy.ClientProxy;
-import hsb.item.ItemHsbMultiTool;
 import hsb.lib.GuiIds;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
@@ -30,17 +28,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Facing;
 import net.minecraft.util.Icon;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class BlockHsb extends BlockSimpleContainer{
-	
-	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
-	
+public class BlockHsb extends BlockSimpleContainer{	
 	public static final int[][] blockTextureId = {{0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1}, 
 												{0, 0, 0, 2, 0, 0, 1, 1, 1, 2, 1, 1},
 												{3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4},
@@ -104,6 +98,8 @@ public class BlockHsb extends BlockSimpleContainer{
     	TileEntity te = world.getBlockTileEntity(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);
         
+        MachineUtils.onMachinePlacedBy(world, x, y, z, player, stack);
+        
         //Open Gui to set port:
         switch(metadata) {
         case 0: case 2:
@@ -113,32 +109,7 @@ public class BlockHsb extends BlockSimpleContainer{
         	break;
         }
         
-        //rotate block
-        if (player != null && te instanceof IWrenchable) 
-        {
-            IWrenchable wrenchable = (IWrenchable)te;
-            int rotationSegment = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
-            if (player.rotationPitch >= 65) 
-            {
-                wrenchable.setFacing((short)1);
-            } 
-            else if (player.rotationPitch <= -65) 
-            {
-                wrenchable.setFacing((short)0);
-            } 
-            else 
-            {
-                switch (rotationSegment) 
-                {
-                case 0: wrenchable.setFacing((short)2); break;
-                case 1: wrenchable.setFacing((short)5); break;
-                case 2: wrenchable.setFacing((short)3); break;
-                case 3: wrenchable.setFacing((short)4); break;
-                default:
-                    wrenchable.setFacing((short)0); break;
-                }
-            }
-        }
+        
     }
     @Override
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) 
@@ -161,19 +132,16 @@ public class BlockHsb extends BlockSimpleContainer{
 	    	}
     	}
     }
+    /* (non-Javadoc)
+     * @see net.minecraft.block.Block#onBlockActivated(net.minecraft.world.World, int, int, int, net.minecraft.entity.player.EntityPlayer, int, float, float, float)
+     */
     @Override
-    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int side, float m, float n, float o)
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float m, float n, float o)
     {       
-    	//Items
-    	if(player.getCurrentEquippedItem()!=null) {
-    		if(Settings.ic2Available)
-    			if(player.getCurrentEquippedItem().itemID == PluginIC2.getIC2ItemId("wrench") || player.getCurrentEquippedItem().itemID == PluginIC2.getIC2ItemId("electricWrench"))
-    				return false;
-    		if(player.getCurrentEquippedItem().getItem() instanceof ItemHsbMultiTool)
-    			return false;
-    	}
+    	if(!MachineUtils.onMachineActivated(world, x, y, z, player, side, m, n, o))
+    		return false;
     	
-    	switch (world.getBlockMetadata(i, j, k))
+    	switch (world.getBlockMetadata(x, y, z))
         {
             case META_BUILDING: case META_DOOR_BASE:
             	return false;
@@ -183,10 +151,8 @@ public class BlockHsb extends BlockSimpleContainer{
             case META_TERMINAL:
             {
             	if(!world.isRemote) {
-//            		PacketTerminalButtons packet = new PacketTerminalButtons();
-//            		PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)player);
             		//open gui
-            		player.openGui(ModHsb.instance, GuiIds.GUI_LOCKTERMINAL, world, i, j, k);
+            		player.openGui(ModHsb.instance, GuiIds.GUI_LOCKTERMINAL, world, x, y, z);
             	}
                 return true;
             }
@@ -195,19 +161,19 @@ public class BlockHsb extends BlockSimpleContainer{
         	 */
             case META_GUI_ACCESS:
             {
-            	TileEntityGuiAccess tile = (TileEntityGuiAccess) world.getBlockTileEntity(i, j, k);
-            	int facing = Facing.faceToSide[tile.getFacing()];
-            	int x = Facing.offsetsXForSide[facing] + i;
-            	int y = Facing.offsetsYForSide[facing] + j;
-            	int z = Facing.offsetsZForSide[facing] + k;
-            	int blockId = world.getBlockId(x, y, z);
-            	int meta = world.getBlockMetadata(x, y, z);
+            	TileEntityGuiAccess tile = (TileEntityGuiAccess) world.getBlockTileEntity(x, y, z);
+            	int facing = Facing.oppositeSide[tile.getFacing()];
+            	int i = Facing.offsetsXForSide[facing] + x;
+            	int j = Facing.offsetsYForSide[facing] + y;
+            	int k = Facing.offsetsZForSide[facing] + z;
+            	int blockId = world.getBlockId(i, j, k);
+            	int meta = world.getBlockMetadata(i, j, k);
 //            	HsbLog.debug("Meta: " + meta + " side: " + side + " Block: " + Block.blocksList[blockId] + " Pos: " + x + ", " + y + ", " + z);
             	if(Block.blocksList[blockId] == null || (blockId == this.blockID && meta == 3))
             	{
             		return false;
             	}
-            	if(Block.blocksList[blockId].onBlockActivated(world, x, y, z, player, Facing.faceToSide[tile.getFacing()], m, n, o)) {
+            	if(Block.blocksList[blockId].onBlockActivated(world, i, j, k, player, Facing.oppositeSide[tile.getFacing()], m, n, o)) {
             	} else {
             		Utils.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_NOTHING_HAPPENED), player, true);
             	}
@@ -264,13 +230,13 @@ public class BlockHsb extends BlockSimpleContainer{
         TileEntity te = iblockaccess.getBlockTileEntity(i, j, k);
         int meta = iblockaccess.getBlockMetadata(i, j, k);
         
-        int texid = sideAndFacingToSpriteOffset[side][5];
+        int texid = Textures.sideAndFacingToSpriteOffset[side][5];
         
         if(meta == BlockHsb.META_GUI_ACCESS || meta == BlockHsb.META_TERMINAL) {
 	        short facing = 0;
 	        
 	        facing = ((IWrenchable) te).getFacing();
-	        texid = sideAndFacingToSpriteOffset[side][facing];
+	        texid = Textures.sideAndFacingToSpriteOffset[side][facing];
         }
         
 		if(((ILockable)te).isLocked())
@@ -286,7 +252,7 @@ public class BlockHsb extends BlockSimpleContainer{
         	Block block = Block.blocksList[tebuild.camoId];
         	if(block != null && block.isOpaqueCube())
         	{
-        		return block.getBlockTextureFromSideAndMetadata(side, tebuild.camoMeta);
+        		return block.getIcon(side, tebuild.camoMeta);
         	}
         }
         
@@ -295,11 +261,11 @@ public class BlockHsb extends BlockSimpleContainer{
     }
 	
 	@Override
-    public Icon getBlockTextureFromSideAndMetadata(int side, int meta)
+    public Icon getIcon(int side, int meta)
 	{
 		if(meta > maxDamage)
 			return blockTextureIcons[0];
-		int texid = sideAndFacingToSpriteOffset[side][1];
+		int texid = Textures.sideAndFacingToSpriteOffset[side][1];
 		int tex = blockTextureId[meta][texid];
 	    return blockTextureIcons[tex];
 

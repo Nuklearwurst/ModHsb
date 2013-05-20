@@ -1,6 +1,7 @@
 package hsb.recipes;
 
 import hsb.block.BlockHsb;
+import hsb.block.BlockMachine;
 import hsb.block.ModBlocks;
 import hsb.configuration.Settings;
 import hsb.core.addons.PluginIC2;
@@ -40,7 +41,7 @@ public class HsbRecipes {
 				{ 
 					"sss", "sis","sss" ,
 					Character.valueOf('s'), new ItemStack(Block.stone, 1, 0),
-					Character.valueOf('i'), new ItemStack(Block.blockSteel, 1, 0)
+					Character.valueOf('i'), new ItemStack(Block.blockIron, 1, 0)
 				});
 		//Empty Upgrade
 		GameRegistry.addRecipe(new ItemStack(ModItems.itemUpgradeHsb, 8, ItemUpgradeHsb.metaEmpty), new Object[] 
@@ -79,6 +80,24 @@ public class HsbRecipes {
 					Character.valueOf('b'), new ItemStack(Block.blockRedstone, 1, 0),
 					Character.valueOf('h'), new ItemStack(ModBlocks.blockHsb, 1, BlockHsb.META_BUILDING),
 					Character.valueOf('r'), new ItemStack(Block.redstoneComparatorIdle, 1, 0),
+				});
+		//machine
+		GameRegistry.addRecipe(new ItemStack(ModBlocks.blockMachine, 1, BlockMachine.META_MACHINE), new Object[] 
+				{ 
+					"grg", "rir","grg" ,
+					Character.valueOf('r'), new ItemStack(Item.redstone , 1, 0),
+					Character.valueOf('g'), new ItemStack(Item.lightStoneDust, 1, 0),
+					Character.valueOf('i'), new ItemStack(Block.blockIron, 1, 0)	
+				});
+		//unlocker
+		GameRegistry.addRecipe(new ItemStack(ModBlocks.blockMachine, 1, BlockMachine.META_UNLOCKER), new Object[] 
+				{ 
+					"shs", "rmr","sts" ,
+					Character.valueOf('s'), new ItemStack(Block.stone, 1, 0),
+					Character.valueOf('r'), new ItemStack(Item.redstone, 1, 0),
+					Character.valueOf('h'), new ItemStack(ModItems.itemLockHacker, 1, 0),
+					Character.valueOf('m'), new ItemStack(ModBlocks.blockMachine, 1, BlockMachine.META_MACHINE),
+					Character.valueOf('t'), new ItemStack(ModBlocks.blockHsb, 1, BlockHsb.META_TERMINAL),
 				});
 	}
 }

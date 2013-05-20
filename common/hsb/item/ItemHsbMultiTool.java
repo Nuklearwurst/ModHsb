@@ -56,8 +56,8 @@ public class ItemHsbMultiTool extends ItemSimple
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void updateIcons(IconRegister reg) {
-		this.iconIndex = reg.registerIcon(Textures.ITEM_MULTI_TOOL);
+	public void registerIcons(IconRegister reg) {
+		this.itemIcon = reg.registerIcon(Textures.ITEM_MULTI_TOOL);
 	}
 	
 	@Override

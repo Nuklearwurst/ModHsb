@@ -118,7 +118,7 @@ public class BlockHsbDoor extends BlockDoor {
     }
     
     @Override
-    public Icon getBlockTextureFromSideAndMetadata(int side, int meta)
+    public Icon getIcon(int side, int meta)
 	{
     	//texture for unlocked Door
 		Icon tex = this.doorRedBot;

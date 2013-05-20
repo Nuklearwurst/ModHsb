@@ -84,9 +84,9 @@ public class ItemHsbDoor extends ItemDoor{
      * When this method is called, your block should register all the icons it needs with the given IconRegister. This
      * is the only chance you get to register icons.
      */
-    public void updateIcons(IconRegister reg)
+    public void registerIcons(IconRegister reg)
     {
-    	this.iconIndex = reg.registerIcon(Textures.ITEM_HSB_DOOR);
+    	this.itemIcon = reg.registerIcon(Textures.ITEM_HSB_DOOR);
     }
 
 }

@@ -9,7 +9,6 @@ import hsb.tileentity.TileEntityHsb;
 import ic2.api.IElectricItem;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
@@ -17,7 +16,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemLockMonitor extends Item
+public class ItemLockMonitor extends ItemSimple
 	implements IElectricItem
 {
 	private boolean isHacker = false;
@@ -89,6 +88,7 @@ public class ItemLockMonitor extends Item
 						}
 					} else {
 						entityplayer.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_LOCKED));
+						return true;
 					}
 					//if NOT locked
 				} else {
@@ -121,12 +121,12 @@ public class ItemLockMonitor extends Item
      * When this method is called, your block should register all the icons it needs with the given IconRegister. This
      * is the only chance you get to register icons.
      */
-    public void updateIcons(IconRegister reg)
+    public void registerIcons(IconRegister reg)
     {
     	if(isHacker) {
-    		this.iconIndex = reg.registerIcon(Textures.ITEM_LOCK_HACKER);
+    		this.itemIcon = reg.registerIcon(Textures.ITEM_LOCK_HACKER);
     	} else {
-    		this.iconIndex = reg.registerIcon(Textures.ITEM_LOCK_MONITOR);
+    		this.itemIcon = reg.registerIcon(Textures.ITEM_LOCK_MONITOR);
 
     	}
     }

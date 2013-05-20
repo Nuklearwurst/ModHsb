@@ -90,7 +90,7 @@ public class ItemHsbMachineUpgrade extends ItemSimple
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void updateIcons(IconRegister reg) {
+	public void registerIcons(IconRegister reg) {
     	int i = 0;
     	for(String s : Textures.ITEM_UPGRADE_HSB_MACHINE)
     	{

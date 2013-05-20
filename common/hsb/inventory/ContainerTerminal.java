@@ -1,6 +1,7 @@
 package hsb.inventory;
 
 import hsb.core.helper.HsbLog;
+import hsb.core.helper.StackUtils;
 import hsb.inventory.slot.SlotCharge;
 import hsb.inventory.slot.SlotEnergyUpgrade;
 import hsb.tileentity.TileEntityHsbTerminal;
@@ -25,8 +26,6 @@ public class ContainerTerminal extends Container {
 
 	TileEntityHsbTerminal te;
     IInventory invPlayer;
-    int xPos;
-    int yPos;
     private int lastEnergyStored = 0;
     private boolean lastLocked = false;
     private int lastMaxStorage = 0;
@@ -211,7 +210,7 @@ public class ContainerTerminal extends Container {
             	}
             }
             //coal
-            else if(TileEntityHsbTerminal.isItemFuel(stackSlot))
+            else if(StackUtils.isItemFuel(stackSlot))
         	{
         		if(!this.mergeItemStack(stackSlot, 4, 5, true))
         		{

@@ -8,5 +8,6 @@ public class GuiIds {
 	public static final int GUI_BLOCKBUILDING = 3;
 	public static final int GUI_LOCKTERMINAL_OPTIONS = 4;
 	public static final int GUI_UPGRADE_CAMOFLAGE = 5;
+	public static final int GUI_UNLOCKER = 6;
 
 }

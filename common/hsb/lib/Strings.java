@@ -3,8 +3,18 @@ package hsb.lib;
 public class Strings {
 	
 	// Block Names
+	//blockHeavyStone
 	public static final String BLOCK_HEAVY_STONE = "heavyStone";
+	//blockHsb
 	public static final String BLOCK_HSB = "hsb";
+	public static final String BLOCK_HSB_BUILDING = "hsbBuilding";
+	public static final String BLOCK_HSB_TERMINAL = "hsbTerminal";
+	public static final String BLOCK_HSB_GUI_ACCESS = "hsbGuiAccess";
+	public static final String BLOCK_HSB_DOOR_BASE = "hsbDoorBase";
+	//blockMachine
+	public static final String BLOCK_MACHINE = "machine";
+	public static final String BLOCK_MACHINE_UNLOCKER = "hsbUnlocker";
+	//blockDoor
 	public static final String BLOCK_HSB_DOOR = "hsbDoor";
 	
 	//Item names
@@ -15,16 +25,13 @@ public class Strings {
 	public static final String ITEM_LOCK_HACKER = "lockHacker";
 	public static final String ITEM_HSB_DOOR = "hsbDoor";
 	
-	//blockHsb
-	public static final String HSB_BUILDING = "hsbBuilding";
-	public static final String HSB_TERMINAL = "hsbTerminal";
-	public static final String HSB_GUI_ACCESS = "hsbGuiAccess";
-	public static final String HSB_DOOR_BASE = "hsbDoorBase";
-	
+	public static final String ITEM_BOAT_BLOCK = "boatBlock";
+		
 	public static final String TILE_ENTITY_HSB_BUILDING = "tileEntityHsbBuilding";
 	public static final String TILE_ENTITY_HSB_TERMINAL = "tileEntityHsbTerminal";
 	public static final String TILE_ENTITY_HSB_GUI_ACCESS = "tileEntityHsbGuiAccess";
 	public static final String TILE_ENTITY_HSB_DOOR_BASE = "tileEntityHsbDoorBase";
+	public static final String TILE_ENTITY_UNLOCKER = "tileEntityUnlocker";
 	
 	public static final String INVALID_FINGERPRINT_MESSAGE = "Fingerprint is invalid!";
 	
@@ -44,8 +51,10 @@ public class Strings {
 	
 	//container
 	public static final String CONTAINER_MULTI_TOOL = "container.multitool";
-	public static final String CONTAINER_TERMINAL_OPTIONS_NAME = "container." + HSB_TERMINAL + "Options";
-	public static final String CONTAINER_TERMINAL_NAME = "container." + HSB_TERMINAL;
+	public static final String CONTAINER_TERMINAL_OPTIONS_NAME = "container." + BLOCK_HSB_TERMINAL + "Options";
+	public static final String CONTAINER_TERMINAL_NAME = "container." + BLOCK_HSB_TERMINAL;
+	public static final String CONTAINER_UPGRADE_CAMO = "container." + "upgrade.camoflage";
+	public static final String CONTAINER_UNLOCKER = "container." + BLOCK_MACHINE_UNLOCKER;
 	
 	//MultiTool Modes
 	public static final String MULTI_TOOL_REMOVE = "multitool.remove";
@@ -59,6 +68,5 @@ public class Strings {
 	public static final String CHAT_NOTHING_HAPPENED = "chat.nothingHappened";
 	public static final String CHAT_INVALID_DOOR = "chat.invalidDoor";
 	public static final String CHAT_NO_ENTRY_ALLOWED = "chat.noEntryAllowed";
-	
 	
 }

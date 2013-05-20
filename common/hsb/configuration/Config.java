@@ -66,6 +66,7 @@ public class Config {
 		BlockIds.HEAVY_STONE = getBlock(Strings.BLOCK_HEAVY_STONE, BlockIds.HEAVY_STONE_DEFAULT);
 		BlockIds.HSB = getBlock(Strings.BLOCK_HSB, BlockIds.HSB_DEFAULT);
 		BlockIds.HSB_DOOR = getBlock(Strings.BLOCK_HSB_DOOR, BlockIds.HSB_DOOR_DEFAULT);
+		BlockIds.MACHINE = getBlock(Strings.BLOCK_MACHINE, BlockIds.MACHINE_DEFAULT);
 	}
 	
 	private static int getBlock(String name, int defaultID) {

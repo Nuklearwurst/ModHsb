@@ -4,6 +4,7 @@ import hsb.ModHsb;
 import hsb.configuration.Settings;
 import hsb.core.addons.PluginIC2;
 import hsb.core.helper.HsbLog;
+import hsb.core.helper.StackUtils;
 import hsb.lib.GuiIds;
 import hsb.lib.Strings;
 import hsb.lock.ILockTerminal;
@@ -37,7 +38,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -139,7 +139,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 				end = 5;
 			}
 		} else {
-			if(isItemFuel(item))
+			if(StackUtils.isItemFuel(item))
 			{
 				start = 4;
 				end = 5;
@@ -753,8 +753,8 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 			}
 		} else {
 			//charge from coal etc.
-			if(item != null && item.stackSize > 0 && isItemFuel(item)) {
-				int itemEnergy =  TileEntityHsbTerminal.getItemFuelValue(item);
+			if(item != null && item.stackSize > 0 && StackUtils.isItemFuel(item)) {
+				int itemEnergy =  StackUtils.getItemFuelValue(item);
 				if(this.demandsEnergy() >= itemEnergy) {
 					this.decrStackSize(4, 1);
 					
@@ -774,17 +774,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		}
 	}
 
-    public static boolean isItemFuel(ItemStack is)
-    {
-        return getItemFuelValue(is) > 0;
-    }
-    
-    public static int getItemFuelValue(ItemStack is) {
-    	//works for now, maybe later add restrictons
-    	return (int) (TileEntityFurnace.getItemBurnTime(is) * 2.5);
-    }
-    
-	@Override
+    @Override
 	public boolean wrenchCanRemove(EntityPlayer entityPlayer) {
 		return false;
 	}

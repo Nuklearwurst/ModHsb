@@ -4,7 +4,9 @@ package hsb;
 
 import hsb.block.ModBlocks;
 import hsb.configuration.Config;
+import hsb.core.addons.PluginBC;
 import hsb.core.addons.PluginIC2;
+import hsb.core.addons.PluginUE;
 import hsb.core.handlers.GuiHandler;
 import hsb.core.handlers.LocalizationHandler;
 import hsb.core.helper.HsbLog;
@@ -19,6 +21,7 @@ import hsb.tileentity.TileEntityDoorBase;
 import hsb.tileentity.TileEntityGuiAccess;
 import hsb.tileentity.TileEntityHsbBuilding;
 import hsb.tileentity.TileEntityHsbTerminal;
+import hsb.tileentity.TileEntityUnlocker;
 import hsb.upgrade.UpgradeRegistry;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.FingerprintWarning;
@@ -38,15 +41,15 @@ import cpw.mods.fml.common.registry.GameRegistry;
 /**
  * Main Mod Class
  * 
- * @author Jonas
+ * @author Nuklearwurst
  *
  */
 
 @Mod(	modid = Reference.MOD_ID,
 		name = Reference.MOD_NAME,
 		version = Reference.VERSION_NUMBER,
-		dependencies = Reference.DEPENDENCIES,
-		certificateFingerprint = Reference.FINGERPRINT) 
+		dependencies = Reference.DEPENDENCIES
+		/*certificateFingerprint = Reference.FINGERPRINT*/) 
 
 @NetworkMod(	clientSideRequired = true,
 				serverSideRequired=false, 
@@ -54,7 +57,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 				packetHandler = PacketHandler.class)
 public class ModHsb{
 	
-	@Instance
+	@Instance(Reference.MOD_ID)
 	public static ModHsb instance;
 	
 	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS) //TODO Bukkit
@@ -78,9 +81,11 @@ public class ModHsb{
 		//Localization
 		LocalizationHandler.loadLanguages();
 		
-		//TODO key bindings
+		//key bindings
+		//nothing yet
 		
-		//TODO sounds
+		//sounds
+		//nothing yet
 		
 		//read Config
 		Config.readConfig(evt);
@@ -100,21 +105,24 @@ public class ModHsb{
 		//Register Events 
 		//nothing yet
 		
+		//register Entities
+		//nothing yet
+		
 		//register TileEntities
 		GameRegistry.registerTileEntity(TileEntityHsbBuilding.class, Strings.TILE_ENTITY_HSB_BUILDING);
 		GameRegistry.registerTileEntity(TileEntityHsbTerminal.class, Strings.TILE_ENTITY_HSB_TERMINAL);
 		GameRegistry.registerTileEntity(TileEntityDoorBase.class, Strings.TILE_ENTITY_HSB_DOOR_BASE);
 		GameRegistry.registerTileEntity(TileEntityGuiAccess.class, Strings.TILE_ENTITY_HSB_GUI_ACCESS);
-		
-		//add Names (Done in localization)
-//		Config.initNames();
+		GameRegistry.registerTileEntity(TileEntityUnlocker.class, Strings.TILE_ENTITY_UNLOCKER);
 		
 		//init rendering
 		proxy.initRendering();
 		proxy.initSpecialRenderer();
 		
-		//check for IC2
-		PluginIC2.initPluginIC2();
+		//check for Plugins
+		new PluginIC2().initPlugin();
+		new PluginBC().initPlugin(); //unused
+		new PluginUE().initPlugin(); //unused
 		
 		//init Recipes
 		HsbRecipes.initRecipes();

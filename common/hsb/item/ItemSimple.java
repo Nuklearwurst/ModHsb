@@ -16,6 +16,6 @@ public abstract class ItemSimple extends Item {
 	
     @Override
     @SideOnly(Side.CLIENT)
-    public abstract void updateIcons(IconRegister reg);
+    public abstract void registerIcons(IconRegister reg);
 
 }

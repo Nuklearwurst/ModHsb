@@ -1,5 +1,6 @@
 package hsb.item;
 
+import hsb.block.BlockMachine;
 import hsb.block.ModBlocks;
 import hsb.lib.Strings;
 import net.minecraft.item.ItemBlock;
@@ -8,9 +9,9 @@ import net.minecraft.util.Icon;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemBlockHsb extends ItemBlock {
+public class ItemBlockMachine extends ItemBlock {
 
-	public ItemBlockHsb(int id) {
+	public ItemBlockMachine(int id) {
 		super(id);
         this.setMaxDamage(0);
         this.setHasSubtypes(true);
@@ -24,7 +25,7 @@ public class ItemBlockHsb extends ItemBlock {
     public Icon getIconFromDamage(int meta)
     {
     	//Side texture -- unused --> renderer
-        return ModBlocks.blockHsb.getIcon(2, meta);
+        return ModBlocks.blockMachine.getIcon(2, meta);
     }
 
     @Override
@@ -32,17 +33,10 @@ public class ItemBlockHsb extends ItemBlock {
     {
     	switch(itemStack.getItemDamage())
     	{
-    	case 0:
-    		return "tile." + Strings.BLOCK_HSB_BUILDING;
-    		
-    	case 1:
-    		return "tile." + Strings.BLOCK_HSB_TERMINAL;
-    		
-    	case 2:
-    		return "tile." + Strings.BLOCK_HSB_DOOR_BASE;
-    		
-    	case 3:
-    		return "tile." + Strings.BLOCK_HSB_GUI_ACCESS;
+    	case BlockMachine.META_MACHINE:
+    		return "tile." + Strings.BLOCK_MACHINE;
+    	case BlockMachine.META_UNLOCKER:
+    		return "tile." + Strings.BLOCK_MACHINE_UNLOCKER;
     	}
     	return null;
     }

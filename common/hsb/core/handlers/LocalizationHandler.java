@@ -1,6 +1,6 @@
 package hsb.core.handlers;
 
-import hsb.lib.Localizations;
+import hsb.lib.Reference;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 public class LocalizationHandler {
@@ -11,7 +11,7 @@ public class LocalizationHandler {
     public static void loadLanguages() {
 
         // For every file specified in the Localization library class, load them into the Language Registry
-        for (String localizationFile : Localizations.localeFiles) {
+        for (String localizationFile : Reference.localeFiles) {
             LanguageRegistry.instance().loadLocalization(localizationFile, getLocaleFromFileName(localizationFile), isXMLLanguageFile(localizationFile));
         }
     }

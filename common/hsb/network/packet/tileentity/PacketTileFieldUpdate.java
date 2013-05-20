@@ -65,7 +65,8 @@ public class PacketTileFieldUpdate extends PacketPosition{
 		this.readData(data);
 		
 		TileEntity te = ((EntityPlayer)player).worldObj.getBlockTileEntity(x, y, z);
-		
+		if(te == null) //Lag
+			return;
 		try {
 			//try to get field and set value
 			te.getClass().getField(name).set(te, value);

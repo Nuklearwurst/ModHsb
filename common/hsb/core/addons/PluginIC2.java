@@ -8,20 +8,29 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.Loader;
 
-public class PluginIC2 {
+public class PluginIC2 implements IPlugin {
 	
+	static IPlugin instance;
 	
-	private static boolean checkIC2Installed() {
+	public PluginIC2() {
+		instance = this;
+	}
+	
+	private boolean checkIsAvailable() {
 		if(!Loader.isModLoaded("IC2")) {
 			Settings.ic2Available = false;
 		}
 		return Settings.ic2Available;
     }
-	public static boolean isAvaliable() {
+	public boolean isAvailable() {
 		return Settings.ic2Available;
 	}
-	public static void initPluginIC2() {
-		if(checkIC2Installed()) {
+	public static IPlugin getInstance() {
+		return instance;
+	}
+	
+	public void initPlugin() {
+		if(checkIsAvailable()) {
 			HsbLog.info("IC2 found!!");
 			HsbLog.info(Settings.ic2Available ? "Enabled IC2 integration" : "Disabled IC2 integration");
 		} else {
@@ -37,7 +46,7 @@ public class PluginIC2 {
 	}
 	
 	public static void initIC2Recipes() {
-		if(!isAvaliable())
+		if(!getInstance().isAvailable())
 		{
 			return;
 		}

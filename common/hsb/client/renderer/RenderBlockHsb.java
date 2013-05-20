@@ -10,6 +10,11 @@ import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
+/**
+ * unused
+ * @author Nuklearwurst
+ *
+ */
 public class RenderBlockHsb implements ISimpleBlockRenderingHandler {
 	@Override
 	public int getRenderId() {
@@ -26,29 +31,29 @@ public class RenderBlockHsb implements ISimpleBlockRenderingHandler {
         
         tes.startDrawingQuads();
         tes.setNormal(0.0F, -1.0F, 0.0F);
-        renderer.renderBottomFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(0, metadata));
+        renderer.renderBottomFace(block, 0.0D, 0.0D, 0.0D, block.getIcon(0, metadata));
         tes.draw();
 
         tes.startDrawingQuads();
         tes.setNormal(0.0F, 1.0F, 0.0F);
-        renderer.renderTopFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(1, metadata));
+        renderer.renderTopFace(block, 0.0D, 0.0D, 0.0D, block.getIcon(1, metadata));
         tes.draw();
 
         tes.startDrawingQuads();
         tes.setNormal(0.0F, 0.0F, -1.0F);
-        renderer.renderEastFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(2, metadata));
+        renderer.renderEastFace(block, 0.0D, 0.0D, 0.0D, block.getIcon(2, metadata));
         tes.draw();
         tes.startDrawingQuads();
         tes.setNormal(0.0F, 0.0F, 1.0F);
-        renderer.renderWestFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(3, metadata));
+        renderer.renderWestFace(block, 0.0D, 0.0D, 0.0D, block.getIcon(3, metadata));
         tes.draw();
         tes.startDrawingQuads();
         tes.setNormal(-1.0F, 0.0F, 0.0F);
-        renderer.renderNorthFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(4, metadata));
+        renderer.renderNorthFace(block, 0.0D, 0.0D, 0.0D, block.getIcon(4, metadata));
         tes.draw();
         tes.startDrawingQuads();
         tes.setNormal(1.0F, 0.0F, 0.0F);
-        renderer.renderSouthFace(block, 0.0D, 0.0D, 0.0D, block.getBlockTextureFromSideAndMetadata(5, metadata));
+        renderer.renderSouthFace(block, 0.0D, 0.0D, 0.0D, block.getIcon(5, metadata));
         tes.draw();
         GL11.glTranslatef(0.5F, 0.5F, 0.5F);
 		

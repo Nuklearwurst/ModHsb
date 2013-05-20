@@ -18,6 +18,10 @@ public class Reference {
     
     public static final String SERVER_NETWORK__CLASS = "hsb.network.NetworkManager";
     public static final String CLIENT_NETWORK_CLASS = "hsb.network.NetworkManagerClient";
+    
+    public static final String LANG_RESOURCE_LOCATION = "/mods/hsb/lang/";
+    public static String[] localeFiles = { LANG_RESOURCE_LOCATION + "en_US.xml"};
+    public static final String DEFAULT_LANGUAGE = "en_US";
     //public static final int VERSION_CHECK_ATTEMPTS = 3;
 
 }

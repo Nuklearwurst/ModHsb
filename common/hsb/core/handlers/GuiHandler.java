@@ -5,14 +5,17 @@ import hsb.client.gui.GuiCamoUpgrade;
 import hsb.client.gui.GuiHsbTerminal;
 import hsb.client.gui.GuiHsbTerminalOptions;
 import hsb.client.gui.GuiMultiTool;
+import hsb.client.gui.GuiUnlocker;
 import hsb.configuration.Settings;
 import hsb.inventory.ContainerCamoUpgrade;
 import hsb.inventory.ContainerTerminal;
 import hsb.inventory.ContainerTerminalIC2;
 import hsb.inventory.ContainerTerminalOptions;
+import hsb.inventory.ContainerUnlocker;
 import hsb.lib.GuiIds;
 import hsb.tileentity.TileEntityHsb;
 import hsb.tileentity.TileEntityHsbTerminal;
+import hsb.tileentity.TileEntityUnlocker;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
@@ -39,6 +42,8 @@ public class GuiHandler
 			return new GuiMultiTool(player.getCurrentEquippedItem(), x, y, z, world, player);
 		case GuiIds.GUI_UPGRADE_CAMOFLAGE:
 			return new GuiCamoUpgrade((TileEntityHsbTerminal) te, new ContainerCamoUpgrade((TileEntityHsbTerminal) te, player), player);
+		case GuiIds.GUI_UNLOCKER:
+			return new GuiUnlocker((TileEntityUnlocker) te, new ContainerUnlocker((TileEntityUnlocker) te, player), player);
 		default:
 			return null;
 				
@@ -65,6 +70,8 @@ public class GuiHandler
 			return null;
 		case GuiIds.GUI_UPGRADE_CAMOFLAGE:
 			return new ContainerCamoUpgrade((TileEntityHsbTerminal) te, player);
+		case GuiIds.GUI_UNLOCKER:
+			return new ContainerUnlocker((TileEntityUnlocker) te, player);
 		default:
 			return null;
 		}

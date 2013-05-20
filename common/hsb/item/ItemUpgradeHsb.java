@@ -163,7 +163,7 @@ public class ItemUpgradeHsb extends ItemSimple
      * When this method is called, your block should register all the icons it needs with the given IconRegister. This
      * is the only chance you get to register icons.
      */
-    public void updateIcons(IconRegister reg)
+    public void registerIcons(IconRegister reg)
     {
     	int i = 0;
     	for(String s : Textures.ITEM_UPGRADE_HSB)

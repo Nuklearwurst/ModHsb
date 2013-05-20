@@ -8,5 +8,9 @@ public class CommonProxy {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public String getCurrentLanguage() {
+		return null;
+	}
 
 }
