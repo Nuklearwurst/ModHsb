@@ -45,13 +45,6 @@ public class PluginIC2 implements IPlugin {
 		}
 	}
 	
-	public static void initIC2Recipes() {
-		if(!getInstance().isAvailable())
-		{
-			return;
-		}
-	}
-	
 	//////////////
 	// Settings //
 	//////////////

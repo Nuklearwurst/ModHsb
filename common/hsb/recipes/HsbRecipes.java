@@ -5,6 +5,7 @@ import hsb.block.BlockMachine;
 import hsb.block.ModBlocks;
 import hsb.configuration.Settings;
 import hsb.core.addons.PluginIC2;
+import hsb.core.helper.HsbLog;
 import hsb.item.ItemUpgradeHsb;
 import hsb.item.ModItems;
 import net.minecraft.block.Block;
@@ -65,12 +66,14 @@ public class HsbRecipes {
 		// init ic2 dependent recipes //
 		////////////////////////////////
 		if(Settings.ic2Available)
-			PluginIC2.initIC2Recipes();
+			initIC2Recipes();
 		else 
 			initVanillaRecipes();		
 	}
 
-	
+	/**
+	 * inits Vanilla Recipes, needs to provide a recipe for all recipes added in initIC2Recipes
+	 */
 	private static void initVanillaRecipes() 
 	{
 		//Hsb Terminal
@@ -99,5 +102,37 @@ public class HsbRecipes {
 					Character.valueOf('m'), new ItemStack(ModBlocks.blockMachine, 1, BlockMachine.META_MACHINE),
 					Character.valueOf('t'), new ItemStack(ModBlocks.blockHsb, 1, BlockHsb.META_TERMINAL),
 				});
+	}
+	/**
+	 * inits IC2 Recipes, needs to provide a recipe for all recipes added in initVanillaRecipes
+	 */
+	private static void initIC2Recipes() {
+		if(!PluginIC2.getInstance().isAvailable())
+		{
+			HsbLog.severe("Error: IC2 recipes could not be loaded!");
+			return;
+		}
+		//Hsb Terminal
+		GameRegistry.addRecipe(new ItemStack(ModBlocks.blockHsb, 8, BlockHsb.META_TERMINAL), new Object[] 
+				{ 
+					"bhr",
+					Character.valueOf('b'), new ItemStack(Block.blockRedstone, 1, 0),
+					Character.valueOf('h'), new ItemStack(ModBlocks.blockHsb, 1, BlockHsb.META_BUILDING),
+					Character.valueOf('r'), PluginIC2.getIC2Item("electronicCircuit"),
+				});
+		//machine
+		//using ic2 machineblock
+		
+		//unlocker
+		GameRegistry.addRecipe(new ItemStack(ModBlocks.blockMachine, 1, BlockMachine.META_UNLOCKER), new Object[] 
+				{ 
+					"shs", "rmr","sts" ,
+					Character.valueOf('s'), new ItemStack(Block.stone, 1, 0),
+					Character.valueOf('r'), PluginIC2.getIC2Item("goldCableItem"),
+					Character.valueOf('h'), new ItemStack(ModItems.itemLockHacker, 1, 0),
+					Character.valueOf('m'), PluginIC2.getIC2Item("machine"),
+					Character.valueOf('t'), new ItemStack(ModBlocks.blockHsb, 1, BlockHsb.META_TERMINAL),
+				});
+		
 	}
 }
