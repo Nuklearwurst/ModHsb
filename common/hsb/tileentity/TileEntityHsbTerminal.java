@@ -2,15 +2,16 @@ package hsb.tileentity;
 
 import hsb.ModHsb;
 import hsb.configuration.Settings;
-import hsb.core.addons.PluginIC2;
-import hsb.core.helper.HsbLog;
-import hsb.core.helper.StackUtils;
+import hsb.core.plugin.PluginManager;
+import hsb.core.plugin.PluginUE;
+import hsb.core.plugin.ic2.PluginIC2;
+import hsb.core.util.EnergyHelper;
+import hsb.core.util.StackUtils;
 import hsb.lib.GuiIds;
 import hsb.lib.Strings;
 import hsb.lock.ILockTerminal;
 import hsb.lock.ILockable;
 import hsb.lock.LockManager;
-import hsb.network.NetworkManager;
 import hsb.network.packet.PacketPasswordUpdate;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.terminal.UpgradeCamoflage;
@@ -21,10 +22,11 @@ import hsb.upgrade.types.IOnRemoveListener;
 import hsb.upgrade.types.ITerminalUpgradeItem;
 import hsb.upgrade.types.IUpgradeButton;
 import ic2.api.Direction;
-import ic2.api.IElectricItem;
-import ic2.api.IWrenchable;
 import ic2.api.energy.event.EnergyTileLoadEvent;
+import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
+import ic2.api.item.IElectricItem;
+import ic2.api.tile.IWrenchable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,19 +35,27 @@ import java.util.Map;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
+import nwcore.network.NetworkManager;
+import universalelectricity.core.block.IElectrical;
+import universalelectricity.core.block.IElectricalStorage;
+import universalelectricity.core.electricity.ElectricityPack;
+import buildcraft.api.power.IPowerReceptor;
+import buildcraft.api.power.PowerHandler;
+import buildcraft.api.power.PowerHandler.PowerReceiver;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 
 public class TileEntityHsbTerminal extends TileEntityHsbBuilding
-	implements ILockTerminal, IEnergySink, IInventory, IWrenchable
+	implements ILockTerminal, IEnergySink, ISidedInventory, IWrenchable, IPowerReceptor, IElectrical, IElectricalStorage, IMachine 
 {
 	//how many blocks are locked
 	private int blocksInUse = 0;
@@ -55,19 +65,28 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	
 	//IC2
 	private boolean isAddedToEnergyNet = false;
-	private int safeInput = 32;
+	
+	public static final int tier = 2;
 	
 	//Energy
-	public int energyStored = 0;
-	public double energyUse = Settings.terminalEnergyUse;
-	public int maxEnergyStorage = Settings.terminalEnergyStorage;
+//	public int energyStored = 0;
+	public float energyUse = Settings.terminalEnergyUse;
+	
+	//only used when no tech mod is installed
+	private int burnTime = 0;
+	private int maxBurnTime = 1;
+	
+//	public int maxEnergyStorage = Settings.terminalEnergyStorage;
 	
 	private ItemStack[] mainInventory = new ItemStack[this.getSizeInventory()];
 	
 	//is empty on client
 	private Map<String, IHsbUpgrade> upgrades;
+	
+	
 	//contains unique id on server || button text on Client
-	public List<String> buttons;
+//	public List<String> buttons;
+	public List<Integer> buttons;
 	
 	//Upgrades	
 	public int tesla = 0;
@@ -83,6 +102,8 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	public static final int EVENT_GUI_OPTIONS = -13;
 
 	public static final int EVENT_CAMOUPGRADE = -20;
+	
+	public static final int SLOT_FUEL = 4;
 
 	public short facing = 2;
 
@@ -90,15 +111,31 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	
 	NBTTagCompound nbttagcompound;
 
+	private boolean init;
+	
+	@Deprecated
+	private PowerHandler power;
+
 	public TileEntityHsbTerminal() {
 		super();
 		upgrades = new HashMap<String, IHsbUpgrade>();
-		buttons = new ArrayList<String>();
+		buttons = new ArrayList<Integer>();
+		init = false;
+		
+		power = new PowerHandler(this, PowerHandler.Type.MACHINE);
+		resetPowerSettings();
+	}
+	
+	private void resetPowerSettings() {
+		if(power != null)  {
+			power.configure(Settings.terminalMinInput, Settings.terminalMaxInput, 0, Settings.terminalEnergyStorage);
+			power.configurePowerPerdition(0, 0);
+		}
 	}
 	
 	@Override
 	public boolean acceptsEnergyFrom(TileEntity emitter, Direction direction) {
-		return true;
+		return canConnect(direction.toForgeDirection());
 	}
 
 	@Override
@@ -132,7 +169,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		} else if(item.getItem() instanceof ITerminalUpgradeItem) {
 			start = 5;
 			end = this.getSizeInventory();
-		} else if(Settings.ic2Available) {
+		} else if(Settings.usePluginIC2) {
 			if(item.getItem() instanceof IElectricItem)
 			{
 				start = 4;
@@ -207,14 +244,14 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	}
 
 	@Override
+	@Deprecated
 	public int demandsEnergy() {
-		return this.maxEnergyStorage - energyStored;
-
+		return (int) PluginIC2.convertToEU(needsEnergy());
 	}
 	
 	private void emitLockSignal(boolean lock, String pass, int port, int ignoreSide) {
 		if(!worldObj.isRemote) {
-			if(lock && this.energyStored < 2) 
+			if(lock && getEnergy() < getEnergyUse() * 2/*this.energyStored < 2*/) 
 				return;
 			this.setLocked(lock);
 			LockManager.tranferSignal(this, this, lock, pass, port, ignoreSide);
@@ -233,18 +270,13 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 			if (te == null) {
 				//is action allowed
 				if (port == this.getPort() && pass == this.getPass()) {
-					HsbLog.debug("tile destroyed!");
+					ModHsb.logger.debug("tile destroyed!");
 					this.needReconnect = true;
 				}
 			}
 			// TODO if a lock signal was send by a terminal
 		}
 		return super.receiveSignal(side, te, value, pass, port);
-	}
-	
-	@Deprecated
-	public List<String> getButtons() {
-		return buttons;
 	}
 
 	@Override
@@ -258,11 +290,6 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 			this.blocksInUse = 0;
 		super.setLocked(lock);
 	}
-	@Deprecated
-	public void setButtons(List<String> l)
-	{
-		this.buttons = l;
-	}
 
 	@Override
 	public int getCamoMeta() {
@@ -270,8 +297,8 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	}
 
 	public int getEnergyScaled(int length) {
-		int x = (this.energyStored * length
-				/ (this.maxEnergyStorage));
+//		int x = (this.energyStored * length	/ (this.maxEnergyStorage));
+		int x = (int) (getEnergy() * length / getMaxEnergy());
 		if(x > length)
 			x = length;
 		return x;
@@ -294,7 +321,7 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 
 	@Override
 	public int getMaxSafeInput() {
-		return this.safeInput;
+		return 128;//TODO voltage (upgrades)
 	}
 
 	@Override
@@ -345,16 +372,14 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		return 0;
 	}
 	
+	/**
+	 * @param amount in EU
+	 * @return leftover
+	 */
 	@Override
+	@Deprecated
 	public int injectEnergy(Direction directionFrom, int amount) {
-		//Explosion
-		if(amount > this.safeInput && Settings.ic2Available)
-		{
-			this.worldObj.setBlock(this.xCoord, this.yCoord, this.zCoord, 0, 0, 2);
-			this.worldObj.createExplosion(null, xCoord, yCoord, zCoord, 0.8F, false);
-			return 0;
-		}
-		
+		/*
 		int missing = this.demandsEnergy();
 		if (missing < amount) {
 			energyStored += missing;
@@ -362,12 +387,22 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		}
 		energyStored += amount;
 		return 0;
+		*/
+//		int missing = this.demandsEnergy();
+//		if(missing < amount) {
+//			power.addEnergy(missing);
+//			return amount - missing;
+//		}
+//		power.addEnergy(amount);
+//		return 0;
+		return (int) (amount - addEnergy(directionFrom.toForgeDirection(), PluginIC2.convertToMJ(amount), true));
 	}
 	
-	@Override
+	
 	protected void initData() {
 		if(!worldObj.isRemote)
 		{
+			init = true;
 			this.onInventoryChanged();
 	        //init upgrades
 	        for(IHsbUpgrade upgrade : upgrades.values()) {
@@ -379,7 +414,6 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	        this.nbttagcompound = null;
 			
 		}
-		super.initData();
 	}
 
 	@Override
@@ -394,8 +428,16 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	}
 
 	@Override
-	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
-		return true; //TODO maybe isStackValidForSlot?
+	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
+		if(i == SLOT_FUEL) {
+			if(PluginManager.energyModInstalled_Item()) {
+				return PluginManager.isItemElectricValid(itemstack);
+			} else {
+				return StackUtils.isItemFuel(itemstack);
+			}
+		} else {
+			return true;
+		}
 	}
 
 	@Override
@@ -405,14 +447,22 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 				: entityplayer.getDistanceSq(this.xCoord + 0.5D,
 						this.yCoord + 0.5D, this.zCoord + 0.5D) <= 64.0D;
 	}
-	@Deprecated
-	public List<IUpgradeButton> getButtonList() {
-		List<IUpgradeButton> list = new ArrayList<IUpgradeButton>();
-		for( IHsbUpgrade upgrade : upgrades.values()) {
-			if(upgrade instanceof IUpgradeButton)
-				list.add((IUpgradeButton) upgrade);
+//	@Deprecated
+//	public List<IUpgradeButton> getButtonList() {
+//		List<IUpgradeButton> list = new ArrayList<IUpgradeButton>();
+//		for( IHsbUpgrade upgrade : upgrades.values()) {
+//			if(upgrade instanceof IUpgradeButton)
+//				list.add((IUpgradeButton) upgrade);
+//		}
+//		return list;
+//		
+//	}
+	
+	public IUpgradeButton getButton(int id) {
+		if(buttons.size() <= id) {
+			return null;
 		}
-		return list;
+		return (IUpgradeButton) upgrades.get(UpgradeRegistry.idToInt.get(buttons.get(id)));
 		
 	}
 	@Override
@@ -421,10 +471,10 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		//upgradebuttons 1 - 10
 		if(event <= -1 && event >= -10)
 		{
-			if(getButtonList().size() >= event * (-1))
+			if(buttons.size() >= event * (-1))
 			{
 				//Upgrade Button
-				IUpgradeButton button = getButtonList().get(event * (-1) -1);
+				IUpgradeButton button = getButton(event * (-1) -1);
 				if(button != null)
 				{
 					button.onButtonClicked(player, this);
@@ -440,6 +490,9 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 			break;
 		case EVENT_GUI_OPTIONS:
 		{
+			if(locked) {
+				break;
+			}
 			PacketPasswordUpdate packet = new PacketPasswordUpdate(this, this.getPass());
 			PacketDispatcher.sendPacketToPlayer(packet.getPacket(), (Player)player);
 			player.openGui(ModHsb.instance, GuiIds.GUI_LOCKTERMINAL_OPTIONS, worldObj, xCoord, yCoord, zCoord);
@@ -460,13 +513,20 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 				upgrade.onActivateClicked(player, this);
 				break;
 			} else {
-				HsbLog.severe("invalid upgradeCamo event!");
+				ModHsb.logger.severe("invalid upgradeCamo event!");
 			}
 		}
 		default:
 			//port update (<=0)
 			super.onNetworkEvent(player, event);	
 		}
+	}
+	private void addButton(int id) {
+		ModHsb.logger.debug("adding button");
+		if(buttons == null) {
+			buttons = new ArrayList<Integer>();
+		}
+		buttons.add(id);
 	}
 	
 	@Override
@@ -475,17 +535,16 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		if(!worldObj.isRemote)
 		{
 			//reset values
-			this.safeInput = 32;
+			resetPowerSettings();
+			
 			this.passLength = Settings.defaultPassLength;
 			this.securityLevel = 0;
 			this.energyUse = Settings.terminalEnergyUse;
-			this.maxEnergyStorage = Settings.terminalEnergyStorage;
 			//Camo
 			this.camoMeta = -1;
 			this.camoId = -1;
 			
-			this.buttons = new ArrayList<String>();
-			
+			this.buttons = new ArrayList<Integer>();
 			//Upgrade Data
 			//clearing List for new Data
 			Map<String, IHsbUpgrade> oldData = upgrades;
@@ -512,15 +571,17 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 						key = item.getUniqueId(stack.getItemDamage());
 						upgrade = UpgradeRegistry.upgradesTerminal.get(key).newInstance();
 	//					upgrade = item.getUpgrade(stack.getItemDamage());
-					} else if(Settings.ic2Available) {//check for ic2 installation
-						if(TileEntityHsbTerminal.getIc2UpgradeKey(stack)!=null)
-						{
-							key = TileEntityHsbTerminal.getIc2UpgradeKey(stack);
-							upgrade = UpgradeRegistry.upgradesMachine.get(key).newInstance();
-						}
+						
 					} else if(stack.getItem() instanceof IMachineUpgradeItem){
 						key = ((IMachineUpgradeItem) stack.getItem()).getUniqueId(stack.getItemDamage());
 						upgrade = UpgradeRegistry.upgradesMachine.get(key).newInstance();
+						
+					} else if(Settings.usePluginIC2) {//check for ic2 installation and get upgrades
+						if(PluginIC2.getIc2UpgradeKey(stack)!=null)
+						{
+							key = PluginIC2.getIc2UpgradeKey(stack);
+							upgrade = UpgradeRegistry.upgradesMachine.get(key).newInstance();
+						}
 					}
 					//updating existing  Upgrade
 					if(this.getUpgrade(key)!=null)
@@ -544,15 +605,14 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 				}
 			}
 			//updating upgrade information
-			for(IHsbUpgrade update: upgrades.values()) 
+			for(IHsbUpgrade upgrade: upgrades.values()) 
 			{
-				if(update != null)
+				if(upgrade != null)
 				{
-					update.updateUpgrade(this);
-					if(update instanceof IUpgradeButton)
+					upgrade.updateUpgrade(this);
+					if(upgrade instanceof IUpgradeButton)
 					{
-						HsbLog.debug("adding Button...");
-						buttons.add(((IUpgradeButton) update).getButton());
+						addButton(UpgradeRegistry.idToInt.indexOf(upgrade.getUniqueId()));
 					}
 				}
 			}
@@ -625,28 +685,6 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 		super.onRemove(world, x, y, z, par5, par6);
 	}
 	
-	private static String getIc2UpgradeKey(ItemStack stack) {
-		String key = null;
-		if(Settings.ic2Available)
-		{
-			if(stack.isItemEqual(PluginIC2.getIC2Item("transformerUpgrade")))
-			{
-				key = UpgradeRegistry.ID_UPGRADE_DUMMY;
-			}
-				
-			if(stack.isItemEqual(PluginIC2.getIC2Item("energyStorageUpgrade")))
-			{
-				key = UpgradeRegistry.ID_UPGRADE_STORAGE;
-			}
-		
-			if(stack.isItemEqual(PluginIC2.getIC2Item("overclockerUpgrade")))
-			{
-				key = UpgradeRegistry.ID_UPGRADE_DUMMY;
-			}
-		}
-		return key;
-	}
-	
 	public IHsbUpgrade getUpgrade(String s) {
 		return upgrades.get(s);
 	}
@@ -684,10 +722,18 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
                 this.mainInventory[slot] = ItemStack.loadItemStackFromNBT(nbttag);
             }
         }
+        power.readFromNBT(tag);
         
-        energyStored = tag.getInteger("energyStored");
         blocksInUse = tag.getInteger("blocksInUse");
         needReconnect = tag.getBoolean("needReconnect"); 
+        
+        //no tech mod
+        if(!PluginManager.energyModInstalled_Item()) {
+        	if(tag.hasKey("burnTime")) {
+	        burnTime = tag.getInteger("burnTime");
+	        maxBurnTime = tag.getInteger("maxBurnTime");
+        	}
+        }
         
         this.nbttagcompound = tag;
 
@@ -717,49 +763,67 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 	@Override
 	public void updateEntity() {
 		super.updateEntity();
-		//only Server
+		
+		//Init IC2
 		if (!worldObj.isRemote) {
 			//add to EnergyNet
-			if (!isAddedToEnergyNet && Settings.ic2Available) {
+			if (!isAddedToEnergyNet && Settings.usePluginIC2) {
 				MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
 				isAddedToEnergyNet = true;
 			}
 		}
-		
-		//Use Energy
-		if (this.locked && this.blocksInUse > 0) {
-			//energy usage
-			double need = (this.energyUse * this.blocksInUse + 2);
-			
-			//unlock if out of energy
-			if (need > energyStored) {
-				LockManager.tranferSignal(this, this, false, getPass(), getPort(), 6);
-				HsbLog.debug("not enough energy! need: " + need
-						+ " stored: " + energyStored);
-			} else {
-				energyStored = (int) Math.floor(energyStored - need);
-			}
+		//Init upgrades
+		if(!init) {
+			initData();
 		}
 		
-		//charge //4:ChargeSlot(-->ContainerLockTerminal)
-		ItemStack item = this.getStackInSlot(4);
-		if(Settings.ic2Available)
-		{
-			//charge from battery
-			if(item != null && item.getItem() instanceof IElectricItem && (this.demandsEnergy() > 0))
-			{
-				int leftover = this.injectEnergy(Direction.YN, PluginIC2.discharge(item, this.safeInput, 2, false, false));
-				PluginIC2.charge(item, leftover, 2, false, false);	
+		//Use Energy
+		if (this.locked /*&& this.blocksInUse > 0*/) {
+			//energy usage
+			int need = (int) ((this.energyUse * this.blocksInUse) + 2);
+			
+			if(useEnergy(need, need, true) < need) {
+				LockManager.tranferSignal(this, this, false, getPass(), getPort(), 6);
+				ModHsb.logger.debug("not enough energy! need: " + need
+						+ " stored: " + power.getEnergyStored());
 			}
+			
+//			//unlock if out of energy
+//			if (need > energyStored) {
+//				LockManager.tranferSignal(this, this, false, getPass(), getPort(), 6);
+//				ModHsb.logger.debug("not enough energy! need: " + need
+//						+ " stored: " + energyStored);
+//			} else {
+//				energyStored = (int) Math.floor(energyStored - need);
+//			}
+//			//unlock if out of energy //use use energy to determine runout of energy
+//			if (need > power.getEnergyStored()) {
+//				LockManager.tranferSignal(this, this, false, getPass(), getPort(), 6);
+//				ModHsb.logger.debug("not enough energy! need: " + need
+//						+ " stored: " + power.getEnergyStored());
+//			} else {
+//				power.useEnergy(need, need, true);
+//			}
+		}
+		
+		//charge
+		ItemStack item = this.getStackInSlot(SLOT_FUEL);
+		if(PluginManager.energyModInstalled_Item())
+		{
+			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dichargeItem(item, this.needsEnergy(), tier, false, false), true);
 		} else {
-			//charge from coal etc.
-			if(item != null && item.stackSize > 0 && StackUtils.isItemFuel(item)) {
-				int itemEnergy =  StackUtils.getItemFuelValue(item);
-				if(this.demandsEnergy() >= itemEnergy) {
-					this.decrStackSize(4, 1);
-					
-					this.injectEnergy(Direction.YN, itemEnergy);
+			//no energy mod
+			if(burnTime <= 0) {
+				if(mainInventory[SLOT_FUEL] != null && mainInventory[SLOT_FUEL].stackSize > 0 && this.getEnergy() < this.getMaxEnergy())
+				{
+					maxBurnTime = burnTime = StackUtils.getItemFuelValue(mainInventory[SLOT_FUEL]);
+					mainInventory[SLOT_FUEL].stackSize--;
 				}
+			}
+			
+			if(burnTime > 0) {
+				burnTime -= 5;
+				addEnergy(ForgeDirection.UNKNOWN, 5, true);
 			}
 		}
 		
@@ -770,10 +834,13 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
 			//emit a lock Signal to all sides
 			this.emitLockSignal(true, getPass(), getPort(), 6);
 			
-			HsbLog.debug("reconnecting after breaking a tile!");
+			ModHsb.logger.debug("reconnecting after breaking a tile!");
 		}
 	}
 
+	public int needsEnergy() {
+		return (int)(power.getMaxEnergyStored() - power.getEnergyStored());
+	}
     @Override
 	public boolean wrenchCanRemove(EntityPlayer entityPlayer) {
 		return false;
@@ -805,9 +872,17 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
         }
         tag.setTag("Items", nbtlist);
         
-        tag.setInteger("energyStored", this.energyStored);
+//        tag.setInteger("energyStored", this.energyStored);
+        power.writeToNBT(tag);
         tag.setInteger("blocksInUse", blocksInUse);
         tag.setBoolean("needReconnect", needReconnect);
+        
+        //no tech mod
+        if(!PluginManager.energyModInstalled_Item()) {
+	        tag.setInteger("maxBurnTime", maxBurnTime);
+	        tag.setInteger("burnTime", burnTime);
+        }
+        
         //init upgrades
         onInventoryChanged();
         for(IHsbUpgrade upgrade : upgrades.values()) {
@@ -816,5 +891,211 @@ public class TileEntityHsbTerminal extends TileEntityHsbBuilding
         	}
         }
     }
+
+	@Override
+	public int[] getAccessibleSlotsFromSide(int var1) {
+		return new int[]{SLOT_FUEL};
+	}
+
+	@Override
+	public boolean canInsertItem(int i, ItemStack itemstack, int j) {
+		if(i == SLOT_FUEL) {
+			if(isItemValidForSlot(i, itemstack)) {
+				ItemStack stack = this.mainInventory[i];
+				if((stack.stackSize + itemstack.stackSize) > 64) { //needed ?
+					return false;
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
+		return i == SLOT_FUEL;
+	}
+
+	@Override
+	public PowerReceiver getPowerReceiver(ForgeDirection side) {
+		return power.getPowerReceiver();
+	}
+
+	@Override
+	public void doWork(PowerHandler workProvider) {}
+
+	@Override
+	public World getWorld() {
+		return worldObj;
+	}
+	
+	/**
+	 * sets energy in MJ
+	 * @param f
+	 */
+	public void setEnergy(float f) {
+		power.setEnergy(f);
+	}
+	/**
+	 * get energy (MJ) stored
+	 */
+	public float getEnergy() {
+		return power.getEnergyStored();
+	}
+	/**
+	 * how much energy is needed?
+	 * @return
+	 */
+	public float spaceForEnergy() {
+		return (power.getMaxEnergyStored() - power.getEnergyStored());
+	}
+	/**
+	 * how much energy (MJ) is probably going to be used (inaccurate)
+	 */
+	public double getEnergyUse() {
+		//TODO
+		return energyUse;
+	}
+	
+	/**
+	 * MJ
+	 * @return
+	 */
+	public float getMaxEnergy() {
+		return power.getMaxEnergyStored();
+	}
+	
+	/**
+	 * 
+	 * @param dir source
+	 * @param amount in MJ
+	 * @param addEnergy if false action is simulated
+	 * @return usedEnergy
+	 */
+	public float addEnergy(ForgeDirection dir, float amount, boolean addEnergy) {
+		if(!canConnect(dir) || amount == 0) {
+			return 0;
+		}
+		return EnergyHelper.addEnergy(power, amount, addEnergy);
+	}
+	
+	public void setMaxStorage(float s) {
+		float maxInput = power.getMaxEnergyReceived();
+		power.configure(0, maxInput, 0, s);
+	}
+	public void setMaxInput(float i) {
+		float maxStorage = power.getMaxEnergyStored();
+		power.configure(0, i, 0, maxStorage);
+	}
+	
+	public float useEnergy(float min, float max, boolean doUse) {
+		return EnergyHelper.useEnergy(power, min, max, doUse);
+	}
+	/**
+	 * does connect to power ?
+	 */
+	@Override
+	public boolean canConnect(ForgeDirection direction) {
+		return true;
+	}
+
+	@Override
+	@Deprecated
+	public void setEnergyStored(float energy) {
+		setEnergy(PluginUE.convertToMJ(energy));
+	}
+
+	@Override
+	@Deprecated
+	public float getEnergyStored() {
+		return PluginUE.convertToUE(getEnergy());
+	}
+
+	@Override
+	@Deprecated
+	public float getMaxEnergyStored() {
+		return PluginUE.convertToUE(getMaxEnergy());
+	}
+
+	@Override
+	@Deprecated
+	public float receiveElectricity(ForgeDirection from,
+			ElectricityPack receive, boolean doReceive) {
+		return PluginUE.convertToUE(addEnergy(from, PluginUE.convertToMJ(receive.amperes), doReceive));
+	}
+
+	@Override
+	@Deprecated
+	public ElectricityPack provideElectricity(ForgeDirection from,
+			ElectricityPack request, boolean doProvide) {
+		return null; //block doesn't provide power
+	}
+
+	@Override
+	@Deprecated
+	public float getRequest(ForgeDirection direction) {
+		return PluginUE.convertToUE(spaceForEnergy());
+	}
+
+	@Override
+	@Deprecated
+	public float getProvide(ForgeDirection direction) {
+		return 0; //block doesn't provide energy
+	}
+
+	@Override
+	@Deprecated
+	public float getVoltage() {
+		return 0.120F; //TODO voltage (upgrades)
+	}
+	
+	@Override
+	public void invalidate()
+	{
+		this.unloadTileIC2();
+		super.invalidate();
+	}
+
+	@Override
+	public void onChunkUnload()
+	{
+		this.unloadTileIC2();
+		super.onChunkUnload();
+	}
+
+	private void unloadTileIC2()
+	{
+		if (this.isAddedToEnergyNet && this.worldObj != null)
+		{
+			if (Settings.usePluginIC2)
+			{
+				MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+			}
+
+			this.isAddedToEnergyNet = false;
+		}
+	}
+
+	public int getBurnOrChargeScaled(int length) {
+		int max = 0;
+		int current = 0;
+		
+		if(PluginManager.energyModInstalled_Item()) {
+			if(Settings.usePluginIC2) {
+				current = PluginManager.getElectricChargeInItem(mainInventory[SLOT_FUEL]);
+				max = PluginManager.getMaxElectricChargeInItem(mainInventory[SLOT_FUEL]);
+			}
+		} else {
+			current = this.burnTime;
+			max = this.maxBurnTime;
+		}
+		if(max == 0 || max == -1)
+			return 0;
+		
+		int x = current * length / max;
+		if(x > length)
+			x = length;
+		return x;	
+	}
 
 }

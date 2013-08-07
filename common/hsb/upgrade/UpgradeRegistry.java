@@ -1,7 +1,10 @@
 package hsb.upgrade;
 
-import hsb.core.helper.HsbLog;
+
+import hsb.ModHsb;
+import hsb.item.ItemUpgradeHsb;
 import hsb.lib.Strings;
+import hsb.lib.Textures;
 import hsb.upgrade.machine.UpgradeEnergyStorage;
 import hsb.upgrade.terminal.UpgradeCamoflage;
 import hsb.upgrade.terminal.UpgradeDummy;
@@ -9,7 +12,6 @@ import hsb.upgrade.terminal.UpgradePassword;
 import hsb.upgrade.terminal.UpgradeSecurity;
 import hsb.upgrade.terminal.UpgradeTesla;
 import hsb.upgrade.types.IHsbUpgrade;
-import hsb.upgrade.types.IUpgradeButton;
 import hsb.upgrade.types.IUpgradeHsbMachine;
 import hsb.upgrade.types.IUpgradeHsbTerminal;
 
@@ -17,6 +19,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.util.Icon;
+
 
 public class UpgradeRegistry {
     public static final String ID_UPGRADE_CAMO = "Camoflage";
@@ -31,36 +37,22 @@ public class UpgradeRegistry {
 	public static Map<String, Class<? extends IUpgradeHsbMachine>> upgradesMachine = new HashMap<String, Class<? extends IUpgradeHsbMachine>>();
 	//Upgrade to id mapping (Terminal)
 	public static Map<String, Class<? extends IUpgradeHsbTerminal>> upgradesTerminal = new HashMap<String, Class<? extends IUpgradeHsbTerminal>>();
-
-	@Deprecated
-	//buttons:id to int mapping
-	public static List< Class <? extends IUpgradeButton> > buttons = new ArrayList< Class <? extends IUpgradeButton> >();
-	@Deprecated
-	//buttins int, name mapping
-	public static Map<String, Integer> buttonNumberToName = new HashMap<String, Integer>();
 	
-	//Upgrade Text List
-	public static List<String> buttonNames = new ArrayList<String>();
+	//unique id to integer used for networking
+	public static List<String> idToInt = new ArrayList<String>();
 	
-	public static boolean addButtonName(String name) {
-		if(buttonNames.contains("name")) {
-			HsbLog.info("Name already registered!");
-			return false;
-		}
-		buttonNames.add(name);
-		return true;
-	}
+	public static Map<String, ButtonInfo> buttons= new HashMap<String, ButtonInfo>();
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static boolean registerUpgrade(Class<? extends IHsbUpgrade> upgrade, String id, Map map) {
 		
 		if(map.containsKey(id)) {
-			HsbLog.severe("Upgrade key already used!");
+			ModHsb.logger.severe("Upgrade key already used!");
 			return false;
 		}
 		if(map.containsValue(upgrade))
 		{
-			HsbLog.severe("Upgrade already registred!");
+			ModHsb.logger.severe("Upgrade already registred!");
 			return false;
 		}
 		map.put(id, upgrade);
@@ -88,36 +80,35 @@ public class UpgradeRegistry {
 		return registerUpgrade(upgrade, id, upgradesMachine);
 	}
 	
-	@Deprecated
-	
-	/**
-	 * register button Upgrade, upgrade has to registered before
-	 * @param upgrade
-	 * @return success
-	 */
-	public static boolean registerButtonUpgrade(Class <? extends IUpgradeButton> upgrade)
-	{
-		if(!upgradesMachine.containsValue(upgrade) && !upgradesTerminal.containsValue(upgrade))
-		{
-			HsbLog.severe("Upgrade not registered, register Upgrade before registering buttons!");
+	public static boolean registerUpgradeButton(String uniqueId, String buttonText, String icon) {
+		if(!upgradesTerminal.containsKey(uniqueId) && !upgradesMachine.containsKey(uniqueId)) {
+			ModHsb.logger.severe("Upgrade " + uniqueId + " not registered! Upgrades have to be registered first before being added to the Button Upgrade List!");
 			return false;
 		}
-		if(buttons.contains(upgrade))
-		{
-			HsbLog.severe("UpgradeButton already registered!");
+		if(uniqueId == null || uniqueId.isEmpty()) {
+			ModHsb.logger.severe("uniqueId must not be null!");
 			return false;
 		}
-		buttons.add(upgrade);
-		try {
-			buttonNumberToName.put(upgrade.newInstance().getButton(), buttons.indexOf(upgrade));
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if( (buttonText == null || buttonText.isEmpty()) && icon == null ) {
+			ModHsb.logger.severe("ButtonText AND icon can't be null both!");
+			return false;
+		}
+		
+		idToInt.add(uniqueId);
+		
+		if(ModHsb.proxy.isClient()) {
+			ButtonInfo button = new ButtonInfo(buttonText, icon);
+			buttons.put(uniqueId, button);
 		}
 		return true;
+	}
+	
+	public static String getButtonName(String id) {
+		return UpgradeRegistry.buttons.get(id).getText();
+	}
+	
+	public static Icon getButtonIcon(String id) {
+		return UpgradeRegistry.buttons.get(id).getIcon();
 	}
 	
 	public static void initUpgrades() {
@@ -130,7 +121,14 @@ public class UpgradeRegistry {
 		
 		registerMachineUpgrade(UpgradeEnergyStorage.class, ID_UPGRADE_STORAGE);
 		
-		addButtonName(Strings.UPGRADE_GUI_BUTTON_CAMO);
-		addButtonName(Strings.UPGRADE_GUI_BUTTON_TESLA);
+		
+		registerUpgradeButton(ID_UPGRADE_CAMO, Strings.UPGRADE_GUI_BUTTON_CAMO,Textures.ITEM_UPGRADE_HSB[ItemUpgradeHsb.metaCamo]);
+		registerUpgradeButton(ID_UPGRADE_TESLA, Strings.UPGRADE_GUI_BUTTON_TESLA, Textures.ITEM_UPGRADE_HSB[ItemUpgradeHsb.metaTesla]);
+	}
+	
+	public static void initUpgradeIcons(IconRegister reg) {
+		for(ButtonInfo button : buttons.values()) {
+			button.registerIcons(reg);
+		}
 	}
 }

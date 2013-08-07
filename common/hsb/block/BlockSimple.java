@@ -1,8 +1,8 @@
 package hsb.block;
 
+import hsb.creativetab.CreativeTabHsb;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import hsb.creativetab.CreativeTabHsb;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;

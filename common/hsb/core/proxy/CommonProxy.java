@@ -12,5 +12,9 @@ public class CommonProxy {
 	public String getCurrentLanguage() {
 		return null;
 	}
+	
+	public boolean isClient() {
+		return false;
+	}
 
 }

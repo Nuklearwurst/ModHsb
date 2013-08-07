@@ -1,6 +1,6 @@
 package hsb.inventory;
 
-import hsb.core.helper.HsbLog;
+import hsb.ModHsb;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.terminal.UpgradeCamoflage;
@@ -26,7 +26,7 @@ public class ContainerCamoUpgrade extends Container {
     {
         if (te == null)
         {
-        	HsbLog.severe("ContainerLockTermninal te == null!! BUG!");
+        	ModHsb.logger.severe("ContainerLockTermninal te == null!! BUG!");
         }
         this.invPlayer = entityplayer.inventory;
         this.te = te;
@@ -36,10 +36,8 @@ public class ContainerCamoUpgrade extends Container {
         	try {
 				upgrade = (UpgradeCamoflage) UpgradeRegistry.upgradesTerminal.get(UpgradeRegistry.ID_UPGRADE_CAMO).newInstance();
 			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
         }
@@ -51,7 +49,7 @@ public class ContainerCamoUpgrade extends Container {
         {
         	this.addSlotToContainer(new Slot(invUpgrade, 0, 34, 25));
         } else {
-        	HsbLog.severe("InvUpgrade == null!! : ContainerCamoUpgrade l.: 42");
+        	ModHsb.logger.severe("InvUpgrade == null!! : ContainerCamoUpgrade l.: 42");
         }
         
 
@@ -76,11 +74,6 @@ public class ContainerCamoUpgrade extends Container {
     public boolean canInteractWith(EntityPlayer entityplayer)
     {
         return this.te.isUseableByPlayer(entityplayer);
-    }
-    @Override
-    public void onCraftGuiClosed(EntityPlayer player)
-    {
-    	super.onCraftGuiClosed(player);
     }
     
     @Override

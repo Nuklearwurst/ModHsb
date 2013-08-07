@@ -18,7 +18,6 @@ public class UpgradeSecurity extends UpgradeHsbTerminal{
 
 	@Override
 	public void addInformation(IHsbUpgrade upgrade) {
-		// TODO Auto-generated method stub
 		
 	}
 

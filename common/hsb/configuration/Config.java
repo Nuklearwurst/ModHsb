@@ -1,7 +1,10 @@
 package hsb.configuration;
 
 
+
 import hsb.block.ModBlocks;
+import hsb.core.plugin.PluginUE;
+import hsb.core.plugin.ic2.PluginIC2;
 import hsb.lib.BlockIds;
 import hsb.lib.ItemIds;
 import hsb.lib.Strings;
@@ -18,6 +21,12 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 public class Config {
 	
 	public static Configuration config;
+	
+	public static final String CATEGORY_GENERAL = Configuration.CATEGORY_GENERAL;
+	public static final String CATEGORY_BLOCK = Configuration.CATEGORY_BLOCK;
+	public static final String CATEGORY_ITEM = Configuration.CATEGORY_ITEM;
+	public static final String CATEGORY_COMPATIBILITY = "compatibility"; //Compatibility
+	public static final String CATEGORY_ENERGY = "energy"; //energy values
 
 	public static void readConfig(FMLPreInitializationEvent evt)
 	{
@@ -28,15 +37,66 @@ public class Config {
 			config.load();
 			
 		//Properties
+			Property prop;
+			
+			
 			//Debug Mode
-			Property debugMode = config.get(Configuration.CATEGORY_GENERAL, "debugMode", false);
-			debugMode.comment="Debug Mode";
-			Settings.DEBUG = debugMode.getBoolean(false);
+			prop = config.get(CATEGORY_GENERAL, "debugMode", false);
+			prop.comment="Debug Mode";
+			Settings.DEBUG = prop.getBoolean(false);
+			
+			////////////
+			// Energy //
+			////////////
+			
+			prop = config.get(CATEGORY_ENERGY, "energyUseTerminal", Settings.terminalEnergyUse);
+			prop.comment = "terminal energy usage per block";
+			Settings.terminalEnergyUse = (float) prop.getDouble(Settings.terminalEnergyUse);
+			
+			prop = config.get(CATEGORY_ENERGY, "energyStorageTerminal", Settings.terminalEnergyStorage);
+			prop.comment = "terminal energy storage";
+			Settings.terminalEnergyStorage = (float) prop.getDouble(Settings.terminalEnergyStorage);
+			
+			prop = config.get(CATEGORY_ENERGY, "energyStorageUpgrade", Settings.UPGRADE_ENERGY_STORAGE);
+			prop.comment = "upgrade energy storage";
+			Settings.UPGRADE_ENERGY_STORAGE = (float) prop.getDouble(Settings.UPGRADE_ENERGY_STORAGE);
+			
+			//////////////
+			// Settings //
+			//////////////
+			
+			prop = config.get(CATEGORY_GENERAL, "unlocker Ticks to Unlock", Settings.ticksToUnlock);
+			prop.comment = "number of ticks unlocker needs to unlock a terminal by default";
+			Settings.ticksToUnlock = prop.getInt(Settings.ticksToUnlock);
+			
+			///////////////////
+			// Compatibility //
+			///////////////////
 			
 			//Use IC2 (true recommended)
-			Property propIC2 = config.get(Configuration.CATEGORY_GENERAL, "useIC2", true);
-			propIC2.comment = "Use IC2 if installed";
-			Settings.ic2Available = propIC2.getBoolean(true);
+			prop = config.get(CATEGORY_COMPATIBILITY, "useIC2", true);
+			prop.comment = "Use IC2 if installed";
+			Settings.usePluginIC2 = prop.getBoolean(true);
+			
+			//Use BC3 (true recommended)
+			prop = config.get(CATEGORY_COMPATIBILITY, "useBC3", true);
+			prop.comment = "Use BC3 if installed";
+			Settings.usePluginBC3 = prop.getBoolean(true);
+			
+			//Use UE (true recommended)
+			prop = config.get(CATEGORY_COMPATIBILITY, "useUE", true);
+			prop.comment = "Use UE if installed";
+			Settings.usePluginUE = prop.getBoolean(true);
+			
+			//EU to MJ
+			prop = config.get(CATEGORY_COMPATIBILITY, "IC2 to MJ conversionrate", PluginIC2.IC2_RATIO);
+			prop.comment = "Conversion rate from EU to MJ";
+			PluginIC2.IC2_RATIO = (float)prop.getDouble(PluginIC2.IC2_RATIO);
+			
+			//UE Joules to MJ
+			prop = config.get(CATEGORY_COMPATIBILITY, "UE to MJ conversionrate", PluginUE.UE_RATIO);
+			prop.comment = "Conversion rate from UE Joules to MJ";
+			PluginUE.UE_RATIO = (float)prop.getDouble(PluginUE.UE_RATIO);
 			
 		//Items
 			initItems(config);

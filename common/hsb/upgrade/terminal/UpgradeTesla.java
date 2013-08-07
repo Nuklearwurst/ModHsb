@@ -1,5 +1,6 @@
 package hsb.upgrade.terminal;
 
+import hsb.core.util.Utils;
 import hsb.lib.Strings;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
@@ -37,16 +38,14 @@ public class UpgradeTesla extends UpgradeHsbTerminal
 	}
 
 	@Override
-	public String getButton() {
-//		return StatCollector.translateToLocal(Strings.UPGRADE_GUI_BUTTON_TESLA);
-		return Strings.UPGRADE_GUI_BUTTON_TESLA;
-	}
-
-	@Override
 	public void onButtonClicked(EntityPlayer player, TileEntityHsbTerminal te) {
-		active = !active;
-		player.sendChatToPlayer(active ? "active" : "diabled");//TODO translations
-		this.updateUpgrade(te);
+		if(!te.isLocked()) {
+			active = !active;
+			player.sendChatToPlayer(Utils.getChatMessage(Strings.translate(active ? Strings.CHAT_ACTIVATED : Strings.CHAT_DISABLED)));
+			this.updateUpgrade(te);
+		} else {
+			
+		}
 	}
 
 	@Override

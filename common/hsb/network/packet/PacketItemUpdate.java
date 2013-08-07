@@ -1,6 +1,7 @@
 package hsb.network.packet;
 
-import hsb.core.helper.HsbLog;
+
+import hsb.ModHsb;
 import hsb.lib.PacketIds;
 
 import java.io.DataInputStream;
@@ -34,7 +35,7 @@ public class PacketItemUpdate extends PacketHsb{
 		{
 			this.type = PacketIds.BOOLEAN;
 		} else {
-			HsbLog.severe("Hsb Packet Error!!");
+			ModHsb.logger.severe("Hsb Packet Error: Invalid Type!!");
 			this.type = PacketIds.ERROR;
 		}
 		try
@@ -77,11 +78,11 @@ public class PacketItemUpdate extends PacketHsb{
 				stack.getTagCompound().setString(this.tag, (String) this.value);
 				break;
 			default:
-				HsbLog.severe("PacketHandler: unexpected type!!");
+				ModHsb.logger.severe("PacketHandler: unexpected type!!");
 				break;
 			}
 		} else {
-			HsbLog.severe("PacketHandler: False NBTTAG key!!!!");
+			ModHsb.logger.severe("PacketHandler: False NBTTAG key!!!!");
 		}
 		
 	}
@@ -104,7 +105,7 @@ public class PacketItemUpdate extends PacketHsb{
 			value = data.readBoolean();
 		} else if(type == PacketIds.ERROR)
 		{
-			HsbLog.severe("Hsb Packet reading Error!!");
+			ModHsb.logger.severe("Hsb Packet reading Error: Invalid Type Id!!");
 		}
 		
 	}
@@ -127,7 +128,7 @@ public class PacketItemUpdate extends PacketHsb{
 		{
 			data.writeBoolean((Boolean) value);
 		} else if(type == PacketIds.ERROR){
-			HsbLog.severe("Hsb Packetwriting Error!");
+			ModHsb.logger.severe("Hsb Packetwriting Error: Invalid Type Id!");
 		}
 		
 	}

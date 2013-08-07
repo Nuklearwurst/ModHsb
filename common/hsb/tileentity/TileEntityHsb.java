@@ -1,11 +1,10 @@
 package hsb.tileentity;
 
+import hsb.ModHsb;
 import hsb.configuration.Settings;
-import hsb.core.helper.HsbLog;
 import hsb.lock.ILockTerminal;
 import hsb.lock.ILockable;
 import hsb.lock.LockManager;
-import hsb.network.NetworkManager;
 import ic2.api.network.INetworkClientTileEntityEventListener;
 import ic2.api.network.INetworkDataProvider;
 import ic2.api.network.INetworkUpdateListener;
@@ -17,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import nwcore.network.NetworkManager;
 
 public abstract class TileEntityHsb extends TileEntitySimple 
 	implements ILockable, INetworkClientTileEntityEventListener, INetworkDataProvider, INetworkUpdateListener
@@ -37,7 +37,6 @@ public abstract class TileEntityHsb extends TileEntitySimple
 	
 	//time until next signal has to be send, if <0 no lock signal needs to be send
 	private int nextSignal = -1;
-	private boolean init;
 	
 	@Override
 	public boolean connectsTo(int side) {
@@ -71,6 +70,7 @@ public abstract class TileEntityHsb extends TileEntitySimple
 		return port;
 	}
 	
+	/*
 	protected void initData() {
 		if(worldObj.isRemote)
         {
@@ -78,6 +78,7 @@ public abstract class TileEntityHsb extends TileEntitySimple
         }
         init = true;
 	}
+	*/
 	
 	@Override
 	public boolean isDestroyed() {
@@ -93,7 +94,7 @@ public abstract class TileEntityHsb extends TileEntitySimple
 		//port update
 		if(event > Settings.maxPort || event < 0)
 		{
-			HsbLog.severe("Unexpected event!! " + event);
+			ModHsb.logger.severe("Unexpected event!! " + event);
 			return;
 		}
 		this.port = event;
@@ -153,13 +154,13 @@ public abstract class TileEntityHsb extends TileEntitySimple
 			String pass, int port) {
 		//only simulated on server (shoudn't be called)
 		if(this.worldObj.isRemote) {
-			HsbLog.debug("BUG lock signal send on client!!!");
+			ModHsb.logger.debug("BUG lock signal send on client!!!");
 			return true;
 		}
 		//checks if the tile is going to be destroyed
 		if(this.isDestroyed)
 		{
-			HsbLog.debug("this is removed!");
+//			ModHsb.logger.debug("this is removed!");
 			return false;
 		}
 		//check if Lock is the same, or if port is not the same
@@ -176,7 +177,7 @@ public abstract class TileEntityHsb extends TileEntitySimple
 				//checks if the password is right
 				if(!this.pass.equals(pass))
 				{
-					HsbLog.debug("transfer failed:false password ! |" + this.pass + "|" + pass + "|");
+//					ModHsb.logger.debug("transfer failed:false password ! |" + this.pass + "|" + pass + "|");
 					return false;
 				}
 			}
@@ -226,10 +227,10 @@ public abstract class TileEntityHsb extends TileEntitySimple
     public void updateEntity()
     {
         super.updateEntity();
-		if (!init)
-        {
-            initData();
-        }
+//		if (!init)
+//        {
+//            initData();
+//        }
 		if(nextSignal == 0)
 		{
 			//transfer

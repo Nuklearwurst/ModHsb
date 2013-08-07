@@ -1,7 +1,8 @@
 package hsb.client.gui;
 
+
+import hsb.core.plugin.PluginManager;
 import hsb.lib.Textures;
-import hsb.network.NetworkManager;
 import hsb.tileentity.TileEntityUnlocker;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.EnumChatFormatting;
+import nwcore.network.NetworkManager;
 
 import org.lwjgl.opengl.GL11;
 
@@ -61,12 +63,23 @@ public class GuiUnlocker extends GuiContainer{
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(Textures.GUI_UNLOCKER);
+        mc.func_110434_K().func_110577_a(Textures.GUI_UNLOCKER);
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
         int energy = this.te.getEnergyScaled(49);
         this.drawTexturedModalRect(xPos + 45, yPos + 8 + 49 - energy, 177, 63 - energy, 6, energy);
-        int burnTime = this.te.getBurnTimeScaled(14);
-        this.drawTexturedModalRect(xPos + 17, yPos + 38 - burnTime, 176, 14 - burnTime, 14, burnTime);
+        
+        if(PluginManager.energyModInstalled_Item())
+        {
+        	this.drawTexturedModalRect(xPos + 17, yPos + 38 - 14, 176 + 42, 0, 14, 14); //use empty electrical icon
+        } else {
+        	this.drawTexturedModalRect(xPos + 17, yPos + 38 - 14, 176 + 14, 0, 14, 14); //use empty burn icon
+        }
+        int burnTime = this.te.getBurnOrChargeScaled(14);
+        if(PluginManager.energyModInstalled_Item()) {
+        	this.drawTexturedModalRect(xPos + 17, yPos + 38 - burnTime, 176 + 28, 14 - burnTime, 14, burnTime); //use electrical icon
+        } else {
+        	this.drawTexturedModalRect(xPos + 17, yPos + 38 - burnTime, 176, 14 - burnTime, 14, burnTime); //use burn icon
+        }
         int progress = this.te.getProgressScaled(76);
         this.drawTexturedModalRect(xPos + 58, yPos + 13, 0, 166, progress, 17);
         if(te.active) {
@@ -87,10 +100,10 @@ public class GuiUnlocker extends GuiContainer{
     	List<String> color = new ArrayList<String>();
     	color.add(0, EnumChatFormatting.GRAY + ""); //setting Gray as standard
     	
-    	if( (x >= (xPos + 45) && x <= (xPos + 50)) && (y >= (yPos + 8) && y <= (yPos + 57)) )
+    	if( (x >= (xPos + 45) && x <= (xPos + 50)) && (y >= (yPos + 8) && y <= (yPos + 57)) ) //Energy Stored
     	{
-    		list.add(te.energyStored + " EU");// + EnumChatFormatting.RESET);
-    	} else if( (x >= (xPos + 58) && x <= (xPos + 134)) && (y >= (yPos + 13) && y <= (yPos + 30)) )
+    		list.add( ((int) te.getEnergy()) + " MJ");// + EnumChatFormatting.RESET);
+    	} else if( (x >= (xPos + 58) && x <= (xPos + 134)) && (y >= (yPos + 13) && y <= (yPos + 30)) ) //Progress
     	{
     		float progress = te.progress * 100 / te.ticksToUnlock;
     		list.add("Progress: " + progress + "%");// +  EnumChatFormatting.RESET);
@@ -102,11 +115,16 @@ public class GuiUnlocker extends GuiContainer{
     			list.add("Last try failed!!");
     			color.add(EnumChatFormatting.RED + "" + EnumChatFormatting.BOLD);
     		}
-    	} else if( (x >= (xPos + 149) && x <= (xPos + 158)) && (y >= (yPos + 13) && y <= (yPos + 30)) )
+    	} else if( (x >= (xPos + 149) && x <= (xPos + 158)) && (y >= (yPos + 13) && y <= (yPos + 30)) ) //Active
     	{
     		list.add(te.active ? "Active" : "Inactive");// +  EnumChatFormatting.RESET);
     		if(te.active)
     			color.set(0, EnumChatFormatting.GREEN + "");
+    	} else if( (x >= (xPos + 17) && y >= (yPos + 24)) && ( x <= (xPos + 31) && y <= (yPos + 38)) ) {
+    		String s = PluginManager.getElectricChargeInfoString(te.getStackInSlot(0));
+    		if(s != null) {
+    			list.add(s);
+    		}
     	} else {
     		return;
     	}

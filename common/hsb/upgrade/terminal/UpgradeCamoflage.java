@@ -1,10 +1,9 @@
 package hsb.upgrade.terminal;
 
 import hsb.ModHsb;
-import hsb.core.helper.HsbLog;
+import hsb.core.util.Utils;
 import hsb.lib.GuiIds;
 import hsb.lib.Strings;
-import hsb.network.NetworkManager;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.types.IHsbUpgrade;
@@ -20,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
+import nwcore.network.NetworkManager;
 
 public class UpgradeCamoflage extends UpgradeHsbTerminal
 	implements IUpgradeButton, IOnRemoveListener, INBTUpgrade, IInventory
@@ -58,10 +58,10 @@ public class UpgradeCamoflage extends UpgradeHsbTerminal
 				NetworkManager.getInstance().updateTileEntityField(te, "camoMeta");
 				NetworkManager.getInstance().updateTileEntityField(te, "camoId");
 			} else {
-				HsbLog.debug("Item invalid");
+				ModHsb.logger.debug("Item invalid");
 			}
 		} else {
-			HsbLog.debug("Camo inv = null");
+			ModHsb.logger.debug("Camo inv = null");
 		}
 	}
 
@@ -154,12 +154,6 @@ public class UpgradeCamoflage extends UpgradeHsbTerminal
 	}
 
 	@Override
-	public String getButton() {
-//		return StatCollector.translateToLocal(Strings.UPGRADE_GUI_BUTTON_CAMO);
-		return Strings.UPGRADE_GUI_BUTTON_CAMO;
-	}
-
-	@Override
 	public int getSizeInventory() {
 		return 1;
 	}
@@ -225,13 +219,12 @@ public class UpgradeCamoflage extends UpgradeHsbTerminal
 
 	@Override
 	public String getInvName() {
-		return "invUpgradeCamo";
+		return Strings.CONTAINER_UPGRADE_CAMO;
 	}
 
 	@Override
 	public boolean isInvNameLocalized() {
-		//TODO localization
-		return false;
+		return true;
 	}
 
 	@Override
@@ -256,19 +249,20 @@ public class UpgradeCamoflage extends UpgradeHsbTerminal
 	public void closeChest() {}
 
 	@Override
-	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
 		return true;
 	}
 
 	@Override
 	public void onButtonClicked(EntityPlayer player, TileEntityHsbTerminal te) {
-		//TODO open gui
-		player.openGui(ModHsb.instance, GuiIds.GUI_UPGRADE_CAMOFLAGE, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+		if(!te.isLocked()) {
+			player.openGui(ModHsb.instance, GuiIds.GUI_UPGRADE_CAMOFLAGE, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
+		}
 	}
 	
 	public void onActivateClicked(EntityPlayer player, TileEntityHsbTerminal te) {
 		active = !active;
-		player.sendChatToPlayer(active ? "active" : "diabled");//TODO translations
+		player.sendChatToPlayer(Utils.getChatMessage(Strings.translate(active ? Strings.CHAT_ACTIVATED : Strings.CHAT_DISABLED)));
 		this.updateUpgrade(te);
 	}
 

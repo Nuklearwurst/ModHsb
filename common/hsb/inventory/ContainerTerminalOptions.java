@@ -1,6 +1,7 @@
 package hsb.inventory;
 
-import hsb.core.helper.HsbLog;
+
+import hsb.ModHsb;
 import hsb.inventory.slot.SlotTerminalUpgrade;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.types.ITerminalUpgradeItem;
@@ -31,7 +32,7 @@ public class ContainerTerminalOptions extends Container {
     {
         if (te == null)
         {
-        	HsbLog.severe("ContainerLockTermninal te == null!! BUG!");
+        	ModHsb.logger.severe("ContainerLockTermninal te == null!! BUG!");
         }
 
         this.invPlayer = entityplayer.inventory;

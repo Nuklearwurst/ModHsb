@@ -1,11 +1,9 @@
 package hsb.network;
 
+
 import hsb.lib.PacketIds;
 import hsb.network.packet.PacketItemUpdate;
 import hsb.network.packet.PacketPasswordUpdate;
-import hsb.network.packet.tileentity.PacketClientTileEvent;
-import hsb.network.packet.tileentity.PacketRequestData;
-import hsb.network.packet.tileentity.PacketTileFieldUpdate;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -27,6 +25,7 @@ public class PacketHandler implements IPacketHandler{
 			int packetId = data.readByte();
 			switch(packetId)
 			{
+			/* Old code, see nwcore
 				case PacketIds.TILE_CLIENT_EVENT:
 				{
 					PacketClientTileEvent packet = new PacketClientTileEvent();
@@ -45,6 +44,7 @@ public class PacketHandler implements IPacketHandler{
 					packet.onPacketData(data, player);
 					break;
 				}
+			*/
 				case PacketIds.GUI_PASSWORD_UPDATE:
 				{
 					PacketPasswordUpdate packet = new PacketPasswordUpdate();

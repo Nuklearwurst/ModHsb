@@ -1,45 +1,80 @@
 package hsb.tileentity;
 
 import hsb.configuration.Settings;
-import hsb.core.helper.StackUtils;
+import hsb.core.plugin.PluginManager;
+import hsb.core.plugin.PluginUE;
+import hsb.core.plugin.ic2.PluginIC2;
+import hsb.core.util.EnergyHelper;
+import hsb.core.util.StackUtils;
 import hsb.lib.Strings;
 import hsb.lock.ILockTerminal;
 import hsb.lock.ILockable;
 import hsb.lock.LockManager;
-import hsb.network.NetworkManager;
-import ic2.api.IWrenchable;
+import ic2.api.Direction;
+import ic2.api.energy.event.EnergyTileLoadEvent;
+import ic2.api.energy.event.EnergyTileUnloadEvent;
+import ic2.api.energy.tile.IEnergySink;
 import ic2.api.network.INetworkClientTileEntityEventListener;
 import ic2.api.network.INetworkDataProvider;
 import ic2.api.network.INetworkUpdateListener;
+import ic2.api.tile.IWrenchable;
 
 import java.util.List;
 import java.util.Vector;
 
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Facing;
+import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.MinecraftForge;
+import nwcore.network.NetworkManager;
+import universalelectricity.core.block.IElectrical;
+import universalelectricity.core.block.IElectricalStorage;
+import universalelectricity.core.electricity.ElectricityPack;
+import buildcraft.api.power.IPowerReceptor;
+import buildcraft.api.power.PowerHandler;
+import buildcraft.api.power.PowerHandler.PowerReceiver;
 
 public class TileEntityUnlocker extends TileEntitySimple
-	implements IWrenchable, IInventory, INetworkClientTileEntityEventListener, INetworkDataProvider, INetworkUpdateListener
+	implements IWrenchable, INetworkClientTileEntityEventListener, INetworkDataProvider, INetworkUpdateListener, ISidedInventory,
+				IEnergySink, IPowerReceptor, IElectrical, IElectricalStorage, IMachine 
 {
 
 	public short facing = 0;
 	private short prevFacing = 0;
 	
-	public int energyStored = 0;
+//	public int energyStored = 0;
 	private ItemStack inv;
 	
 	public int burnTime = 0;
 	private int maxBurnTime = 1;
+	
+	
 	public int progress = 0;
 	
 	public boolean active = false;
 	
 	public int ticksToUnlock = Settings.ticksToUnlock;
+	
+	private boolean isAddedToEnergyNet = false;
+	
+	private static final int  TIER = 2;
+	
+	private PowerHandler power;
+	
+	public TileEntityUnlocker() {
+		super();
+		power = new PowerHandler(this, PowerHandler.Type.MACHINE);
+		resetPowerSettings();
+		
+	}
+	
 	
 	@Override
 	public boolean wrenchCanSetFacing(EntityPlayer entityPlayer, int side) {
@@ -78,19 +113,34 @@ public class TileEntityUnlocker extends TileEntitySimple
 	}
 
 	public int getEnergyScaled(int length) {
-		int x = (this.energyStored * length
-				/ (Settings.maxEnergyStorageUnlocker));
+		float x = (this.getEnergy() * length
+				/ (Settings.unlockerEnergyStorage));
 		if(x > length)
 			x = length;
-		return x;
+		return (int) x;
 	}
-	public int getBurnTimeScaled(int length) {
-		int x = (this.burnTime * length
-				/ (maxBurnTime));
+	public int getBurnOrChargeScaled(int length) {
+		int max = 0;
+		int current = 0;
+		
+		if(PluginManager.energyModInstalled_Item()) {
+			if(Settings.usePluginIC2) {
+				current = PluginManager.getElectricChargeInItem(inv);
+				max = PluginManager.getMaxElectricChargeInItem(inv);
+			}
+		} else {
+			current = this.burnTime;
+			max = this.maxBurnTime;
+		}
+		if(max == 0 || max == -1)
+			return 0;
+		
+		int x = current * length / max;
 		if(x > length)
 			x = length;
-		return x;
+		return x;		
 	}
+	
 	public int getProgressScaled(int length) {
 		if(progress == -1)
 			return 0;
@@ -117,10 +167,13 @@ public class TileEntityUnlocker extends TileEntitySimple
             NBTTagCompound nbttag = (NBTTagCompound)nbtlist.tagAt(i);
             this.inv = ItemStack.loadItemStackFromNBT(nbttag);
         }
-        
-        energyStored = tag.getInteger("energyStored");
-        burnTime = tag.getInteger("burnTime");
-        maxBurnTime = tag.getInteger("maxBurnTime");
+        power.readFromNBT(tag);
+        if(!PluginManager.energyModInstalled_Item()) {
+        	if(tag.hasKey("burnTime")) {
+	        burnTime = tag.getInteger("burnTime");
+	        maxBurnTime = tag.getInteger("maxBurnTime");
+        	}
+        }
         progress = tag.getInteger("progress");
         
         active = tag.getBoolean("active");
@@ -146,38 +199,78 @@ public class TileEntityUnlocker extends TileEntitySimple
         }
         tag.setTag("Items", nbtlist);
         
-        tag.setInteger("energyStored", this.energyStored);
-        tag.setInteger("maxBurnTime", maxBurnTime);
-        tag.setInteger("burnTime", burnTime);
+        power.writeToNBT(tag);
+        
+        if(!PluginManager.energyModInstalled_Item()) {
+	        tag.setInteger("maxBurnTime", maxBurnTime);
+	        tag.setInteger("burnTime", burnTime);
+        }
         tag.setInteger("progress", progress);
         
         tag.setBoolean("active", active);
     }
 	
 	@Override
-	public void updateEntity() {
-		//TODO
-		if(burnTime <= 0) {
-			if(inv != null && inv.stackSize > 0 && this.energyStored < Settings.maxEnergyStorageUnlocker)
+	public void invalidate()
+	{
+		this.unloadTileIC2();
+		super.invalidate();
+	}
+
+	@Override
+	public void onChunkUnload()
+	{
+		this.unloadTileIC2();
+		super.onChunkUnload();
+	}
+	
+
+	private void unloadTileIC2()
+	{
+		if (this.isAddedToEnergyNet && this.worldObj != null)
+		{
+			if (Settings.usePluginIC2)
 			{
-				maxBurnTime = burnTime = StackUtils.getItemBurnTime(inv);
-				inv.stackSize--;
+				MinecraftForge.EVENT_BUS.post(new EnergyTileUnloadEvent(this));
+			}
+
+			this.isAddedToEnergyNet = false;
+		}
+	}
+	
+	@Override
+	public void updateEntity() {
+		//Init IC2
+		if (!worldObj.isRemote) {
+			//add to EnergyNet
+			if (!isAddedToEnergyNet && Settings.usePluginIC2) {
+				MinecraftForge.EVENT_BUS.post(new EnergyTileLoadEvent(this));
+				isAddedToEnergyNet = true;
 			}
 		}
-		
-		if(burnTime > 0) {
-			burnTime -= 2;
-			energyStored += 5;
-			if(energyStored > Settings.maxEnergyStorageUnlocker) {
-				energyStored = Settings.maxEnergyStorageUnlocker;
+		if(PluginManager.energyModInstalled_Item()) {
+			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dichargeItem(inv, spaceForEnergy(), TIER, false, false), true);
+		} else {
+			//no energy mod
+			if( burnTime <= 0) {
+				if(inv != null && inv.stackSize > 0 && this.getEnergy() < this.getMaxEnergy())
+				{
+					maxBurnTime = burnTime = StackUtils.getItemFuelValue(inv);
+					inv.stackSize--;
+				}
+			}
+			//use up coal
+			if(burnTime > 0) {
+				burnTime -= 5;
+				addEnergy(ForgeDirection.UNKNOWN, 5, true);
 			}
 		}
 		
 		if(active)
 		{
-			if((energyStored - Settings.energyUseUnlocker) > 0) {
+			if(getEnergy() > getEnergyUse()) {
 				progress++;
-				energyStored -= Settings.energyUseUnlocker;
+				useEnergy(Settings.unlockerEnergyUse, (float) getEnergyUse(), true);
 				if(progress > ticksToUnlock) {
 					progress = 0;
 					unlock();
@@ -303,7 +396,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 	public void closeChest() {}
 
 	@Override
-	public boolean isStackValidForSlot(int i, ItemStack itemstack) {
+	public boolean isItemValidForSlot(int i, ItemStack itemstack) {
 		return StackUtils.isItemFuel(itemstack);
 	}
 
@@ -345,6 +438,216 @@ public class TileEntityUnlocker extends TileEntitySimple
 		List<String> list = new Vector<String>();
 	    list.add("facing");
 	    return list;
+	}
+
+	@Override
+	public boolean acceptsEnergyFrom(TileEntity emitter, Direction direction) {
+		return canConnect(direction.toForgeDirection());
+	}
+
+	@Override
+	public boolean isAddedToEnergyNet() {
+		return isAddedToEnergyNet;
+	}
+
+	@Override
+	public boolean canConnect(ForgeDirection direction) {
+		return true;
+	}
+
+	/**
+	 * sets energy in MJ
+	 * @param f
+	 */
+	public void setEnergy(float f) {
+		power.setEnergy(f);
+	}
+	/**
+	 * get energy (MJ) stored
+	 */
+	public float getEnergy() {
+		return power.getEnergyStored();
+	}
+	/**
+	 * how much energy is needed?
+	 * @return
+	 */
+	public float spaceForEnergy() {
+		return (power.getMaxEnergyStored() - power.getEnergyStored());
+	}
+	/**
+	 * how much energy (MJ) is probably going to be used (inaccurate)
+	 */
+	public double getEnergyUse() {
+		//TODO
+		return Settings.unlockerEnergyUse;
+	}
+	
+	/**
+	 * MJ
+	 * @return
+	 */
+	public float getMaxEnergy() {
+		return power.getMaxEnergyStored();
+	}
+	
+	/**
+	 * 
+	 * @param dir source
+	 * @param amount in MJ
+	 * @param addEnergy if false action is simulated
+	 * @return usedEnergy
+	 */
+	public float addEnergy(ForgeDirection dir, float amount, boolean addEnergy) {
+		if(!canConnect(dir) || amount == 0) {
+			return 0;
+		}
+		return EnergyHelper.addEnergy(power, amount, addEnergy);
+	}
+	
+	public void setMaxStorage(float s) {
+		float maxInput = power.getMaxEnergyReceived();
+		power.configure(0, maxInput, 0, s);
+	}
+	public void setMaxInput(float i) {
+		float maxStorage = power.getMaxEnergyStored();
+		power.configure(0, i, 0, maxStorage);
+	}
+	
+	public float useEnergy(float min, float max, boolean doUse) {
+		return EnergyHelper.useEnergy(power, min, max, doUse);
+	}
+	@Override
+	public void setEnergyStored(float energy) {
+		setEnergy(PluginUE.convertToMJ(energy));
+	}
+
+	@Override
+	public float getEnergyStored() {
+		return PluginUE.convertToUE(getEnergy());
+	}
+
+	@Override
+	public float getMaxEnergyStored() {
+		return PluginUE.convertToUE(getMaxEnergy());
+	}
+
+	@Override
+	public float receiveElectricity(ForgeDirection from,
+			ElectricityPack receive, boolean doReceive) {
+		return PluginUE.convertToUE(addEnergy(from, PluginUE.convertToMJ(receive.amperes), doReceive));
+	}
+
+	@Override
+	public ElectricityPack provideElectricity(ForgeDirection from,
+			ElectricityPack request, boolean doProvide) {
+		return null;
+	}
+
+	@Override
+	public float getRequest(ForgeDirection direction) {
+		return PluginUE.convertToUE(spaceForEnergy());
+	}
+
+	@Override
+	public float getProvide(ForgeDirection direction) {
+		return 0;
+	}
+
+	@Override
+	public float getVoltage() {
+		return 120; //TODO voltage (upgrades)
+	}
+
+	@Override
+	public PowerReceiver getPowerReceiver(ForgeDirection side) {
+		return power.getPowerReceiver();
+	}
+
+	@Override
+	public void doWork(PowerHandler workProvider) {}
+
+	@Override
+	public World getWorld() {
+		return worldObj;
+	}
+
+	@Override
+	public int demandsEnergy() {
+		return (int) PluginIC2.convertToEU(spaceForEnergy());
+	}
+
+	@Override
+	public int injectEnergy(Direction directionFrom, int amount) {
+		return (int) PluginIC2.convertToEU(amount - addEnergy(directionFrom.toForgeDirection(), amount, true));
+	}
+
+	@Override
+	public int getMaxSafeInput() {
+		return 128; //TODO safe input (upgrades)
+	}
+
+	@Override
+	public int[] getAccessibleSlotsFromSide(int var1) {
+		return new int[]{0};
+	}
+
+	@Override
+	public boolean canInsertItem(int i, ItemStack itemstack, int j) {
+		return this.isItemValidForSlot(i, itemstack);
+	}
+
+	@Override
+	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
+		return true;
+	}
+	
+	private void resetPowerSettings() {
+		if(power != null) {
+			power.configure(Settings.unlockerMinInput, Settings.unlockerMaxInput, 0, Settings.unlockerEnergyStorage);
+			power.configurePowerPerdition(0, 0);
+		}
+	}
+
+
+	@Override
+	public void onRemove(World world, int x, int y, int z, int par1, int par2) {
+		//drop inventory
+		 for (int i = 0; i < this.getSizeInventory(); ++i)
+           {
+               ItemStack itemstack = this.getStackInSlot(i);
+
+               if (itemstack != null)
+               {
+                   float f = world.rand.nextFloat() * 0.8F + 0.1F;
+                   float f1 = world.rand.nextFloat() * 0.8F + 0.1F;
+                   float f2 = world.rand.nextFloat() * 0.8F + 0.1F;
+
+                   while (itemstack.stackSize > 0)
+                   {
+                       int k1 = world.rand.nextInt(21) + 10;
+
+                       if (k1 > itemstack.stackSize)
+                       {
+                           k1 = itemstack.stackSize;
+                       }
+
+                       itemstack.stackSize -= k1;
+                       EntityItem entityitem = new EntityItem(world, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.itemID, k1, itemstack.getItemDamage()));
+
+                       if (itemstack.hasTagCompound())
+                       {
+                           entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
+                       }
+
+                       float f3 = 0.05F;
+                       entityitem.motionX = (double)((float)world.rand.nextGaussian() * f3);
+                       entityitem.motionY = (double)((float)world.rand.nextGaussian() * f3 + 0.2F);
+                       entityitem.motionZ = (double)((float)world.rand.nextGaussian() * f3);
+                       world.spawnEntityInWorld(entityitem);
+                   }
+               }
+           }		
 	}
 
 }

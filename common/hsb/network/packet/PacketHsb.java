@@ -1,5 +1,6 @@
 package hsb.network.packet;
 
+
 import hsb.lib.Reference;
 
 import java.io.ByteArrayOutputStream;

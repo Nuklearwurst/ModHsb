@@ -93,27 +93,27 @@ public class GuiMultiTool extends GuiScreen{
 	 protected void drawGuiContainerBackgroundLayer(float f)
 	{
 	    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-	    mc.renderEngine.bindTexture(Textures.GUI_MULTI_TOOL);
+	    mc.func_110434_K().func_110577_a(Textures.GUI_MULTI_TOOL);
 	    int j = (width - xSize) / 2;
 	    int k = (height - ySize) / 2;
 	    drawTexturedModalRect(j, k, 0, 0, xSize, ySize);
 	}
 	 protected void drawGuiContainerForegroundLayer()
 	    {
-	    	String modeStr = StatCollector.translateToLocal(Strings.MULTI_TOOL_ERROR);
+	    	String modeStr = Strings.translate(Strings.MULTI_TOOL_ERROR);
 	    	switch(mode) 
 	    	{
 	    	case MODE_PLACE:
-	    		modeStr = StatCollector.translateToLocal(Strings.MULTI_TOOL_PLACE);
+	    		modeStr = Strings.translate(Strings.MULTI_TOOL_PLACE);
 	    		break;
 	    	case MODE_REMOVE:
-	    		modeStr = StatCollector.translateToLocal(Strings.MULTI_TOOL_REMOVE);
+	    		modeStr = Strings.translate(Strings.MULTI_TOOL_REMOVE);
 	    		break;
 	    	case MODE_WRENCH:
-	    		modeStr = StatCollector.translateToLocal(Strings.MULTI_TOOL_WRENCH);;
+	    		modeStr = Strings.translate(Strings.MULTI_TOOL_WRENCH);;
 	    		break;
 	    	default:
-	    		modeStr = StatCollector.translateToLocal(Strings.MULTI_TOOL_ERROR);;
+	    		modeStr = Strings.translate(Strings.MULTI_TOOL_ERROR);;
 	    		break;
 	    	}
 	        drawStringBorder(this.xSize / 2 - this.fontRenderer.getStringWidth(name + " " + modeStr) / 2, 6, this.xSize / 2 + this.fontRenderer.getStringWidth(name + " " + modeStr) / 2);

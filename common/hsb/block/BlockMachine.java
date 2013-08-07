@@ -1,19 +1,20 @@
 package hsb.block;
 
 import hsb.ModHsb;
-import hsb.core.helper.MachineUtils;
+import hsb.core.util.MachineUtils;
 import hsb.lib.GuiIds;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
+import hsb.tileentity.IMachine;
 import hsb.tileentity.TileEntityUnlocker;
-import ic2.api.IWrenchable;
+import ic2.api.tile.IWrenchable;
 
 import java.util.List;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -42,6 +43,19 @@ public class BlockMachine extends BlockSimpleContainer {
 		this.setResistance(2.0F);
 		this.setUnlocalizedName(Strings.BLOCK_MACHINE);
 	}
+	
+	@Override
+	public void breakBlock(World world, int x, int y, int z,
+			int par5, int par6) {
+		super.breakBlock(world, x, y, z, par5, par6);
+		
+		TileEntity te = world.getBlockTileEntity(x, y, z);
+		
+		if(te != null && te instanceof IMachine) {
+			((IMachine)te).onRemove(world, x, y, z, par5, par6);
+		}
+		
+	}
 
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float m, float n, float o) {
@@ -57,7 +71,7 @@ public class BlockMachine extends BlockSimpleContainer {
 	}
 	
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player, ItemStack stack) 
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack stack) 
     {
     	MachineUtils.onMachinePlacedBy(world, x, y, z, player, stack);
     }

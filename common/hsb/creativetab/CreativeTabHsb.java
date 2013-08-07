@@ -32,7 +32,6 @@ public class CreativeTabHsb extends CreativeTabs{
      */
     public String getTranslatedTabLabel()
     {
-		//TODO language support
         return "Hsb";
     }
 

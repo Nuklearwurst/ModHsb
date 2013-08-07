@@ -1,6 +1,7 @@
 package hsb.inventory;
 
-import hsb.core.helper.StackUtils;
+
+import hsb.core.util.StackUtils;
 import hsb.inventory.slot.SlotCharge;
 import hsb.tileentity.TileEntityUnlocker;
 
@@ -67,7 +68,7 @@ public class ContainerUnlocker extends Container{
 	public void addCraftingToCrafters(ICrafting crafter)
     {
         super.addCraftingToCrafters(crafter);
-        crafter.sendProgressBarUpdate(this, ID_ENERGY, this.tile.energyStored);
+        crafter.sendProgressBarUpdate(this, ID_ENERGY, (int) this.tile.getEnergy());
         crafter.sendProgressBarUpdate(this, ID_BURN_TIME, this.tile.burnTime);
         crafter.sendProgressBarUpdate(this, ID_PROGRESS, this.tile.progress);
         crafter.sendProgressBarUpdate(this, ID_ACTIVE, this.tile.active ? 1 : 0);
@@ -87,9 +88,9 @@ public class ContainerUnlocker extends Container{
         {
             ICrafting crafter = (ICrafting)iterator.next();
 
-            if (this.lastEnergyStored != this.tile.energyStored)
+            if (this.lastEnergyStored != (int) this.tile.getEnergy())
             {
-                crafter.sendProgressBarUpdate(this, ID_ENERGY, this.tile.energyStored);
+                crafter.sendProgressBarUpdate(this, ID_ENERGY, (int) this.tile.getEnergy());
             }
             if (this.lastBurnTime != this.tile.burnTime)
             {
@@ -109,7 +110,7 @@ public class ContainerUnlocker extends Container{
             }
         }
         
-        this.lastEnergyStored = this.tile.energyStored;
+        this.lastEnergyStored = (int) this.tile.getEnergy();
         this.lastBurnTime = this.tile.burnTime;
         this.lastProgress = this.tile.progress;
         this.lastActive = this.tile.active;
@@ -171,7 +172,7 @@ public class ContainerUnlocker extends Container{
     {
     	if (id == ID_ENERGY)
         {
-            this.tile.energyStored = value;
+            this.tile.setEnergy(value);
         }
         if (id == ID_BURN_TIME)
         {

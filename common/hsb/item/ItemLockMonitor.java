@@ -1,23 +1,25 @@
 package hsb.item;
 
 import hsb.configuration.Settings;
-import hsb.core.addons.PluginIC2;
+import hsb.core.plugin.ic2.HsbElectricItemManager;
+import hsb.core.plugin.ic2.PluginIC2;
+import hsb.core.util.Utils;
 import hsb.creativetab.CreativeTabHsb;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
 import hsb.tileentity.TileEntityHsb;
-import ic2.api.IElectricItem;
+import ic2.api.item.IElectricItemManager;
+import ic2.api.item.ISpecialElectricItem;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class ItemLockMonitor extends ItemSimple
-	implements IElectricItem
+	implements ISpecialElectricItem
 {
 	private boolean isHacker = false;
 	public ItemLockMonitor(int id, boolean hacker) {
@@ -74,38 +76,38 @@ public class ItemLockMonitor extends ItemSimple
 				{
 					if(isHacker)
 					{
-						if(Settings.ic2Available)
+						if(Settings.usePluginIC2)
 						{
 							if(PluginIC2.canUse(itemstack, Settings.energyHsbHacker))
 							{
 								PluginIC2.use(itemstack, Settings.energyHsbHacker, entityplayer);
 							} else {
-								entityplayer.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_NOT_ENOUGH_ENERGY));
+								entityplayer.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_NOT_ENOUGH_ENERGY)));
 								return true;
 							}
 						} else {
 							itemstack.damageItem(Settings.damageHsbHacker, entityplayer);
 						}
 					} else {
-						entityplayer.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_LOCKED));
+						entityplayer.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_LOCKED)));
 						return true;
 					}
 					//if NOT locked
 				} else {
-					if(Settings.ic2Available)
+					if(Settings.usePluginIC2)
 					{
 						if(PluginIC2.canUse(itemstack, Settings.energyHsbMonitor))
 						{
 							PluginIC2.use(itemstack, Settings.energyHsbMonitor, entityplayer);
 						} else {
-							entityplayer.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_NOT_ENOUGH_ENERGY));
+							entityplayer.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_NOT_ENOUGH_ENERGY)));
 							return true;
 						}
 					} else {
 						itemstack.damageItem(Settings.damageHsbMonitor, entityplayer);
 					}
 				}
-				entityplayer.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_PORT) + ((TileEntityHsb) te).getPort());
+				entityplayer.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_PORT) + ((TileEntityHsb) te).getPort()));
 				return true;
 			}
 			return false;
@@ -130,5 +132,10 @@ public class ItemLockMonitor extends ItemSimple
 
     	}
     }
+
+	@Override
+	public IElectricItemManager getManager(ItemStack itemStack) {
+		return new HsbElectricItemManager();
+	}
 
 }

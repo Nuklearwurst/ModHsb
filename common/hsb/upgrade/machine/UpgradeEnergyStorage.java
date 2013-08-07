@@ -1,6 +1,6 @@
 package hsb.upgrade.machine;
 
-import hsb.core.addons.PluginIC2;
+import hsb.configuration.Settings;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.types.IHsbUpgrade;
@@ -9,8 +9,9 @@ public class UpgradeEnergyStorage extends UpgradeHsbMachine{
 
 	@Override
 	public void updateUpgrade(TileEntityHsbTerminal te) {
-		te.maxEnergyStorage += PluginIC2.UPGRADE_ENERGY_STORAGE * count;
-		
+		float storage = te.getMaxEnergy();
+		storage += Settings.UPGRADE_ENERGY_STORAGE * count;
+		te.setMaxStorage(storage);
 	}
 	@Override
 	public String getUniqueId() {
@@ -19,7 +20,6 @@ public class UpgradeEnergyStorage extends UpgradeHsbMachine{
 
 	@Override
 	public void addInformation(IHsbUpgrade upgrade) {
-		// TODO Auto-generated method stub
 		
 	}
 

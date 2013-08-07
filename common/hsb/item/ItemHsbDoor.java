@@ -1,6 +1,7 @@
 package hsb.item;
 
 import hsb.block.ModBlocks;
+import hsb.core.util.Utils;
 import hsb.creativetab.CreativeTabHsb;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
@@ -12,7 +13,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -48,7 +48,7 @@ public class ItemHsbDoor extends ItemDoor{
         	if(((TileEntityHsbBuilding)world.getBlockTileEntity(x, y, z)).locked)
         	{
         		if(world.isRemote)
-        			player.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_LOCKED));
+        			player.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_LOCKED)));
         		return true;
         	}
             ++y;

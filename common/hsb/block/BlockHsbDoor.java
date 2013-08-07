@@ -1,7 +1,9 @@
 package hsb.block;
 
+
+import hsb.ModHsb;
 import hsb.configuration.Settings;
-import hsb.core.helper.HsbLog;
+import hsb.core.util.Utils;
 import hsb.item.ModItems;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
@@ -16,13 +18,12 @@ import java.util.Random;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Icon;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
@@ -67,7 +68,7 @@ public class BlockHsbDoor extends BlockDoor {
 				{
 					((TileEntityDoorBase)te).onDoorBreak(world, x, y, z);
 				} else {
-					HsbLog.severe("Error during removal of Door Block, see BlockHsbDoor l. 69");
+					ModHsb.logger.severe("Error during removal of Door Block, see BlockHsbDoor l. 69");
 				}
 	        }
 		}
@@ -175,14 +176,14 @@ public class BlockHsbDoor extends BlockDoor {
 	    		{
 	    			this.toggleDoor(world, x, y, z, entityplayer);
 	    		} else {
-					entityplayer.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_NO_ENTRY_ALLOWED));
+					entityplayer.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_NO_ENTRY_ALLOWED)));
 					if(Settings.DEBUG)
 					{
-						entityplayer.sendChatToPlayer("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.username);
+						entityplayer.sendChatToPlayer(Utils.getChatMessage("Placer: " + ((TileEntityDoorBase)te).placer + " Player: " + entityplayer.username));
 					}
 	    		}
 			} else {
-				entityplayer.sendChatToPlayer(StatCollector.translateToLocal(Strings.CHAT_INVALID_DOOR));
+				entityplayer.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_INVALID_DOOR)));
 				this.dropBlockAsItem(world, x, y, z, l, 0);
 			}
 		}
@@ -201,7 +202,7 @@ public class BlockHsbDoor extends BlockDoor {
 	    			int tesla = terminal.getTesla();
 	    			if(tesla > 0)
 	    			{
-	    				player.sendChatToPlayer("Don't do that!");
+	    				player.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_TESLA)));
 	    				player.attackEntityFrom(DamageSource.magic, tesla);
 	    			}
 	    		}
@@ -218,7 +219,7 @@ public class BlockHsbDoor extends BlockDoor {
     }
 
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player, ItemStack stack) 
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack stack) 
     {
     	//lower door block
 		if(world.getBlockMetadata(x, y, z) < 8)
@@ -237,7 +238,7 @@ public class BlockHsbDoor extends BlockDoor {
 					((TileEntityDoorBase) te).placer = ((EntityPlayer)player).username;
 					((TileEntityDoorBase) te).setPort(port);
 				} else {
-					HsbLog.severe("Hsb: error when placing Door!");
+					ModHsb.logger.severe("Hsb: error when placing Door!");
 					this.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 				}
 			}

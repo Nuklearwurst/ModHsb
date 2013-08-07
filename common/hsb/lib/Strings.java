@@ -1,5 +1,7 @@
 package hsb.lib;
 
+import nwcore.core.handler.LocalizationHandler;
+
 public class Strings {
 	
 	// Block Names
@@ -45,6 +47,8 @@ public class Strings {
 	public static final String GUI_OPTIONS = "gui.options";
 	public static final String GUI_DONE = "gui.done";
 	public static final String GUI_MODE = "gui.mode";
+	public static final String GUI_ACTIVATE = "chat.activate";
+	public static final String GUI_DISABLE = "chat.disable";
 	
 	public static final String UPGRADE_GUI_BUTTON_TESLA = "upgrade.gui.button.tesla";
 	public static final String UPGRADE_GUI_BUTTON_CAMO = "upgrade.gui.button.camo";
@@ -68,5 +72,15 @@ public class Strings {
 	public static final String CHAT_NOTHING_HAPPENED = "chat.nothingHappened";
 	public static final String CHAT_INVALID_DOOR = "chat.invalidDoor";
 	public static final String CHAT_NO_ENTRY_ALLOWED = "chat.noEntryAllowed";
+	public static final String CHAT_TESLA = "chat.tesla";
+	public static final String CHAT_ACTIVATED = "chat.activated";
+	public static final String CHAT_DISABLED = "chat.disabled";
+	
+	
+	
+	
+	public static String translate(String s) {
+		return LocalizationHandler.getLocal(s);
+	}
 	
 }

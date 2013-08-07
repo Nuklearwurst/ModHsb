@@ -1,9 +1,8 @@
 package hsb.block;
 
 import hsb.ModHsb;
-import hsb.core.helper.MachineUtils;
-import hsb.core.helper.Utils;
-import hsb.core.proxy.ClientProxy;
+import hsb.core.util.MachineUtils;
+import hsb.core.util.Utils;
 import hsb.lib.GuiIds;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
@@ -13,7 +12,7 @@ import hsb.tileentity.TileEntityGuiAccess;
 import hsb.tileentity.TileEntityHsb;
 import hsb.tileentity.TileEntityHsbBuilding;
 import hsb.tileentity.TileEntityHsbTerminal;
-import ic2.api.IWrenchable;
+import ic2.api.tile.IWrenchable;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -69,7 +68,6 @@ public class BlockHsb extends BlockSimpleContainer{
 	/**
      * ejects contained items into the world, and notifies neighbours of an update, as appropriate
      */
-    //TODO drop inventory
     public void breakBlock(World world, int x, int y, int z, int par5, int par6)
     {
     	TileEntityHsb te = (TileEntityHsb) world.getBlockTileEntity(x, y, z);
@@ -86,14 +84,8 @@ public class BlockHsb extends BlockSimpleContainer{
         return false;
     }
 	
-	@Override
-    public int getRenderType()
-    {
-        return ClientProxy.HSBRENDERER_ID;
-    }
-	
     @Override
-    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLiving player, ItemStack stack) 
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase player, ItemStack stack) 
     {
     	TileEntity te = world.getBlockTileEntity(x, y, z);
         int metadata = world.getBlockMetadata(x, y, z);
@@ -125,7 +117,7 @@ public class BlockHsb extends BlockSimpleContainer{
 	    			int tesla = terminal.getTesla();
 	    			if(tesla > 0)
 	    			{
-	    				player.sendChatToPlayer("Don't do that!");
+	    				player.sendChatToPlayer(Utils.getChatMessage(Strings.translate(Strings.CHAT_TESLA)));
 	    				player.attackEntityFrom(DamageSource.magic, tesla);
 	    			}
 	    		}
@@ -216,7 +208,7 @@ public class BlockHsb extends BlockSimpleContainer{
 				return new TileEntityHsbTerminal();
 			case META_DOOR_BASE:
 				return new TileEntityHsbBuilding();
-			case META_GUI_ACCESS://TODO
+			case META_GUI_ACCESS:
 				return new TileEntityGuiAccess();
 			default:
 				return null;

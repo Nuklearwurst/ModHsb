@@ -1,13 +1,14 @@
 package hsb.item;
 
-import java.util.List;
-
 import hsb.lib.Strings;
 import hsb.lib.Textures;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.machine.UpgradeEnergyStorage;
 import hsb.upgrade.types.IMachineUpgradeItem;
 import hsb.upgrade.types.IUpgradeHsbMachine;
+
+import java.util.List;
+
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;

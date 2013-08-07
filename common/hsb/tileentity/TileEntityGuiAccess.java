@@ -1,13 +1,13 @@
 package hsb.tileentity;
 
-import hsb.network.NetworkManager;
-import ic2.api.IWrenchable;
+import ic2.api.tile.IWrenchable;
 
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import nwcore.network.NetworkManager;
 
 public class TileEntityGuiAccess extends TileEntityHsbBuilding
 	implements IWrenchable

@@ -8,7 +8,6 @@ public class UpgradeDummy extends UpgradeHsbTerminal{
 
 	@Override
 	public void updateUpgrade(TileEntityHsbTerminal te) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -19,7 +18,6 @@ public class UpgradeDummy extends UpgradeHsbTerminal{
 
 	@Override
 	public void addInformation(IHsbUpgrade upgrade) {
-		// TODO Auto-generated method stub
 		
 	}
 

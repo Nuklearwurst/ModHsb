@@ -1,6 +1,8 @@
 package hsb.inventory.slot;
 
-import hsb.core.helper.StackUtils;
+import ic2.api.item.IElectricItem;
+import hsb.core.plugin.PluginManager;
+import hsb.core.util.StackUtils;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -14,6 +16,10 @@ public class SlotCharge extends Slot{
 	@Override
     public boolean isItemValid(ItemStack stack)
     {
-        return StackUtils.isItemFuel(stack);
+		if(PluginManager.energyModInstalled_Item()) {
+			return stack.getItem() instanceof IElectricItem; //TODO implement other ElectricItem types
+		} else {
+			return StackUtils.isItemFuel(stack);
+		}
     }
 }

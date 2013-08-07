@@ -1,11 +1,11 @@
 package hsb.inventory;
 
-import hsb.core.helper.HsbLog;
-import hsb.core.helper.StackUtils;
+
+import hsb.ModHsb;
+import hsb.core.util.StackUtils;
 import hsb.inventory.slot.SlotCharge;
 import hsb.inventory.slot.SlotEnergyUpgrade;
 import hsb.tileentity.TileEntityHsbTerminal;
-import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.types.IMachineUpgradeItem;
 
 import java.util.ArrayList;
@@ -29,13 +29,13 @@ public class ContainerTerminal extends Container {
     private int lastEnergyStored = 0;
     private boolean lastLocked = false;
     private int lastMaxStorage = 0;
-    private List<String> lastList = null;
+    private List<Integer> lastButtons = null;
     
     public ContainerTerminal(TileEntityHsbTerminal te, EntityPlayer entityplayer)
     {
         if (te == null)
         {
-        	HsbLog.severe("ContainerLockTermninal te == null!! BUG!");
+        	ModHsb.logger.severe("ContainerLockTermninal te == null!! BUG!");
         }
 
         this.invPlayer = entityplayer.inventory;
@@ -68,14 +68,14 @@ public class ContainerTerminal extends Container {
         }
         
         //init list
-        lastList = new ArrayList<String>();
+//        lastList = new ArrayList<String>();
     }
     
     @Override
 	public void addCraftingToCrafters(ICrafting crafter)
     {
         super.addCraftingToCrafters(crafter);
-        crafter.sendProgressBarUpdate(this, 0, this.te.energyStored);
+        crafter.sendProgressBarUpdate(this, 0, (int)this.te.getEnergy());
         //convert boolean to int
     	int lockInt;
     	if(this.te.locked)
@@ -85,8 +85,14 @@ public class ContainerTerminal extends Container {
     		lockInt = 0;
     	}
         crafter.sendProgressBarUpdate(this, 1, lockInt);
-        crafter.sendProgressBarUpdate(this, 2, this.te.maxEnergyStorage);
-        sendButtonListUpdate(crafter);
+        crafter.sendProgressBarUpdate(this, 2, (int)this.te.getMaxEnergy());
+        if(te.buttons != null) {
+	        for(int i = 0; i < te.buttons.size(); i++) {
+	        	crafter.sendProgressBarUpdate(this, 3 + i, te.buttons.get(i));
+	        	ModHsb.logger.debug("adding crafter to crafters, sending buttons: " + te.buttons.get(i));
+	        }
+        }
+        
     }
 
     @Override
@@ -108,9 +114,9 @@ public class ContainerTerminal extends Container {
         {
             ICrafting crafter = (ICrafting)iterator.next();
 
-            if (this.lastEnergyStored != this.te.energyStored)
+            if(this.lastEnergyStored != (int)this.te.getEnergy())
             {
-                crafter.sendProgressBarUpdate(this, 0, this.te.energyStored);
+                crafter.sendProgressBarUpdate(this, 0, (int)this.te.getEnergy());
             }
             if (this.lastLocked != this.te.locked)
             {
@@ -123,57 +129,74 @@ public class ContainerTerminal extends Container {
             	}
             	crafter.sendProgressBarUpdate(this, 1, lockInt);
             }
-            if (this.lastMaxStorage != this.te.maxEnergyStorage)
+            if (this.lastMaxStorage != (int)this.te.getMaxEnergy())
             {
-            	crafter.sendProgressBarUpdate(this, 2, this.te.maxEnergyStorage);
+            	crafter.sendProgressBarUpdate(this, 2, (int)this.te.getMaxEnergy());
             }
             /* 3 - 12*/
-            if(!this.lastList.equals( this.te.buttons))
-            {
-            	this.sendButtonListUpdate(crafter);
+//            if(!this.lastList.equals( this.te.buttons))
+            if(!(lastButtons == te.buttons) && (te.buttons != null)) {
+            	if(!te.buttons.equals(lastButtons)) {
+            		ModHsb.logger.debug("sending button update!");
+            		if(lastButtons == null) {
+    	            	for(int i = 0; i < te.buttons.size(); i++ ) { 
+    	            		crafter.sendProgressBarUpdate(this, i + 3, te.buttons.get(i));
+    	            	}
+            		} else {
+	            		//sync new data
+		            	for(int i = 0; i < te.buttons.size(); i++ ) { 
+		            		if(i >= lastButtons.size()) {
+		            			crafter.sendProgressBarUpdate(this, i + 3, te.buttons.get(i));
+		            		}
+		            		if(lastButtons.get(i) != te.buttons.get(i)) {
+		            			crafter.sendProgressBarUpdate(this, i + 3, te.buttons.get(i));
+		            		}
+		            	}
+		            	//remove old data
+		            	if(lastButtons.size() > te.buttons.size()) {
+		            		crafter.sendProgressBarUpdate(this, te.buttons.size(), -1);
+		            	}
+            		}
+            	}
             }
         }
         
-        this.lastEnergyStored = this.te.energyStored;
+        this.lastEnergyStored = (int)this.te.getEnergy();
         this.lastLocked = this.te.locked;
-        this.lastMaxStorage = this.te.maxEnergyStorage;
-        this.lastList = this.te.buttons;
+        this.lastMaxStorage = (int)this.te.getMaxEnergy();
+        this.lastButtons = this.te.buttons;
     }
     
-    /**
-     * sends progressbar update, updating all buttons, id 3 - 12
-     * @param crafter
-     */
-    private void sendButtonListUpdate(ICrafting crafter)
-    {
-    	List<String> buttons = te.buttons;
-    	int i = 0;
-    	for(String name : buttons)
-    	{
-    		int value = UpgradeRegistry.buttonNames.indexOf(name);
-    		if(value == -1)
-    		{
-    			HsbLog.severe("button name not found: " + name);
-    		} else {
-	    		crafter.sendProgressBarUpdate(this, 3 + i, value);
-    		}
-    		i++;
-    	}
-    	if(i == 0)
-    	{
-    		crafter.sendProgressBarUpdate(this, 3, -1);
-    	}
-    }
-
-    @Override
-	public void onCraftGuiClosed(EntityPlayer player)
-    {
-    	super.onCraftGuiClosed(player);
-    }
+//    /**
+//     * sends progressbar update, updating all buttons, id 3 - 12
+//     * @param crafter
+//     */
+//    private void sendButtonListUpdate(ICrafting crafter)
+//    {
+//    	if(last)
+////    	List<String> buttons = te.buttons;
+//    	int i = 0;
+//    	for(String name : buttons)
+//    	{
+//    		int value = UpgradeRegistry.buttonNames.indexOf(name);
+//    		if(value == -1)
+//    		{
+//    			ModHsb.logger.severe("button name not found: " + name);
+//    		} else {
+//	    		crafter.sendProgressBarUpdate(this, 3 + i, value);
+//    		}
+//    		i++;
+//    	}
+//    	if(i == 0)
+//    	{
+//    		crafter.sendProgressBarUpdate(this, 3, -1);
+//    	}
+//    }
 
     @Override
     /**
      * returns stack left in the slot?
+     * TODO finish for ic2 upgrades
      */
     public ItemStack transferStackInSlot(EntityPlayer player, int id)
     {
@@ -240,7 +263,7 @@ public class ContainerTerminal extends Container {
     {
     	if (id == 0)
         {
-            this.te.energyStored = value;
+    		this.te.setEnergy(value);
         }
         if (id == 1)
         {
@@ -254,29 +277,35 @@ public class ContainerTerminal extends Container {
         }
         if(id == 2) 
         {
-        	this.te.maxEnergyStorage = value;
+        	this.te.setMaxStorage(value);
         }
         if(id >= 3 && id < 13)
         {
-        	
+        	ModHsb.logger.debug("received button update: " + id);
         	if(te.buttons == null) //init list
         	{
-        		te.buttons = new ArrayList<String>();        		
+        		te.buttons = new ArrayList<Integer>();     		
         	}
         	
         	if(value == -1) // empty list --> no buttons
     		{
-    			te.buttons = new ArrayList<String>();
+    			if(te.buttons.size() > id) {
+    				List<Integer> oldButtons = te.buttons;
+    				te.buttons = new ArrayList<Integer>();
+    				for(int i = 0; i < (id-2); i++) {
+    					te.buttons.set(i, oldButtons.get(i));
+    				}
+    			}
     			return;
     		}
-        	
-    		for(int i = te.buttons.size(); i <= id - 3; i++)//workaround for possible index out of bounds exception
-    		{
-    			te.buttons.add("");
-    		}
-    		
-			te.buttons.set(id - 3, UpgradeRegistry.buttonNames.get(value));
-    		HsbLog.debug("updated buttons: " + te.buttons);
+        	if(te.buttons.size() <= id -3) {
+				//fill up to avoid index out of bounds
+				for(int i = te.buttons.size(); i < (id - 2); i++) {
+					te.buttons.add(-1);
+				}
+        	}
+			//new data
+			te.buttons.set(id -3, value);
         }
     }
 

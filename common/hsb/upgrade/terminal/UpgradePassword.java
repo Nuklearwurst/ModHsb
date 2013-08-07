@@ -1,7 +1,7 @@
 package hsb.upgrade.terminal;
 
+import hsb.ModHsb;
 import hsb.configuration.Settings;
-import hsb.core.helper.HsbLog;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.types.IHsbUpgrade;
@@ -11,7 +11,7 @@ public class UpgradePassword extends UpgradeHsbTerminal{
 	@Override
 	public void updateUpgrade(TileEntityHsbTerminal te) {
 		te.passLength = Settings.defaultPassLength + this.count;
-		HsbLog.debug("setting passlength: " + te.passLength );
+		ModHsb.logger.debug("setting passlength: " + te.passLength );
 		
 	}
 

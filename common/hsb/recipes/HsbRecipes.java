@@ -1,11 +1,11 @@
 package hsb.recipes;
 
+import hsb.ModHsb;
 import hsb.block.BlockHsb;
 import hsb.block.BlockMachine;
 import hsb.block.ModBlocks;
 import hsb.configuration.Settings;
-import hsb.core.addons.PluginIC2;
-import hsb.core.helper.HsbLog;
+import hsb.core.plugin.ic2.PluginIC2;
 import hsb.item.ItemUpgradeHsb;
 import hsb.item.ModItems;
 import net.minecraft.block.Block;
@@ -65,7 +65,7 @@ public class HsbRecipes {
 		////////////////////////////////
 		// init ic2 dependent recipes //
 		////////////////////////////////
-		if(Settings.ic2Available)
+		if(Settings.usePluginIC2)
 			initIC2Recipes();
 		else 
 			initVanillaRecipes();		
@@ -89,7 +89,7 @@ public class HsbRecipes {
 				{ 
 					"grg", "rir","grg" ,
 					Character.valueOf('r'), new ItemStack(Item.redstone , 1, 0),
-					Character.valueOf('g'), new ItemStack(Item.lightStoneDust, 1, 0),
+					Character.valueOf('g'), new ItemStack(Item.glowstone, 1, 0),
 					Character.valueOf('i'), new ItemStack(Block.blockIron, 1, 0)	
 				});
 		//unlocker
@@ -107,9 +107,9 @@ public class HsbRecipes {
 	 * inits IC2 Recipes, needs to provide a recipe for all recipes added in initVanillaRecipes
 	 */
 	private static void initIC2Recipes() {
-		if(!PluginIC2.getInstance().isAvailable())
+		if(!Settings.usePluginIC2)
 		{
-			HsbLog.severe("Error: IC2 recipes could not be loaded!");
+			ModHsb.logger.severe("Error: IC2 recipes could not be loaded!");
 			return;
 		}
 		//Hsb Terminal

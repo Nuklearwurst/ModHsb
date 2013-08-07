@@ -1,6 +1,7 @@
 package hsb.item;
 
-import hsb.core.helper.HsbLog;
+
+import hsb.ModHsb;
 import hsb.creativetab.CreativeTabHsb;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
@@ -149,7 +150,7 @@ public class ItemUpgradeHsb extends ItemSimple
 			{
 				((TileEntityHsbTerminal)te).addToInventory(itemstack, 1);
 				//TODO sound
-				HsbLog.debug("Upgrade installed!");
+				ModHsb.logger.debug("Upgrade installed!");
 //				itemstack.stackSize--;
 			}
 			return true;
@@ -170,6 +171,7 @@ public class ItemUpgradeHsb extends ItemSimple
     	{
     		ItemUpgradeHsb.texture[i++] = reg.registerIcon(s);
     	}
+    	UpgradeRegistry.initUpgradeIcons(reg);
     }
 
 

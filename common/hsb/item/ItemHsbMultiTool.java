@@ -3,15 +3,14 @@ package hsb.item;
 import hsb.ModHsb;
 import hsb.block.ModBlocks;
 import hsb.configuration.Settings;
-import hsb.core.addons.PluginIC2;
-import hsb.core.helper.HsbLog;
-import hsb.core.helper.Utils;
+import hsb.core.plugin.ic2.PluginIC2;
+import hsb.core.util.Utils;
 import hsb.creativetab.CreativeTabHsb;
 import hsb.lib.GuiIds;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
 import hsb.tileentity.TileEntityHsb;
-import ic2.api.IElectricItem;
+import ic2.api.item.IElectricItem;
 
 import java.util.List;
 
@@ -191,7 +190,6 @@ public class ItemHsbMultiTool extends ItemSimple
 		    		{
 		    			return true;
 		    		}
-		    		HsbLog.debug("Removing Block at: " + x + ", " + y + ", " + z);
 		    		//removing block
 		    		if(world.setBlock(x, y, z, 0, 0, 0) && !entityplayer.capabilities.isCreativeMode)
 		    			ModBlocks.blockHsb.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
@@ -305,7 +303,7 @@ public class ItemHsbMultiTool extends ItemSimple
     {
     	if(!player.capabilities.isCreativeMode)
     	{
-    		if(Settings.ic2Available)
+    		if(Settings.usePluginIC2)
     		{
 	    		if(PluginIC2.discharge(stack, Settings.energyUse_multiTool, getTier(stack), true, true) >= 0)
 	    		{
@@ -322,7 +320,6 @@ public class ItemHsbMultiTool extends ItemSimple
     	}
 		if (!world.setBlock(x, y, z, ModBlocks.blockHsb.blockID, 0, 0))
 		{
-			   HsbLog.debug("placing failed!");
 		       return false;
 		}
 		

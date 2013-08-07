@@ -6,10 +6,8 @@ import hsb.client.gui.GuiHsbTerminal;
 import hsb.client.gui.GuiHsbTerminalOptions;
 import hsb.client.gui.GuiMultiTool;
 import hsb.client.gui.GuiUnlocker;
-import hsb.configuration.Settings;
 import hsb.inventory.ContainerCamoUpgrade;
 import hsb.inventory.ContainerTerminal;
-import hsb.inventory.ContainerTerminalIC2;
 import hsb.inventory.ContainerTerminalOptions;
 import hsb.inventory.ContainerUnlocker;
 import hsb.lib.GuiIds;
@@ -59,11 +57,7 @@ public class GuiHandler
 		case GuiIds.GUI_BLOCKBUILDING:
 			return null;
 		case GuiIds.GUI_LOCKTERMINAL:
-			if(Settings.ic2Available) {
-				return new ContainerTerminalIC2((TileEntityHsbTerminal) te, player);
-			} else {
-				return new ContainerTerminal((TileEntityHsbTerminal) te, player);
-			}
+			return new ContainerTerminal((TileEntityHsbTerminal) te, player);
 		case GuiIds.GUI_LOCKTERMINAL_OPTIONS:
 			return new ContainerTerminalOptions((TileEntityHsbTerminal) te, player);
 		case GuiIds.GUI_MULTI_TOOL:

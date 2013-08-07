@@ -4,17 +4,13 @@ package hsb;
 
 import hsb.block.ModBlocks;
 import hsb.configuration.Config;
-import hsb.core.addons.PluginBC;
-import hsb.core.addons.PluginIC2;
-import hsb.core.addons.PluginUE;
+import hsb.configuration.Settings;
 import hsb.core.handlers.GuiHandler;
-import hsb.core.handlers.LocalizationHandler;
-import hsb.core.helper.HsbLog;
+import hsb.core.plugin.PluginManager;
 import hsb.core.proxy.CommonProxy;
 import hsb.item.ModItems;
 import hsb.lib.Reference;
 import hsb.lib.Strings;
-import hsb.network.NetworkManager;
 import hsb.network.PacketHandler;
 import hsb.recipes.HsbRecipes;
 import hsb.tileentity.TileEntityDoorBase;
@@ -23,12 +19,11 @@ import hsb.tileentity.TileEntityHsbBuilding;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.tileentity.TileEntityUnlocker;
 import hsb.upgrade.UpgradeRegistry;
+import nwcore.core.handler.LocalizationHandler;
+import nwcore.core.helper.NwLog;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.FingerprintWarning;
-import cpw.mods.fml.common.Mod.Init;
+import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.Mod.PostInit;
-import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLFingerprintViolationEvent;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -60,26 +55,23 @@ public class ModHsb{
 	@Instance(Reference.MOD_ID)
 	public static ModHsb instance;
 	
+	public static NwLog logger;
+	
 	@SidedProxy(clientSide = Reference.CLIENT_PROXY_CLASS, serverSide = Reference.SERVER_PROXY_CLASS) //TODO Bukkit
 	public static CommonProxy proxy;
 	
-	@SidedProxy(clientSide = Reference.CLIENT_NETWORK_CLASS, serverSide = Reference.SERVER_NETWORK__CLASS) //TODO Bukkit
-	public static NetworkManager network_manager;
+	//moved
+//	@SidedProxy(clientSide = Reference.CLIENT_NETWORK_CLASS, serverSide = Reference.SERVER_NETWORK__CLASS) //TODO Bukkit
+//	public static NetworkManager network_manager;
 	
-    @FingerprintWarning
+    @EventHandler
     public void invalidFingerprint(FMLFingerprintViolationEvent event) {
     	//TODO fingerprint
         //HsbLog.severe(Strings.INVALID_FINGERPRINT_MESSAGE);
     }
 	
-	@PreInit
+    @EventHandler
 	void preInit(FMLPreInitializationEvent evt) {
-		
-		//init Logger
-		HsbLog.init();
-		
-		//Localization
-		LocalizationHandler.loadLanguages();
 		
 		//key bindings
 		//nothing yet
@@ -90,13 +82,22 @@ public class ModHsb{
 		//read Config
 		Config.readConfig(evt);
 		
+		//init Logger
+    	logger = new NwLog(Reference.MOD_ID, Settings.DEBUG);
+    	//moved
+//		HsbLog.init();
+    	
+		//Localization
+		LocalizationHandler.loadLanguages(Reference.localeFiles);
+		//TODO load custom language files from config
+		
 		//registerBlocks
 		ModBlocks.init();
 		//register Items
 		ModItems.init();
 	}
 	
-	@Init
+    @EventHandler
 	void init(FMLInitializationEvent evt) {
 		
 		//register guihandler
@@ -120,22 +121,19 @@ public class ModHsb{
 		proxy.initSpecialRenderer();
 		
 		//check for Plugins
-		new PluginIC2().initPlugin();
-		new PluginBC().initPlugin(); //unused
-		new PluginUE().initPlugin(); //unused
+		PluginManager.initPlugins();
 		
 		//init Recipes
 		HsbRecipes.initRecipes();
-
 		
 		//register upgrades
 		UpgradeRegistry.initUpgrades();
 	}
 	
-	@PostInit
+    @EventHandler
 	void postInit(FMLPostInitializationEvent evt) {
 		
-		HsbLog.info("Hsb Version: "+ Reference.VERSION_NUMBER + " loaded.");
+		logger.info("Hsb Version: "+ Reference.VERSION_NUMBER + " loaded.");
 	}
 
 	

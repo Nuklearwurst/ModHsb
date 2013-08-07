@@ -3,7 +3,6 @@ package hsb.client.gui;
 import hsb.configuration.Settings;
 import hsb.lib.Strings;
 import hsb.lib.Textures;
-import hsb.network.NetworkManager;
 import hsb.network.packet.PacketPasswordUpdate;
 import hsb.tileentity.TileEntityHsbTerminal;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -14,6 +13,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.StatCollector;
+import nwcore.network.NetworkManager;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -83,7 +83,7 @@ public class GuiHsbTerminalOptions extends GuiContainer
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(Textures.GUI_TERMINAL_OPTIONS);
+        mc.func_110434_K().func_110577_a(Textures.GUI_TERMINAL_OPTIONS);
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
 	}
     
@@ -167,14 +167,12 @@ public class GuiHsbTerminalOptions extends GuiContainer
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
-//        te.setPass(textField.getText());
         
     	String text = this.textField.getText();
     	if(text.length() > te.passLength)
     	{
     		this.textField.setMaxStringLength(te.passLength);
     	}
-        //TODO update data
     	PacketPasswordUpdate packet = new PacketPasswordUpdate(te, textField.getText());
     	((EntityClientPlayerMP)entityplayer).sendQueue.addToSendQueue(packet.getPacket());  
         super.onGuiClosed();

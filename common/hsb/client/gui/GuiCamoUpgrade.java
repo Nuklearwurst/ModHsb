@@ -1,10 +1,9 @@
 package hsb.client.gui;
 
 import hsb.ModHsb;
-import hsb.core.helper.HsbLog;
 import hsb.lib.GuiIds;
+import hsb.lib.Strings;
 import hsb.lib.Textures;
-import hsb.network.NetworkManager;
 import hsb.tileentity.TileEntityHsbTerminal;
 import hsb.upgrade.UpgradeRegistry;
 import hsb.upgrade.terminal.UpgradeCamoflage;
@@ -13,18 +12,16 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
+import nwcore.network.NetworkManager;
 
 import org.lwjgl.opengl.GL11;
 
 public class GuiCamoUpgrade extends GuiContainer
 {
-    protected String name = "HSB Lock Options";
     private int xPos;
     private int yPos;
     TileEntityHsbTerminal te;
     private boolean active;
-//    private UpgradeCamoflage upgrade;
-    //TODO ability to sync inventory and upgrades
 
     public GuiCamoUpgrade(TileEntityHsbTerminal te, Container container, EntityPlayer entityplayer)
     {
@@ -35,10 +32,9 @@ public class GuiCamoUpgrade extends GuiContainer
         UpgradeCamoflage upgrade = (UpgradeCamoflage) te.getUpgrade(UpgradeRegistry.ID_UPGRADE_CAMO);
         if(upgrade != null)
         {
-//        	this.upgrade = upgrade;
         	active = upgrade.active;
         } else {
-            HsbLog.severe("UpgradeNotFound!!");
+            ModHsb.logger.severe("UpgradeNotFound!!");
             entityplayer.openGui(ModHsb.instance, GuiIds.GUI_LOCKTERMINAL, te.worldObj, te.xCoord, te.yCoord, te.zCoord);
         }
     }
@@ -71,7 +67,7 @@ public class GuiCamoUpgrade extends GuiContainer
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.renderEngine.bindTexture(Textures.GUI_LOCATION + "GuiUpgradeCamo.png");
+        mc.func_110434_K().func_110577_a(Textures.GUI_UPGRADE_CAMO);
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
 		
 	}
@@ -80,6 +76,7 @@ public class GuiCamoUpgrade extends GuiContainer
 	public void drawScreen(int par1, int par2, float par3)
     {
     	super.drawScreen(par1, par2, par3);
+    	((GuiButton)buttonList.get(0)).displayString = Strings.translate( active ? Strings.GUI_ACTIVATE : Strings.GUI_DISABLE);
     }
     protected void drawStringBorder(int x1, int y1, int x2)
     {
@@ -95,9 +92,9 @@ public class GuiCamoUpgrade extends GuiContainer
         yPos = height / 2 - ySize / 2;
         this.buttonList.clear();
         
-        this.buttonList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, active ? "Deactivate" : "Activate"));//TODO button text
+        this.buttonList.add(new GuiButton(1, xPos + 70, yPos + 20, 60, 20, Strings.translate( active ? Strings.GUI_ACTIVATE : Strings.GUI_DISABLE)));
         
-        this.buttonList.add(new GuiButton(2, xPos + xSize / 2 - 20, yPos + 115, 40, 20, "back"));       
+        this.buttonList.add(new GuiButton(2, xPos + xSize / 2 - 20, yPos + 115, 40, 20, Strings.translate(Strings.GUI_BACK)));       
         this.buttonList.add(new GuiButton(0, xPos - 22, yPos- -4, 20, 20, "X"));
 
     }

@@ -1,15 +1,20 @@
 package hsb.lib;
 
-public class Textures {
+import net.minecraft.util.ResourceLocation;
 
-	public static final String GUI_LOCATION = "/mods/" + Reference.MOD_ID.toLowerCase() + "/textures/gui/";
-	
-	public static final String GUI_TERMINAL_OPTIONS = GUI_LOCATION + "GuiLockTerminalOptions.png";
-	public static final String GUI_TERMINAL = GUI_LOCATION + "GuiLockTerminal.png";
-	public static final String GUI_MULTI_TOOL = GUI_LOCATION + "GuiBlockPlacer.png";
-	public static final String GUI_UNLOCKER = GUI_LOCATION + "GuiUnlocker.png";
+public class Textures {
 	
 	public static final String texFolder = Reference.MOD_ID.toLowerCase() + ":";
+	
+	public static final String GUI_LOCATION = "textures/gui/";
+	public static final String ITEM_LOCATION = "textures/items/";
+	
+	public static final ResourceLocation GUI_TERMINAL_OPTIONS = getResourceLocation(GUI_LOCATION + "GuiLockTerminalOptions.png");
+	public static final ResourceLocation GUI_TERMINAL = getResourceLocation(GUI_LOCATION + "GuiLockTerminal.png");
+	public static final ResourceLocation GUI_MULTI_TOOL = getResourceLocation(GUI_LOCATION + "GuiBlockPlacer.png");
+	public static final ResourceLocation GUI_UNLOCKER = getResourceLocation(GUI_LOCATION + "GuiUnlocker.png");
+	public static final ResourceLocation GUI_UPGRADE_CAMO = getResourceLocation(GUI_LOCATION + "GuiUpgradeCamo.png");
+	
 
 	//Items
 	public static final String ITEM_LOCK_MONITOR = texFolder + "LockMonitor";
@@ -26,7 +31,6 @@ public class Textures {
 														texFolder + "UpgradeCamoflage", 
 														texFolder + "UpgradeEmpty", 
 														texFolder + "UpgradeEmpty"};
-
 	//Blocks
 	//no better solution yet
 	public static final int[][] sideAndFacingToSpriteOffset = { { 3, 2, 0, 0, 0, 0 }, { 2, 3, 1, 1, 1, 1 }, { 1, 1, 3, 2, 5, 4 }, { 0, 0, 2, 3, 4, 5 }, { 4, 5, 4, 5, 3, 2 }, { 5, 4, 5, 4, 2, 3 } };
@@ -52,5 +56,8 @@ public class Textures {
 
 
 
+	public static ResourceLocation getResourceLocation(String path) {
+		return new ResourceLocation(Reference.MOD_ID.toLowerCase(), path);
+	}
 
 }

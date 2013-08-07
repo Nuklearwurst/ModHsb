@@ -1,10 +1,12 @@
 package hsb.tileentity;
 
-import hsb.core.helper.HsbLog;
+
 import hsb.lock.ILockTerminal;
-import hsb.network.NetworkManager;
 
 import java.util.List;
+
+import nwcore.network.NetworkManager;
+
 
 
 public class TileEntityHsbBuilding extends TileEntityHsb{
@@ -28,7 +30,7 @@ public class TileEntityHsbBuilding extends TileEntityHsb{
 	public void onNetworkUpdate(String field) {
 		 if (field.equals("camoId") && prevCamoId != camoId)
 	     {
-			 HsbLog.debug("camoId updated!");
+//			 ModHsb.logger.debug("camoId updated!");
 	         worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	         prevCamoId = camoId;
 	     }
@@ -48,8 +50,9 @@ public class TileEntityHsbBuilding extends TileEntityHsb{
 			
 			if(this.locked && te != null)
 			{
-				HsbLog.debug("camo: " + this.camoId + "||" + te.getCamoBlockId());
-				if(camoId != te.getCamoBlockId() || camoMeta != te.getCamoMeta()) {HsbLog.debug("success receive signal!");
+//				ModHsb.logger.debug("camo: " + this.camoId + "||" + te.getCamoBlockId());
+				if(camoId != te.getCamoBlockId() || camoMeta != te.getCamoMeta()) {
+//					ModHsb.logger.debug("success receive signal!");
 					this.camoId = te.getCamoBlockId();
 					this.camoMeta = te.getCamoMeta();
 					NetworkManager.getInstance().updateTileEntityField(this, "camoId");

@@ -1,6 +1,6 @@
 package hsb.lock;
 
-import hsb.core.helper.HsbLog;
+import hsb.ModHsb;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Facing;
 
@@ -27,7 +27,7 @@ public class LockManager {
 				continue;
 			}
 			if(sender == null) {
-				HsbLog.severe("BUG, sender cannot be null (transferSignal, LockManager)");
+				ModHsb.logger.severe("BUG, sender cannot be null (transferSignal, LockManager)");
 				return false;
 			}
 			//get TileEntity on the current side
