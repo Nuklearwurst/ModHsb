@@ -249,7 +249,7 @@ public class GuiHsbTerminal extends GuiContainer
 			if(buttonNumber > 5) {
 				space1 = (buttonWitdh - row1) / 4; //space between buttons row1
 				space2 = (buttonWitdh - row2) / (buttonNumber - 5 - 1); //space between buttons row 2
-			} else {
+			} else if(buttonNumber > 1) {
 				space1 = (int) ((buttonWitdh - row1) / (buttonNumber - 1));
 				row2 = space2 = 0;
 			}

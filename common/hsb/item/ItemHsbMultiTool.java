@@ -28,6 +28,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class ItemHsbMultiTool extends ItemSimple
 	implements IElectricItem
 {
+	//TODO use addSubItems to add all modes to creative (charge and discharged)
+	//TODO implement special ElectricItem
 
 	public ItemHsbMultiTool(int id) {
         super(id);

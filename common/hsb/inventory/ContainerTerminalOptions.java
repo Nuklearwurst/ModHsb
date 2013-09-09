@@ -97,6 +97,7 @@ public class ContainerTerminalOptions extends Container {
             {
             	crafter.sendProgressBarUpdate(this, 1, te.passLength);
             }
+            
         }
         this.lastPort = te.getPort();
         this.lastPassLength = te.passLength;

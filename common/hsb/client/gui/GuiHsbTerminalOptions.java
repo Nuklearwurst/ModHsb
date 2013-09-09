@@ -201,6 +201,10 @@ public class GuiHsbTerminalOptions extends GuiContainer
     public void updateScreen()
     {
     	super.updateScreen();
+    	if(te.isLocked()) {
+            this.mc.displayGuiScreen((GuiScreen)null);
+            this.mc.setIngameFocus();
+    	}
         this.textField.updateCursorCounter();
         if(te.passLength > lastPassLength)
         {

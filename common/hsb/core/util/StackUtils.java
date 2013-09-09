@@ -5,6 +5,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public class StackUtils {
@@ -44,5 +45,12 @@ public class StackUtils {
 			return 150;
 		}
 		return GameRegistry.getFuelValue(is) * 3 / 2;
+	}
+	
+	public static NBTTagCompound getOrCreateNBTTagCompound(ItemStack item) {
+		if(!item.hasTagCompound()) {
+			item.setTagCompound(new NBTTagCompound());
+		}
+		return item.getTagCompound();
 	}
 }

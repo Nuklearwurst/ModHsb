@@ -9,9 +9,7 @@ public class UpgradeEnergyStorage extends UpgradeHsbMachine{
 
 	@Override
 	public void updateUpgrade(TileEntityHsbTerminal te) {
-		float storage = te.getMaxEnergy();
-		storage += Settings.UPGRADE_ENERGY_STORAGE * count;
-		te.setMaxStorage(storage);
+		te.increaseMaxStorage(Settings.UPGRADE_ENERGY_STORAGE * count);
 	}
 	@Override
 	public String getUniqueId() {

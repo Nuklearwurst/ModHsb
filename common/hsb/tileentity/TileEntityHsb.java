@@ -42,6 +42,10 @@ public abstract class TileEntityHsb extends TileEntitySimple
 	public boolean connectsTo(int side) {
 		return true;
 	}
+	@Override
+	public float getEnergyUsageForBlock() {
+		return Settings.terminalEnergyUse;
+	}
 	
 	@Override
 	public ILockTerminal getConnectedTerminal() {

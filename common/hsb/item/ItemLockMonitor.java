@@ -1,7 +1,7 @@
 package hsb.item;
 
 import hsb.configuration.Settings;
-import hsb.core.plugin.ic2.HsbElectricItemManager;
+import hsb.core.plugin.ic2.IC2ElectricItemManager;
 import hsb.core.plugin.ic2.PluginIC2;
 import hsb.core.util.Utils;
 import hsb.creativetab.CreativeTabHsb;
@@ -135,7 +135,7 @@ public class ItemLockMonitor extends ItemSimple
 
 	@Override
 	public IElectricItemManager getManager(ItemStack itemStack) {
-		return new HsbElectricItemManager();
+		return new IC2ElectricItemManager();
 	}
 
 }

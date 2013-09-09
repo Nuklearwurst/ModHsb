@@ -55,6 +55,9 @@ public class TileEntityUnlocker extends TileEntitySimple
 	public int burnTime = 0;
 	private int maxBurnTime = 1;
 	
+	private float energyStored = 0;
+	private float maxEnergyStored = Settings.unlockerEnergyStorage;
+	
 	
 	public int progress = 0;
 	
@@ -66,13 +69,11 @@ public class TileEntityUnlocker extends TileEntitySimple
 	
 	private static final int  TIER = 2;
 	
+	@Deprecated
 	private PowerHandler power;
 	
 	public TileEntityUnlocker() {
-		super();
-		power = new PowerHandler(this, PowerHandler.Type.MACHINE);
-		resetPowerSettings();
-		
+		super();		
 	}
 	
 	
@@ -114,7 +115,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 
 	public int getEnergyScaled(int length) {
 		float x = (this.getEnergy() * length
-				/ (Settings.unlockerEnergyStorage));
+				/ maxEnergyStored);
 		if(x > length)
 			x = length;
 		return (int) x;
@@ -167,7 +168,12 @@ public class TileEntityUnlocker extends TileEntitySimple
             NBTTagCompound nbttag = (NBTTagCompound)nbtlist.tagAt(i);
             this.inv = ItemStack.loadItemStackFromNBT(nbttag);
         }
-        power.readFromNBT(tag);
+        
+        getBCPowerHandler().readFromNBT(tag);
+        
+        energyStored = tag.getFloat("energyStored");
+        maxEnergyStored = tag.getFloat("maxEnergyStored");
+        
         if(!PluginManager.energyModInstalled_Item()) {
         	if(tag.hasKey("burnTime")) {
 	        burnTime = tag.getInteger("burnTime");
@@ -199,7 +205,10 @@ public class TileEntityUnlocker extends TileEntitySimple
         }
         tag.setTag("Items", nbtlist);
         
-        power.writeToNBT(tag);
+        getBCPowerHandler().writeToNBT(tag);
+        
+        tag.setFloat("energyStored", energyStored);
+        tag.setFloat("maxEnergyStored", maxEnergyStored);
         
         if(!PluginManager.energyModInstalled_Item()) {
 	        tag.setInteger("maxBurnTime", maxBurnTime);
@@ -240,6 +249,16 @@ public class TileEntityUnlocker extends TileEntitySimple
 	
 	@Override
 	public void updateEntity() {
+		
+		//BC3
+		{
+			getBCPowerHandler().update();
+			float need = needsEnergy();
+			if(need > 0) {
+				float used = getBCPowerHandler().useEnergy(1.0F, Math.min(need, getBCPowerHandler().getMaxEnergyStored()), true);
+				this.addEnergy(ForgeDirection.UNKNOWN, used, true);
+			}
+		}
 		//Init IC2
 		if (!worldObj.isRemote) {
 			//add to EnergyNet
@@ -249,7 +268,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 			}
 		}
 		if(PluginManager.energyModInstalled_Item()) {
-			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dichargeItem(inv, spaceForEnergy(), TIER, false, false), true);
+			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dichargeItem(inv, needsEnergy(), TIER, false, false), true);
 		} else {
 			//no energy mod
 			if( burnTime <= 0) {
@@ -270,7 +289,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 		{
 			if(getEnergy() > getEnergyUse()) {
 				progress++;
-				useEnergy(Settings.unlockerEnergyUse, (float) getEnergyUse(), true);
+				useEnergy(getEnergyUse(), true);
 				if(progress > ticksToUnlock) {
 					progress = 0;
 					unlock();
@@ -460,25 +479,25 @@ public class TileEntityUnlocker extends TileEntitySimple
 	 * @param f
 	 */
 	public void setEnergy(float f) {
-		power.setEnergy(f);
+		energyStored = f;
 	}
 	/**
 	 * get energy (MJ) stored
 	 */
 	public float getEnergy() {
-		return power.getEnergyStored();
+		return energyStored;
 	}
 	/**
 	 * how much energy is needed?
 	 * @return
 	 */
-	public float spaceForEnergy() {
-		return (power.getMaxEnergyStored() - power.getEnergyStored());
+	public float needsEnergy() {
+		return maxEnergyStored - energyStored;
 	}
 	/**
 	 * how much energy (MJ) is probably going to be used (inaccurate)
 	 */
-	public double getEnergyUse() {
+	public float getEnergyUse() {
 		//TODO
 		return Settings.unlockerEnergyUse;
 	}
@@ -488,7 +507,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 	 * @return
 	 */
 	public float getMaxEnergy() {
-		return power.getMaxEnergyStored();
+		return maxEnergyStored;
 	}
 	
 	/**
@@ -502,66 +521,92 @@ public class TileEntityUnlocker extends TileEntitySimple
 		if(!canConnect(dir) || amount == 0) {
 			return 0;
 		}
-		return EnergyHelper.addEnergy(power, amount, addEnergy);
+		return EnergyHelper.addEnergy(energyStored, maxEnergyStored, amount);
 	}
 	
-	public void setMaxStorage(float s) {
-		float maxInput = power.getMaxEnergyReceived();
-		power.configure(0, maxInput, 0, s);
-	}
-	public void setMaxInput(float i) {
-		float maxStorage = power.getMaxEnergyStored();
-		power.configure(0, i, 0, maxStorage);
+	/**
+	 * increases maxStorage
+	 * @param s
+	 */
+	public void increaseMaxStorage(float s) {
+		this.maxEnergyStored += s;
 	}
 	
-	public float useEnergy(float min, float max, boolean doUse) {
-		return EnergyHelper.useEnergy(power, min, max, doUse);
+	public float useEnergy(float energy, boolean doUse) {
+		if(getEnergy() - energy < 0)
+		{
+			energy = getEnergy();
+		}
+		if(doUse) {
+			energyStored -= energy;
+		}
+		return energy;
 	}
 	@Override
+	@Deprecated
 	public void setEnergyStored(float energy) {
 		setEnergy(PluginUE.convertToMJ(energy));
 	}
 
 	@Override
+	@Deprecated
 	public float getEnergyStored() {
 		return PluginUE.convertToUE(getEnergy());
 	}
 
 	@Override
+	@Deprecated
 	public float getMaxEnergyStored() {
 		return PluginUE.convertToUE(getMaxEnergy());
 	}
 
 	@Override
+	@Deprecated
 	public float receiveElectricity(ForgeDirection from,
 			ElectricityPack receive, boolean doReceive) {
 		return PluginUE.convertToUE(addEnergy(from, PluginUE.convertToMJ(receive.amperes), doReceive));
 	}
 
 	@Override
+	@Deprecated
 	public ElectricityPack provideElectricity(ForgeDirection from,
 			ElectricityPack request, boolean doProvide) {
 		return null;
 	}
 
 	@Override
+	@Deprecated
 	public float getRequest(ForgeDirection direction) {
-		return PluginUE.convertToUE(spaceForEnergy());
+		return PluginUE.convertToUE(needsEnergy());
 	}
 
 	@Override
+	@Deprecated
 	public float getProvide(ForgeDirection direction) {
 		return 0;
 	}
 
 	@Override
+	@Deprecated
 	public float getVoltage() {
 		return 120; //TODO voltage (upgrades)
 	}
 
+	/**
+	 * get the bcPowerHandler
+	 * @return
+	 */
+	private PowerHandler getBCPowerHandler() {
+		if(power == null) {
+			power = new PowerHandler(this, PowerHandler.Type.STORAGE);
+			power.configure(Settings.terminalBCMinInput, Settings.terminalBCMaxInput, 0, Settings.terminalBCMaxInput);
+		}
+		return power;
+	}
+	
 	@Override
 	public PowerReceiver getPowerReceiver(ForgeDirection side) {
-		return power.getPowerReceiver();
+		return getBCPowerHandler().getPowerReceiver();
 	}
 
 	@Override
@@ -573,16 +618,19 @@ public class TileEntityUnlocker extends TileEntitySimple
 	}
 
 	@Override
+	@Deprecated
 	public int demandsEnergy() {
-		return (int) PluginIC2.convertToEU(spaceForEnergy());
+		return (int) PluginIC2.convertToEU(needsEnergy());
 	}
 
 	@Override
+	@Deprecated
 	public int injectEnergy(Direction directionFrom, int amount) {
 		return (int) PluginIC2.convertToEU(amount - addEnergy(directionFrom.toForgeDirection(), amount, true));
 	}
 
 	@Override
+	@Deprecated
 	public int getMaxSafeInput() {
 		return 128; //TODO safe input (upgrades)
 	}
@@ -600,13 +648,6 @@ public class TileEntityUnlocker extends TileEntitySimple
 	@Override
 	public boolean canExtractItem(int i, ItemStack itemstack, int j) {
 		return true;
-	}
-	
-	private void resetPowerSettings() {
-		if(power != null) {
-			power.configure(Settings.unlockerMinInput, Settings.unlockerMaxInput, 0, Settings.unlockerEnergyStorage);
-			power.configurePowerPerdition(0, 0);
-		}
 	}
 
 

@@ -16,8 +16,8 @@ public class Settings {
 	//terminal energy
 	public static float terminalEnergyUse = 0.25F;
 	public static float terminalEnergyStorage = 10000;
-	public static final float terminalMinInput = 0;
-	public static final float terminalMaxInput = 100;
+	public static final float terminalBCMinInput = 1;
+	public static final float terminalBCMaxInput = 100;
 	
 	//unlocker energy
 	public static final float unlockerEnergyUse = 50;
@@ -44,6 +44,8 @@ public class Settings {
 
 	//upgrades
 	public static float UPGRADE_ENERGY_STORAGE = 1000;
+	public static final float upgrade_energy_camo = 0.2F;
+	public static final float upgrade_energy_tesla = 0.05F;
 
 
 

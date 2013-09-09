@@ -34,6 +34,8 @@ public interface ILockable extends ILockReceiver{
 	public boolean isLocked();
 	public void setLocked(boolean lock);
 	
+	public float getEnergyUsageForBlock();
+	
 	
 	
 

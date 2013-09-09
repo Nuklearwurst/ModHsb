@@ -27,7 +27,7 @@ public class ContainerTerminal extends Container {
 	TileEntityHsbTerminal te;
     IInventory invPlayer;
     private int lastEnergyStored = 0;
-    private boolean lastLocked = false;
+//    private boolean lastLocked = false;
     private int lastMaxStorage = 0;
     private List<Integer> lastButtons = null;
     
@@ -76,15 +76,15 @@ public class ContainerTerminal extends Container {
     {
         super.addCraftingToCrafters(crafter);
         crafter.sendProgressBarUpdate(this, 0, (int)this.te.getEnergy());
-        //convert boolean to int
-    	int lockInt;
-    	if(this.te.locked)
-    	{
-    		lockInt = 1;
-    	} else {
-    		lockInt = 0;
-    	}
-        crafter.sendProgressBarUpdate(this, 1, lockInt);
+//        //convert boolean to int
+//    	int lockInt;
+//    	if(this.te.locked)
+//    	{
+//    		lockInt = 1;
+//    	} else {
+//    		lockInt = 0;
+//    	}
+//        crafter.sendProgressBarUpdate(this, 1, lockInt);
         crafter.sendProgressBarUpdate(this, 2, (int)this.te.getMaxEnergy());
         if(te.buttons != null) {
 	        for(int i = 0; i < te.buttons.size(); i++) {
@@ -118,17 +118,17 @@ public class ContainerTerminal extends Container {
             {
                 crafter.sendProgressBarUpdate(this, 0, (int)this.te.getEnergy());
             }
-            if (this.lastLocked != this.te.locked)
-            {
-            	int lockInt;
-            	if(this.te.locked)
-            	{
-            		lockInt = 1;
-            	} else {
-            		lockInt = 0;
-            	}
-            	crafter.sendProgressBarUpdate(this, 1, lockInt);
-            }
+//            if (this.lastLocked != this.te.locked)
+//            {
+//            	int lockInt;
+//            	if(this.te.locked)
+//            	{
+//            		lockInt = 1;
+//            	} else {
+//            		lockInt = 0;
+//            	}
+//            	crafter.sendProgressBarUpdate(this, 1, lockInt);
+//            }
             if (this.lastMaxStorage != (int)this.te.getMaxEnergy())
             {
             	crafter.sendProgressBarUpdate(this, 2, (int)this.te.getMaxEnergy());
@@ -162,7 +162,7 @@ public class ContainerTerminal extends Container {
         }
         
         this.lastEnergyStored = (int)this.te.getEnergy();
-        this.lastLocked = this.te.locked;
+//        this.lastLocked = this.te.locked;
         this.lastMaxStorage = (int)this.te.getMaxEnergy();
         this.lastButtons = this.te.buttons;
     }
@@ -265,19 +265,19 @@ public class ContainerTerminal extends Container {
         {
     		this.te.setEnergy(value);
         }
-        if (id == 1)
-        {
-        	if(value == 0)
-        	{
-        		this.te.locked = false;
-        	} else if(value == 1)
-        	{
-        		this.te.locked = true;
-        	}
-        }
+//        if (id == 1) is synced  automatically
+//        {
+//        	if(value == 0)
+//        	{
+//        		this.te.locked = false;
+//        	} else if(value == 1)
+//        	{
+//        		this.te.locked = true;
+//        	}
+//        }
         if(id == 2) 
         {
-        	this.te.setMaxStorage(value);
+        	this.te.maxEnergyStorage = value;
         }
         if(id >= 3 && id < 13)
         {

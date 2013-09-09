@@ -5,20 +5,17 @@ import buildcraft.api.power.PowerHandler;
 public class EnergyHelper {
 	
 	/**
-	 * adds energy without loss
+	 * adds energy
+	 * 
+	 * @return returns energy used
 	 */
-	public static float addEnergy(PowerHandler power, float amount, boolean addEnergy) {
-		float stored = power.getEnergyStored();
-		stored += amount;
+	public static float addEnergy(float energyStored, float maxEnergyStored, float amount) {
+		energyStored += amount;
 		//to much energy?
-		if(stored > power.getMaxEnergyStored()) {
+		if(energyStored > maxEnergyStored) {
 			//return used energy
-			amount -= (stored - power.getMaxEnergyStored()); //--> amount - leftover
-			stored = power.getMaxEnergyStored();
-		}
-		//add energy?
-		if(addEnergy) {
-			power.setEnergy(stored);
+			amount -= (energyStored - maxEnergyStored); //--> amount - leftover
+			energyStored = maxEnergyStored;
 		}
 		return amount;
 	}
