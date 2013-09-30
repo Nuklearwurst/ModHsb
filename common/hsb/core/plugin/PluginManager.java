@@ -111,7 +111,7 @@ public class PluginManager {
 	 * @param (int) amount
 	 * @return
 	 */
-	public static float dichargeItem(ItemStack item, float amount, int tier, boolean ignoreTransferLimit, boolean simulate) {
+	public static float dischargeItem(ItemStack item, float amount, int tier, boolean ignoreTransferLimit, boolean simulate) {
 		if(item == null) {
 			return 0;
 		}
@@ -119,7 +119,7 @@ public class PluginManager {
 			//charge from battery
 			if(item.getItem() instanceof IElectricItem)
 			{
-				return PluginIC2.convertToMJ(PluginIC2.discharge(item, (int) amount, tier, ignoreTransferLimit, simulate));
+				return PluginIC2.discharge(item, (int) amount, tier, ignoreTransferLimit, simulate);
 			}
 		}
 		if(Settings.usePluginUE) {

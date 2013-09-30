@@ -134,14 +134,14 @@ public class HsbElectricItemManager {
 		EntityPlayer player = (EntityPlayer) entity;
 		IHsbElectricItem item = (IHsbElectricItem) itemStack.getItem();
 		
-		float need = item.getMaxEnergyStored() - getCharge(itemStack); // need in MJ
+		float need = item.getMaxEnergyStored() - getCharge(itemStack); // need in EU
 		for(ItemStack armor : player.inventory.armorInventory) {
 			if(armor != null && armor.getItem() instanceof IElectricItem)
 			{
 				IElectricItem itemArmor = (IElectricItem) armor.getItem();
 				if(itemArmor.canProvideEnergy(armor)) { // can provide energy
-					int dischargeIC2 = PluginIC2.discharge(armor, (int) PluginIC2.convertToEU(need), 3, false, false);
-					need -= PluginIC2.convertToMJ(dischargeIC2);
+					int dischargeIC2 = PluginIC2.discharge(armor, (int) need, 3, false, false);
+					need -= dischargeIC2;
 				}
 				if(need <= 0) {
 					break;

@@ -93,7 +93,7 @@ public class GuiMultiTool extends GuiScreen{
 	 protected void drawGuiContainerBackgroundLayer(float f)
 	{
 	    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-	    mc.func_110434_K().func_110577_a(Textures.GUI_MULTI_TOOL);
+	    mc.getTextureManager().bindTexture(Textures.GUI_MULTI_TOOL);
 	    int j = (width - xSize) / 2;
 	    int k = (height - ySize) / 2;
 	    drawTexturedModalRect(j, k, 0, 0, xSize, ySize);

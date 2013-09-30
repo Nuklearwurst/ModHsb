@@ -277,7 +277,7 @@ public class ContainerTerminal extends Container {
 //        }
         if(id == 2) 
         {
-        	this.te.maxEnergyStorage = value;
+        	this.te.maxEnergyStored = value;
         }
         if(id >= 3 && id < 13)
         {

@@ -3,14 +3,13 @@ package hsb.tileentity;
 import hsb.configuration.Settings;
 import hsb.core.plugin.PluginManager;
 import hsb.core.plugin.PluginUE;
-import hsb.core.plugin.ic2.PluginIC2;
 import hsb.core.util.EnergyHelper;
 import hsb.core.util.StackUtils;
 import hsb.lib.Strings;
 import hsb.lock.ILockTerminal;
 import hsb.lock.ILockable;
 import hsb.lock.LockManager;
-import ic2.api.Direction;
+import ic2.api.energy.EnergyNet;
 import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
@@ -67,7 +66,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 	
 	private boolean isAddedToEnergyNet = false;
 	
-	private static final int  TIER = 2;
+	private static int  TIER = 2;
 	
 	@Deprecated
 	private PowerHandler power;
@@ -268,7 +267,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 			}
 		}
 		if(PluginManager.energyModInstalled_Item()) {
-			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dichargeItem(inv, needsEnergy(), TIER, false, false), true);
+			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dischargeItem(inv, needsEnergy(), TIER, false, false), true);
 		} else {
 			//no energy mod
 			if( burnTime <= 0) {
@@ -460,13 +459,8 @@ public class TileEntityUnlocker extends TileEntitySimple
 	}
 
 	@Override
-	public boolean acceptsEnergyFrom(TileEntity emitter, Direction direction) {
-		return canConnect(direction.toForgeDirection());
-	}
-
-	@Override
-	public boolean isAddedToEnergyNet() {
-		return isAddedToEnergyNet;
+	public boolean acceptsEnergyFrom(TileEntity emitter, ForgeDirection direction) {
+		return canConnect(direction);
 	}
 
 	@Override
@@ -545,7 +539,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 	@Override
 	@Deprecated
 	public void setEnergyStored(float energy) {
-		setEnergy(PluginUE.convertToMJ(energy));
+		setEnergy(PluginUE.convertToEU(energy));
 	}
 
 	@Override
@@ -564,7 +558,7 @@ public class TileEntityUnlocker extends TileEntitySimple
 	@Deprecated
 	public float receiveElectricity(ForgeDirection from,
 			ElectricityPack receive, boolean doReceive) {
-		return PluginUE.convertToUE(addEnergy(from, PluginUE.convertToMJ(receive.amperes), doReceive));
+		return PluginUE.convertToUE(addEnergy(from, PluginUE.convertToEU(receive.amperes), doReceive));
 	}
 
 	@Override
@@ -618,21 +612,11 @@ public class TileEntityUnlocker extends TileEntitySimple
 	}
 
 	@Override
-	@Deprecated
-	public int demandsEnergy() {
-		return (int) PluginIC2.convertToEU(needsEnergy());
-	}
-
-	@Override
-	@Deprecated
-	public int injectEnergy(Direction directionFrom, int amount) {
-		return (int) PluginIC2.convertToEU(amount - addEnergy(directionFrom.toForgeDirection(), amount, true));
-	}
-
-	@Override
-	@Deprecated
 	public int getMaxSafeInput() {
-		return 128; //TODO safe input (upgrades)
+		if(Settings.usePluginIC2) {
+			EnergyNet.instance.getPowerFromTier(TIER);
+		}
+		return 0;
 	}
 
 	@Override
@@ -689,6 +673,18 @@ public class TileEntityUnlocker extends TileEntitySimple
                    }
                }
            }		
+	}
+
+
+	@Override
+	public double demandedEnergyUnits() {
+		return needsEnergy();
+	}
+
+
+	@Override
+	public double injectEnergyUnits(ForgeDirection directionFrom, double amount) {
+		return addEnergy(directionFrom, (float) amount, true);
 	}
 
 }

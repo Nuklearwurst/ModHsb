@@ -22,7 +22,7 @@ import hsb.upgrade.types.IOnRemoveListener;
 import hsb.upgrade.types.ITerminalUpgradeItem;
 import hsb.upgrade.types.IUpgradeButton;
 import hsb.upgrade.types.IUpgradeHsbTerminal;
-import ic2.api.Direction;
+import ic2.api.energy.EnergyNet;
 import ic2.api.energy.event.EnergyTileLoadEvent;
 import ic2.api.energy.event.EnergyTileUnloadEvent;
 import ic2.api.energy.tile.IEnergySink;
@@ -41,7 +41,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
@@ -58,27 +57,31 @@ import cpw.mods.fml.common.network.Player;
 public class TileEntityHsbTerminal extends TileEntityHsbBuilding implements
 ILockTerminal, IEnergySink, ISidedInventory, IWrenchable,
 IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
-	// how many blocks are locked
+	
+	/* how many blocks are locked **/
 	private int blocksInUse = 0;
 
-	// if tile wants to reconnect
+	/** if tile wants to reconnect */
 	private boolean needReconnect = false;
 
-	// IC2
-	private boolean isAddedToEnergyNet = false;
-	public static final int ic2Tier = 2;
-
-	// only used when no tech mod is installed
+	/** only used when no tech mod is installed */
 	private int burnTime = 0;
+	/** only used when no tech mod is installed */
 	private int maxBurnTime = 1;
 
 	// Energy
-	public float energyUse = Settings.terminalEnergyUse;
-	public float energyStored = 0;
-	public float maxEnergyStorage = Settings.terminalEnergyStorage;
+	//IC2 as default
+	private float energyStored;
+	public float maxEnergyStored;
+	
+	//energy use
+	private float energyUse = Settings.terminalEnergyUse;
 
+	// BC power
+	private PowerHandler bcPowerHandler;
+	
 	// input
-	public int maxInputIC2 = 32;
+	public int tier = 0;
 	public float maxInputMJ = Settings.terminalBCMaxInput;
 	public float maxInputUE = 128;
 
@@ -87,13 +90,13 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 
 	// upgrades
 
-	// is empty on client
+	/** is empty on client */
 	private Map<String, IHsbUpgrade> upgrades;
-	// contains button ids
+	/** contains button ids */
 	public List<Integer> buttons;
-	// used for upgrades
+	/** used for upgrades */
 	NBTTagCompound nbttagcompound;
-	// used for upgrades
+	/** used for upgrades */
 	private boolean init;
 
 	public int tesla = 0;
@@ -112,9 +115,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	public short facing = 2;
 	private short prevFacing = 2;
 
-	// BC power
-	@Deprecated
-	private PowerHandler bcPowerHandler;
+	private boolean isAddedToEnergyNet;
 
 	public TileEntityHsbTerminal() {
 		super();
@@ -122,12 +123,6 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 		buttons = new ArrayList<Integer>();
 		init = false;
 	}
-
-	@Override
-	public boolean acceptsEnergyFrom(TileEntity emitter, Direction direction) {
-		return canConnect(direction.toForgeDirection());
-	}
-
 	/**
 	 * add a locked block, increasdes energy use
 	 */
@@ -139,8 +134,6 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 			this.energyUse += upgrade.getEnergyUse(blocksInUse, this, te);
 		}
 	}
-	
-	
 
 	/**
 	 * adds a button to the list
@@ -154,7 +147,10 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 		}
 		buttons.add(id);
 	}
-	
+	/**
+	 * get all Terminal Upgrades
+	 * @return
+	 */
 	public List<IUpgradeHsbTerminal> getTerminalUpgrades() {
 		List<IUpgradeHsbTerminal> list = new ArrayList<IUpgradeHsbTerminal>();
 		for(IHsbUpgrade upgrade : upgrades.values()) {
@@ -170,7 +166,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	 * @param dir
 	 *            source
 	 * @param amount
-	 *            in MJ
+	 *            in EU
 	 * @param addEnergy
 	 *            if false action is simulated
 	 * @return usedEnergy
@@ -312,12 +308,6 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	}
 
 	@Override
-	@Deprecated
-	public int demandsEnergy() {
-		return (int) PluginIC2.convertToEU(needsEnergy());
-	}
-
-	@Override
 	public void doWork(PowerHandler workProvider) {
 	}
 
@@ -370,12 +360,10 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 		int current = 0;
 
 		if (PluginManager.energyModInstalled_Item()) {
-			if (Settings.usePluginIC2) {
-				current = PluginManager
-						.getElectricChargeInItem(mainInventory[SLOT_FUEL]);
-				max = PluginManager
-						.getMaxElectricChargeInItem(mainInventory[SLOT_FUEL]);
-			}
+			current = PluginManager
+					.getElectricChargeInItem(mainInventory[SLOT_FUEL]);
+			max = PluginManager
+					.getMaxElectricChargeInItem(mainInventory[SLOT_FUEL]);
 		} else {
 			current = this.burnTime;
 			max = this.maxBurnTime;
@@ -415,12 +403,17 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	}
 
 	/**
-	 * get energy (MJ) stored
+	 * get energy (EU) stored
 	 */
 	public float getEnergy() {
 		return energyStored;
 	}
 
+	/**
+	 * gets energy scaled, used for GUI
+	 * @param length
+	 * @return
+	 */
 	public int getEnergyScaled(int length) {
 		int x = (int) (getEnergy() * length / getMaxEnergy());
 		if (x > length)
@@ -431,13 +424,13 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	@Override
 	@Deprecated
 	public float getEnergyStored() {
-		return PluginUE.convertToUE(getEnergy());
+		return PluginUE.convertToUE((float) getEnergy());
 	}
 
 	/**
-	 * how much energy (MJ) is probably going to be used (inaccurate)
+	 * how much energy (IC2) is probably going to be used
 	 */
-	public float getEnergyUse() {
+	public double getEnergyUse() {
 		return energyUse;
 	}
 
@@ -453,16 +446,16 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 
 	@Override
 	public String getInvName() {
-		return StatCollector.translateToLocal(Strings.CONTAINER_TERMINAL_NAME);
+		return Strings.translate(Strings.CONTAINER_TERMINAL_NAME);
 	}
 
 	/**
-	 * MJ
+	 * IC2
 	 * 
 	 * @return
 	 */
 	public float getMaxEnergy() {
-		return maxEnergyStorage;
+		return maxEnergyStored;
 	}
 
 	@Override
@@ -473,7 +466,10 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 
 	@Override
 	public int getMaxSafeInput() {
-		return maxInputIC2;
+		if(Settings.usePluginIC2) {
+			EnergyNet.instance.getPowerFromTier(tier);
+		}
+		return 0;
 	}
 
 	@Override
@@ -544,7 +540,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	@Override
 	@Deprecated
 	public float getVoltage() {
-		return maxInputUE; // TODO voltage (upgrades)
+		return maxInputUE; // TODO voltage (upgrades) UE
 	}
 
 	@Override
@@ -568,7 +564,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	 * @param s
 	 */
 	public void increaseMaxStorage(float s) {
-		this.maxEnergyStorage += s;
+		this.maxEnergyStored += s;
 	}
 
 	/**
@@ -590,28 +586,10 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 		}
 	}
 
-	/**
-	 * @param amount
-	 *            in EU
-	 * @return leftover
-	 */
-	@Override
-	@Deprecated
-	public int injectEnergy(Direction directionFrom, int amount) {
-		return (int) (amount - PluginIC2.convertToEU(addEnergy(
-				directionFrom.toForgeDirection(),
-				PluginIC2.convertToMJ(amount), true)));
-	}
-
 	@Override
 	public void invalidate() {
 		this.unloadTileIC2();
 		super.invalidate();
-	}
-
-	@Override
-	public boolean isAddedToEnergyNet() {
-		return this.isAddedToEnergyNet;
 	}
 
 	@Override
@@ -665,7 +643,8 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 					Settings.terminalBCMaxInput, 0,
 					Settings.terminalBCMaxInput);
 			// Energy
-			maxEnergyStorage = Settings.terminalEnergyStorage;
+			maxEnergyStored = Settings.terminalEnergyStorage;
+			tier = 0;
 
 			this.passLength = Settings.defaultPassLength;
 			this.securityLevel = 0;
@@ -884,7 +863,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	@Deprecated
 	public ElectricityPack provideElectricity(ForgeDirection from,
 			ElectricityPack request, boolean doProvide) {
-		return null;
+		return null; //block doesn't provide energy
 	}
 
 	@Override
@@ -932,7 +911,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	public float receiveElectricity(ForgeDirection from,
 			ElectricityPack receive, boolean doReceive) {
 		return PluginUE.convertToUE(addEnergy(from,
-				PluginUE.convertToMJ(receive.amperes), doReceive));
+				PluginUE.convertToEU(receive.amperes), doReceive));
 	}
 
 	@Override
@@ -957,7 +936,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	}
 
 	/**
-	 * sets energy in MJ
+	 * sets energy in EU
 	 * 
 	 * @param f
 	 */
@@ -968,7 +947,7 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 	@Override
 	@Deprecated
 	public void setEnergyStored(float energy) {
-		setEnergy(PluginUE.convertToMJ(energy));
+		setEnergy(PluginUE.convertToEU(energy));
 	}
 
 	@Override
@@ -1060,8 +1039,8 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 		// charge
 		ItemStack item = this.getStackInSlot(SLOT_FUEL);
 		if (PluginManager.energyModInstalled_Item()) {
-			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dichargeItem(item,
-					this.needsEnergy(), ic2Tier, false, false), true);
+			addEnergy(ForgeDirection.UNKNOWN, PluginManager.dischargeItem(item,
+					this.needsEnergy(), tier, false, false), true);
 		} else {
 			// no energy mod
 			if (burnTime <= 0) {
@@ -1091,6 +1070,12 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 		}
 	}
 
+	/**
+	 * uses energy (EU)
+	 * @param energy
+	 * @param doUse
+	 * @return
+	 */
 	public float useEnergy(float energy, boolean doUse) {
 		if (getEnergy() - energy < 0) {
 			energy = getEnergy();
@@ -1143,13 +1128,29 @@ IPowerReceptor, IElectrical, IElectricalStorage, IMachine {
 			tag.setInteger("burnTime", burnTime);
 		}
 
-		// init upgrades
+		// save upgrades
 		onInventoryChanged();
 		for (IHsbUpgrade upgrade : upgrades.values()) {
 			if (upgrade instanceof INBTUpgrade) {
 				((INBTUpgrade) upgrade).writeToNBT(tag);
 			}
 		}
+	}
+
+	@Override
+	public boolean acceptsEnergyFrom(TileEntity emitter,
+			ForgeDirection direction) {
+		return canConnect(direction);
+	}
+
+	@Override
+	public double demandedEnergyUnits() {
+		return needsEnergy();
+	}
+
+	@Override
+	public double injectEnergyUnits(ForgeDirection directionFrom, double amount) {
+		return amount - addEnergy(directionFrom, (float) amount, true);
 	}
 
 }

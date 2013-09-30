@@ -14,7 +14,7 @@ public class PluginUE {
 	//the modId
 	public static final String modId = "UE";
 	
-	public static float UE_RATIO = 1;
+	public static float UE_RATIO = 0.4F;
 	public static float TO_UE_RATIO = 1 / UE_RATIO;
 	
 	
@@ -29,10 +29,19 @@ public class PluginUE {
 		return available;
 	}
 	
-	public static float convertToMJ(float i) {
+	/**
+	 * converts Joules to EU
+	 * @param i
+	 * @return
+	 */
+	public static float convertToEU(float i) {
 		return i * UE_RATIO;
 	}
-	
+	/**
+	 * converts EU to Joules
+	 * @param i
+	 * @return
+	 */
 	public static float convertToUE(float i) {
 		return i * TO_UE_RATIO;
 	}

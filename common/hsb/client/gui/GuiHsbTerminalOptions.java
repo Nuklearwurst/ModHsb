@@ -83,7 +83,7 @@ public class GuiHsbTerminalOptions extends GuiContainer
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.func_110434_K().func_110577_a(Textures.GUI_TERMINAL_OPTIONS);
+        mc.getTextureManager().bindTexture(Textures.GUI_TERMINAL_OPTIONS);
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
 	}
     

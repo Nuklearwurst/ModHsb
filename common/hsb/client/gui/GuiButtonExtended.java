@@ -69,7 +69,7 @@ public class GuiButtonExtended extends GuiButton {
 			
 			
 			//bind Button Texture
-			mc.func_110434_K().func_110577_a(field_110332_a);
+			mc.getTextureManager().bindTexture(buttonTextures);
 			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 			//is mouse over button?
 			this.field_82253_i = cursorX >= this.xPosition && cursorY >= this.yPosition && cursorX < this.xPosition + this.width && cursorY < this.yPosition + this.height;
@@ -82,7 +82,7 @@ public class GuiButtonExtended extends GuiButton {
 			this.mouseDragged(mc, cursorX, cursorY);
 			
 			if(drawMode == 0 || drawMode == 2) {
-				mc.renderEngine.func_110577_a(TextureMap.field_110576_c);
+				mc.getTextureManager().bindTexture(TextureMap.locationItemsTexture);
 				if(drawMode == 0) {
 					//draw icon
 					this.drawTexturedModelRectFromIcon(this.xPosition + xOffset, this.yPosition + (this.height - 16) / 2, icon, 16, 16);

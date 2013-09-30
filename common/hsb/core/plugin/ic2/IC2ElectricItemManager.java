@@ -21,7 +21,7 @@ public class IC2ElectricItemManager implements IElectricItemManager{
 		if(amount > item.getTransferLimit(itemStack)) {
 			amount = item.getTransferLimit(itemStack);
 		}
-		return (int) PluginIC2.convertToEU(HsbElectricItemManager.default_manager.charge(itemStack, PluginIC2.convertToMJ(amount), simulate));
+		return (int) HsbElectricItemManager.default_manager.charge(itemStack, amount, simulate);
 	}
 
 	@Override
@@ -37,23 +37,23 @@ public class IC2ElectricItemManager implements IElectricItemManager{
 		if(amount > item.getTransferLimit(itemStack)) {
 			amount = item.getTransferLimit(itemStack);
 		}
-		return (int) PluginIC2.convertToEU(HsbElectricItemManager.default_manager.discharge(itemStack, PluginIC2.convertToMJ(amount), simulate));
+		return (int) HsbElectricItemManager.default_manager.discharge(itemStack, amount, simulate);
 
 	}
 
 	@Override
 	public int getCharge(ItemStack itemStack) {
-		return (int) PluginIC2.convertToEU(HsbElectricItemManager.default_manager.getCharge(itemStack));
+		return (int) HsbElectricItemManager.default_manager.getCharge(itemStack);
 	}
 
 	@Override
 	public boolean canUse(ItemStack itemStack, int amount) {
-		return HsbElectricItemManager.default_manager.canUse(itemStack, PluginIC2.convertToMJ(amount));
+		return HsbElectricItemManager.default_manager.canUse(itemStack, amount);
 	}
 
 	@Override
 	public boolean use(ItemStack itemStack, int amount, EntityLivingBase entity) {
-		return HsbElectricItemManager.default_manager.use(itemStack, PluginIC2.convertToMJ(amount), entity);
+		return HsbElectricItemManager.default_manager.use(itemStack, amount, entity);
 	}
 
 	@Override

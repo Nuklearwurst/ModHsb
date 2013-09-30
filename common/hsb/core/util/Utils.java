@@ -41,7 +41,7 @@ public class Utils {
 	 * @return
 	 */
 	public static ChatMessageComponent getChatMessage(String s) {
-		return ChatMessageComponent.func_111066_d(s);
+		return ChatMessageComponent.createFromText(s);
 	}
 	
 }

@@ -3,8 +3,8 @@ package hsb.configuration;
 
 
 import hsb.block.ModBlocks;
+import hsb.core.plugin.PluginBC3;
 import hsb.core.plugin.PluginUE;
-import hsb.core.plugin.ic2.PluginIC2;
 import hsb.lib.BlockIds;
 import hsb.lib.ItemIds;
 import hsb.lib.Strings;
@@ -89,13 +89,13 @@ public class Config {
 			Settings.usePluginUE = prop.getBoolean(true);
 			
 			//EU to MJ
-			prop = config.get(CATEGORY_COMPATIBILITY, "IC2 to MJ conversionrate", PluginIC2.IC2_RATIO);
-			prop.comment = "Conversion rate from EU to MJ";
-			PluginIC2.IC2_RATIO = (float)prop.getDouble(PluginIC2.IC2_RATIO);
+			prop = config.get(CATEGORY_COMPATIBILITY, "MJ to EU conversionrate", PluginBC3.BC3_RATIO);
+			prop.comment = "Conversion rate from MJ to EU";
+			PluginBC3.BC3_RATIO = (float)prop.getDouble(PluginBC3.BC3_RATIO);
 			
-			//UE Joules to MJ
-			prop = config.get(CATEGORY_COMPATIBILITY, "UE to MJ conversionrate", PluginUE.UE_RATIO);
-			prop.comment = "Conversion rate from UE Joules to MJ";
+			//UE Joules to EU
+			prop = config.get(CATEGORY_COMPATIBILITY, "Joules to EU conversionrate", PluginUE.UE_RATIO);
+			prop.comment = "Conversion rate from UE Joules to EU";
 			PluginUE.UE_RATIO = (float)prop.getDouble(PluginUE.UE_RATIO);
 			
 		//Items

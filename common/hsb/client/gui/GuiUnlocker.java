@@ -63,7 +63,7 @@ public class GuiUnlocker extends GuiContainer{
 	protected void drawGuiContainerBackgroundLayer(float var1, int var2,
 			int var3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        mc.func_110434_K().func_110577_a(Textures.GUI_UNLOCKER);
+        mc.getTextureManager().bindTexture(Textures.GUI_UNLOCKER);
         drawTexturedModalRect(xPos, yPos, 0, 0, xSize, ySize);
         int energy = this.te.getEnergyScaled(49);
         this.drawTexturedModalRect(xPos + 45, yPos + 8 + 49 - energy, 177, 63 - energy, 6, energy);

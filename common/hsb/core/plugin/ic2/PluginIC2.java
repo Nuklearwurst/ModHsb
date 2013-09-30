@@ -11,10 +11,6 @@ import cpw.mods.fml.common.Loader;
 public class PluginIC2{
 
 	
-
-	public static float IC2_RATIO = 0.4f;
-	public static float TO_IC2_RATIO = 1 / IC2_RATIO;
-	
 	public static final String modId = "IC2";
 	
 	public static boolean load() {
@@ -25,20 +21,9 @@ public class PluginIC2{
 			ModItems.itemLockHacker.setMaxDamage(13);
 			ModItems.itemLockMonitor.setMaxDamage(13);
 		}		
-		//load independent things
-		TO_IC2_RATIO = 1 / IC2_RATIO;
 		
 		return available;
-	}
-	
-	public static float convertToMJ(int value) {
-		return value * IC2_RATIO;
-	}
-	public static float convertToEU(float value) {
-		return value * TO_IC2_RATIO;
-	}
-	
-	 
+	}	 
 
 	
 	///////////
