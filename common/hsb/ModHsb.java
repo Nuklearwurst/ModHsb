@@ -89,7 +89,7 @@ public class ModHsb{
     	
 		//Localization
 		LocalizationHandler.loadLanguages(Reference.localeFiles);
-		//TODO load custom language files from config
+		//TODO switch to vanilla language files
 		
 		//registerBlocks
 		ModBlocks.init();
